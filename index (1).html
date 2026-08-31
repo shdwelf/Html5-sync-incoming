@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Dice & Mystic 8-Ball</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --accent-color: #58a6ff;
+            --text-color: #c9d1d9;
+            --text-dim: #8b949e;
+            --border-color: #30363d;
+            --success-color: #2ea44f;
+            --danger-color: #f85149;
+            --warning-color: #d29922;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+        }
+
+        header {
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            header {
+                margin-bottom: 25px;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .container {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            color: #fff;
+        }
+
+        h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .flex-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (min-width: 768px) {
+            .flex-group {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+        }
+
+        select, button, input, textarea {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            min-height: 44px;
+        }
+
+        select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .flex-group button {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 380px) {
+            .flex-group {
+                flex-direction: column;
+            }
+            .flex-group button {
+                width: 100%;
+            }
+        }
+
+        select {
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:hover {
+            border-color: var(--accent-color);
+            background: #21262d;
+        }
+
+        button.primary {
+            background: var(--success-color);
+            color: white;
+            border: none;
+        }
+
+        button.primary:hover {
+            background: #3fb950;
+        }
+
+        button.danger {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+        }
+
+        button.danger:hover {
+            background: #da3731;
+        }
+
+        button.small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            min-height: 36px;
+        }
+
+        /* 3D Canvas Styles */
+        .canvas-container {
+            width: 100%;
+            height: 180px;
+            background: var(--bg-color);
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .canvas-container {
+                height: 250px;
+                margin-bottom: 15px;
+            }
+        }
+
+        #dice-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            background: rgba(13,17,23,0.8);
+            padding: 3px 6px;
+            border-radius: 3px;
+        }
+
+        /* Dice Result Display */
+        .dice-result-text {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+            min-height: 30px;
+        }
+
+        .dice-result-text .result-value {
+            color: var(--accent-color);
+            font-size: 1.6rem;
+        }
+
+        @media (min-width: 768px) {
+            .dice-result-text {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+                min-height: 36px;
+            }
+
+            .dice-result-text .result-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .stat-box {
+            background: var(--bg-color);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                gap: 10px;
+                font-size: 0.9rem;
+            }
+
+            .stat-box {
+                padding: 10px;
+            }
+
+            .stat-label {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+        }
+
+        /* 8-Ball Styles */
+        .ball-outer {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #30363d, #000);
+            border-radius: 50%;
+            margin: 12px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            position: relative;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ball-inner {
+            width: 76px;
+            height: 76px;
+            background: #000;
+            border-radius: 50%;
+            border: 2px solid #1f242c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        @media (min-width: 768px) {
+            .ball-outer {
+                width: 200px;
+                height: 200px;
+                margin: 20px auto;
+            }
+
+            .ball-inner {
+                width: 100px;
+                height: 100px;
+                padding: 10px;
+            }
+        }
+
+        .ball-window {
+            color: #58a6ff;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            word-wrap: break-word;
+            max-width: 100%;
+            animation: fadeIn 1s;
+        }
+
+        .shake-animation {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-10px, 5px) rotate(-5deg); }
+            40% { transform: translate(10px, -5px) rotate(5deg); }
+            60% { transform: translate(-10px, -5px) rotate(-5deg); }
+            80% { transform: translate(10px, 5px) rotate(5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .toggle-container {
+            display: flex;
+            background: var(--bg-color);
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            min-height: 44px;
+        }
+
+        .toggle-btn.active {
+            background: var(--border-color);
+            color: #fff;
+        }
+
+        /* Custom Input Section */
+        .custom-input-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .custom-input-section textarea {
+            width: 100%;
+            min-height: 60px;
+            resize: vertical;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+        }
+
+        .custom-input-section .input-hint {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .custom-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag .remove-tag {
+            cursor: pointer;
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .tag .remove-tag:hover {
+            color: #ff7b72;
+        }
+
+        /* History Log */
+        .history-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .history-table-wrapper {
+            max-height: 250px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 320px;
+        }
+
+        .history-table th {
+            background: var(--bg-color);
+            padding: 10px 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(48,54,61,0.5);
+        }
+
+        .history-table tr:hover td {
+            background: rgba(88,166,255,0.05);
+        }
+
+        .history-table .roll-val {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .history-table .ball-answer {
+            color: var(--warning-color);
+            font-style: italic;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        /* Mobile: card-style history entries */
+        @media (max-width: 480px) {
+            .history-table-wrapper {
+                max-height: 300px;
+                border: none;
+                overflow-x: hidden;
+            }
+
+            .history-table thead {
+                display: none;
+            }
+
+            .history-table, .history-table tbody, .history-table tr {
+                display: block;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .history-table tr {
+                background: var(--bg-color);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+
+            .history-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 4px 0;
+                border-bottom: 1px solid rgba(48,54,61,0.3);
+                font-size: 0.85rem;
+            }
+
+            .history-table td:last-child {
+                border-bottom: none;
+            }
+
+            .history-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-dim);
+                font-size: 0.75rem;
+                margin-right: 12px;
+                flex-shrink: 0;
+            }
+
+            .history-table .ball-answer {
+                max-width: none;
+                text-align: right;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        /* Full-width panel for history on desktop */
+        @media (min-width: 768px) {
+            .history-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* Loading state */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(13,17,23,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Hacker Dice & Mystic 8-Ball</h1>
+        <p class="subtitle">Roll the dice. Consult the oracle. Track your fate.</p>
+    </header>
+
+    <div class="container">
+        <!-- Panel 1: Multi-Shape Dice Roller -->
+        <div class="panel">
+            <h2>Multi-Shape Dice Roller</h2>
+
+            <div class="flex-group">
+                <select id="dice-type" onchange="updateOdds()">
+                    <option value="4">D4 (Tetrahedron)</option>
+                    <option value="6" selected>D6 (Cube)</option>
+                    <option value="8">D8 (Octahedron)</option>
+                    <option value="10">D10 (Pentagonal Trapezohedron)</option>
+                    <option value="12">D12 (Dodecahedron)</option>
+                    <option value="20">D20 (Icosahedron)</option>
+                    <option value="100">D100 (Zocchihedron)</option>
+                </select>
+                <button class="primary" id="roll-btn" onclick="rollDice()">Roll Dice</button>
+                <button onclick="resetDiceStats()">Reset</button>
+            </div>
+
+            <!-- 3D Canvas -->
+            <div class="canvas-container">
+                <canvas id="dice-canvas"></canvas>
+                <div class="canvas-overlay">3D Physics View</div>
+                <div class="loading-overlay" id="canvas-loading">
+                    <div class="spinner"></div>
+                    Loading 3D engine...
+                </div>
+            </div>
+
+            <div class="dice-result-text" id="dice-result-text">
+                Ready to roll
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Total Rolls</div>
+                    <div id="stat-rolls" style="font-weight: bold;">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Last Roll Odds</div>
+                    <div id="stat-odds" style="font-weight: bold;">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Session Average</div>
+                    <div id="stat-avg" style="font-weight: bold;">0.0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Theoretical EV</div>
+                    <div id="stat-ev" style="font-weight: bold;">3.5</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 2: Mystic 8-Ball -->
+        <div class="panel">
+            <h2>Mystic 8-Ball</h2>
+
+            <div class="toggle-container">
+                <button class="toggle-btn active" id="mode-standard" onclick="setBallMode('standard')">Standard</button>
+                <button class="toggle-btn" id="mode-hacker" onclick="setBallMode('hacker')">Hacker Groups</button>
+            </div>
+
+            <div class="ball-outer" id="ball" onclick="shakeBall()">
+                <div class="ball-inner">
+                    <div class="ball-window" id="ball-text">8</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 10px;">
+                Click the 8-Ball to consult the oracle.
+            </div>
+
+            <!-- Custom Input Section -->
+            <div class="custom-input-section">
+                <h3>Custom Answers</h3>
+                <p class="input-hint">Add your own answers (comma-separated) for the current mode.</p>
+                <textarea id="custom-input" placeholder="Enter custom answers separated by commas..."></textarea>
+                <div class="flex-group">
+                    <button class="small" onclick="addCustomAnswers()">Add Answers</button>
+                    <button class="small" onclick="clearCustomAnswers()">Clear Custom</button>
+                </div>
+                <div class="custom-tags" id="custom-tags"></div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Roll History (full width on desktop) -->
+        <div class="panel history-panel">
+            <h2>Roll & Oracle History</h2>
+            <div class="flex-group">
+                <button class="small danger" onclick="clearHistory()">Clear History</button>
+                <button class="small" onclick="exportHistory()">Export CSV</button>
+            </div>
+            <div class="history-table-wrapper" id="history-wrapper">
+                <div class="empty-history">No rolls yet. Roll the dice or shake the 8-ball to begin.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" onerror="window._threeFailed = true;"></script>
+
+    <script>
+        // ============================================================
+        // STATE
+        // ============================================================
+        let rollCount = 0;
+        let rollSum = 0;
+        let currentMode = 'standard';
+        let isShaking = false;
+        let isRolling3D = false;
+        let rollHistory = [];
+
+        const standardAnswers = [
+            "It is certain", "Reply hazy, try again", "Don't count on it",
+            "Without a doubt", "Ask again later", "My reply is no",
+            "Yes definitely", "Better not tell you now", "My sources say no",
+            "As I see it, yes", "Cannot predict now", "Outlook not so good",
+            "Most likely", "Concentrate and ask again", "Very doubtful",
+            "Outlook good", "Signs point to yes", "Yes"
+        ];
+
+        const hackerAnswers = [
+            "l0pht", "milw0rm", "razor 1911", "phrozen crew",
+            "ninja strike force", "cult of the dead cow",
+            "gchq", "shellphish", "plaid parliament of pwn"
+        ];
+
+        // Custom answers (user-added)
+        let customStandard = [];
+        let customHacker = [];
+
+        // ============================================================
+        // THREE.JS 3D DICE
+        // ============================================================
+        let scene, camera, renderer, diceMesh, groundMesh;
+        let physicsWorld, diceBody, groundBody;
+        let diceResult = null;
+        let animationId;
+
+        // Simple physics variables
+        let diceVelocity = { x: 0, y: 0, z: 0 };
+        let diceAngularVelocity = { x: 0, y: 0, z: 0 };
+        let dicePosition = { x: 0, y: 3, z: 0 };
+        let diceRotation = { x: 0, y: 0, z: 0 };
+        let isFalling = false;
+        let restTimer = 0;
+
+        function initThreeJS() {
+            const canvas = document.getElementById('dice-canvas');
+            const container = canvas.parentElement;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0d1117);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+            camera.position.set(0, 4, 6);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x58a6ff, 0.4, 20);
+            pointLight.position.set(-3, 5, -3);
+            scene.add(pointLight);
+
+            // Ground
+            const groundGeo = new THREE.PlaneGeometry(20, 20);
+            const groundMat = new THREE.MeshStandardMaterial({
+                color: 0x161b22,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            groundMesh = new THREE.Mesh(groundGeo, groundMat);
+            groundMesh.rotation.x = -Math.PI / 2;
+            groundMesh.receiveShadow = true;
+            scene.add(groundMesh);
+
+            // Grid helper
+            const gridHelper = new THREE.GridHelper(10, 20, 0x30363d, 0x21262d);
+            scene.add(gridHelper);
+
+            // Create initial dice
+            createDice(6);
+
+            // Hide loading
+            document.getElementById('canvas-loading').style.display = 'none';
+
+            // Start render loop
+            animate();
+
+            // Handle resize
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createDice(sides) {
+            // Remove existing dice
+            if (diceMesh) {
+                scene.remove(diceMesh);
+                diceMesh.geometry.dispose();
+                diceMesh.material.dispose();
+            }
+
+            let geometry;
+            const size = 1;
+
+            switch(sides) {
+                case 4:
+                    geometry = new THREE.TetrahedronGeometry(size);
+                    break;
+                case 6:
+                    geometry = new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
+                    break;
+                case 8:
+                    geometry = new THREE.OctahedronGeometry(size);
+                    break;
+                case 10:
+                    geometry = new THREE.CylinderGeometry(size * 0.6, size * 0.6, size * 1.2, 5);
+                    break;
+                case 12:
+                    geometry = new THREE.DodecahedronGeometry(size * 0.8);
+                    break;
+                case 20:
+                    geometry = new THREE.IcosahedronGeometry(size * 0.9);
+                    break;
+                case 100:
+                    geometry = new THREE.SphereGeometry(size * 0.9, 16, 16);
+                    break;
+                default:
+                    geometry = new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
+            }
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x58a6ff,
+                roughness: 0.3,
+                metalness: 0.6,
+                emissive: 0x1a3a5c,
+                emissiveIntensity: 0.2
+            });
+
+            diceMesh = new THREE.Mesh(geometry, material);
+            diceMesh.castShadow = true;
+            diceMesh.receiveShadow = true;
+            scene.add(diceMesh);
+
+            // Reset physics state
+            dicePosition = { x: 0, y: 3, z: 0 };
+            diceRotation = { x: 0, y: 0, z: 0 };
+            diceVelocity = { x: 0, y: 0, z: 0 };
+            diceAngularVelocity = { x: 0, y: 0, z: 0 };
+            isFalling = false;
+            restTimer = 0;
+            diceResult = null;
+        }
+
+        function rollDice3D(sides) {
+            if (isRolling3D) return;
+            isRolling3D = true;
+
+            // Create the appropriate dice geometry
+            createDice(sides);
+
+            // Set initial random velocity and angular velocity
+            dicePosition = { x: (Math.random() - 0.5) * 2, y: 4 + Math.random() * 2, z: (Math.random() - 0.5) * 2 };
+            diceRotation = { x: Math.random() * Math.PI * 2, y: Math.random() * Math.PI * 2, z: Math.random() * Math.PI * 2 };
+            diceVelocity = {
+                x: (Math.random() - 0.5) * 4,
+                y: -2,
+                z: (Math.random() - 0.5) * 4
+            };
+            diceAngularVelocity = {
+                x: (Math.random() - 0.5) * 15,
+                y: (Math.random() - 0.5) * 15,
+                z: (Math.random() - 0.5) * 15
+            };
+            isFalling = true;
+            restTimer = 0;
+
+            // Determine result
+            const result = Math.floor(Math.random() * sides) + 1;
+            diceResult = result;
+
+            // After physics settles, show result
+            setTimeout(() => {
+                isRolling3D = false;
+                onDiceRollComplete(result, sides);
+            }, 1200);
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            const gravity = -9.8;
+            const damping = 0.98;
+            const groundY = 0.7;
+            const bounceFactor = 0.4;
+
+            if (isFalling && diceMesh) {
+                // Apply gravity
+                diceVelocity.y += gravity * 0.016;
+
+                // Update position
+                dicePosition.x += diceVelocity.x * 0.016;
+                dicePosition.y += diceVelocity.y * 0.016;
+                dicePosition.z += diceVelocity.z * 0.016;
+
+                // Update rotation
+                diceRotation.x += diceAngularVelocity.x * 0.016;
+                diceRotation.y += diceAngularVelocity.y * 0.016;
+                diceRotation.z += diceAngularVelocity.z * 0.016;
+
+                // Ground collision
+                if (dicePosition.y <= groundY) {
+                    dicePosition.y = groundY;
+                    diceVelocity.y = -diceVelocity.y * bounceFactor;
+                    diceVelocity.x *= 0.7;
+                    diceVelocity.z *= 0.7;
+                    diceAngularVelocity.x *= 0.8;
+                    diceAngularVelocity.y *= 0.8;
+                    diceAngularVelocity.z *= 0.8;
+
+                    // Check if at rest
+                    if (Math.abs(diceVelocity.y) < 0.3) {
+                        restTimer++;
+                        if (restTimer > 30) {
+                            isFalling = false;
+                        }
+                    }
+                }
+
+                // Apply damping
+                diceVelocity.x *= damping;
+                diceVelocity.z *= damping;
+
+                // Update mesh
+                diceMesh.position.set(dicePosition.x, dicePosition.y, dicePosition.z);
+                diceMesh.rotation.set(diceRotation.x, diceRotation.y, diceRotation.z);
+            } else if (diceMesh && !isRolling3D) {
+                // Gentle idle rotation
+                diceMesh.rotation.y += 0.003;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            const canvas = document.getElementById('dice-canvas');
+            const container = canvas.parentElement;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        // ============================================================
+        // DICE LOGIC
+        // ============================================================
+        function updateOdds() {
+            const sides = parseInt(document.getElementById('dice-type').value);
+            const ev = ((sides + 1) / 2).toFixed(1);
+            document.getElementById('stat-ev').textContent = ev;
+            if (rollCount === 0) {
+                document.getElementById('stat-odds').textContent = `1/${sides} (${((1/sides)*100).toFixed(1)}%)`;
+            }
+            // Update 3D dice shape
+            if (!isRolling3D) {
+                createDice(sides);
+            }
+        }
+
+        function rollDice() {
+            const sides = parseInt(document.getElementById('dice-type').value);
+            const rollBtn = document.getElementById('roll-btn');
+            rollBtn.disabled = true;
+
+            // Show rolling state
+            document.getElementById('dice-result-text').innerHTML = '<span style="color: var(--text-dim);">Rolling...</span>';
+
+            // Trigger 3D roll
+            rollDice3D(sides);
+        }
+
+        function onDiceRollComplete(result, sides) {
+            // Update metrics
+            rollCount++;
+            rollSum += result;
+
+            document.getElementById('dice-result-text').innerHTML = `Result: <span class="result-value">${result}</span>`;
+            document.getElementById('stat-rolls').textContent = rollCount;
+            document.getElementById('stat-avg').textContent = (rollSum / rollCount).toFixed(1);
+            document.getElementById('stat-odds').textContent = `1/${sides} (${((1/sides)*100).toFixed(1)}%)`;
+
+            // Add to history
+            addHistoryEntry({
+                type: 'dice',
+                diceType: `D${sides}`,
+                result: result,
+                timestamp: new Date()
+            });
+
+            // Re-enable button
+            document.getElementById('roll-btn').disabled = false;
+        }
+
+        function resetDiceStats() {
+            rollCount = 0;
+            rollSum = 0;
+            document.getElementById('dice-result-text').innerHTML = 'Ready to roll';
+            document.getElementById('stat-rolls').textContent = '0';
+            document.getElementById('stat-avg').textContent = '0.0';
+            updateOdds();
+        }
+
+        // ============================================================
+        // 8-BALL LOGIC
+        // ============================================================
+        function setBallMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-standard').classList.toggle('active', mode === 'standard');
+            document.getElementById('mode-hacker').classList.toggle('active', mode === 'hacker');
+            document.getElementById('ball-text').textContent = '8';
+            updateCustomTags();
+        }
+
+        function getAnswerPool() {
+            const base = currentMode === 'standard' ? standardAnswers : hackerAnswers;
+            const custom = currentMode === 'standard' ? customStandard : customHacker;
+            return [...base, ...custom];
+        }
+
+        function shakeBall() {
+            if (isShaking) return;
+            isShaking = true;
+
+            const ball = document.getElementById('ball');
+            const ballText = document.getElementById('ball-text');
+            ballText.textContent = '';
+            ball.classList.add('shake-animation');
+
+            setTimeout(() => {
+                ball.classList.remove('shake-animation');
+                const pool = getAnswerPool();
+                const choice = pool[Math.floor(Math.random() * pool.length)];
+                ballText.textContent = choice;
+                isShaking = false;
+
+                // Add to history
+                addHistoryEntry({
+                    type: '8ball',
+                    mode: currentMode,
+                    answer: choice,
+                    timestamp: new Date()
+                });
+            }, 600);
+        }
+
+        // ============================================================
+        // CUSTOM ANSWERS
+        // ============================================================
+        function addCustomAnswers() {
+            const input = document.getElementById('custom-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const newAnswers = text.split(',').map(a => a.trim()).filter(a => a.length > 0);
+
+            if (currentMode === 'standard') {
+                customStandard.push(...newAnswers);
+            } else {
+                customHacker.push(...newAnswers);
+            }
+
+            input.value = '';
+            updateCustomTags();
+        }
+
+        function clearCustomAnswers() {
+            if (currentMode === 'standard') {
+                customStandard = [];
+            } else {
+                customHacker = [];
+            }
+            updateCustomTags();
+        }
+
+        function removeCustomAnswer(mode, index) {
+            if (mode === 'standard') {
+                customStandard.splice(index, 1);
+            } else {
+                customHacker.splice(index, 1);
+            }
+            updateCustomTags();
+        }
+
+        function updateCustomTags() {
+            const container = document.getElementById('custom-tags');
+            const custom = currentMode === 'standard' ? customStandard : customHacker;
+
+            if (custom.length === 0) {
+                container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-dim);">No custom answers added.</span>';
+                return;
+            }
+
+            container.innerHTML = custom.map((ans, i) =>
+                `<span class="tag">${ans}<span class="remove-tag" onclick="removeCustomAnswer('${currentMode}', ${i})">&times;</span></span>`
+            ).join('');
+        }
+
+        // ============================================================
+        // HISTORY LOG
+        // ============================================================
+        function addHistoryEntry(entry) {
+            rollHistory.unshift(entry);
+            if (rollHistory.length > 100) rollHistory.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const wrapper = document.getElementById('history-wrapper');
+
+            if (rollHistory.length === 0) {
+                wrapper.innerHTML = '<div class="empty-history">No rolls yet. Roll the dice or shake the 8-ball to begin.</div>';
+                return;
+            }
+
+            const rows = rollHistory.map((entry, i) => {
+                const time = entry.timestamp.toLocaleTimeString();
+                if (entry.type === 'dice') {
+                    return `<tr>
+                        <td data-label="Time">${time}</td>
+                        <td data-label="Type">Dice</td>
+                        <td data-label="Detail">${entry.diceType}</td>
+                        <td data-label="Roll" class="roll-val">${entry.result}</td>
+                        <td data-label="Oracle">—</td>
+                    </tr>`;
+                } else {
+                    return `<tr>
+                        <td data-label="Time">${time}</td>
+                        <td data-label="Type">8-Ball</td>
+                        <td data-label="Detail">${entry.mode}</td>
+                        <td data-label="Roll">—</td>
+                        <td data-label="Oracle" class="ball-answer">${entry.answer}</td>
+                    </tr>`;
+                }
+            }).join('');
+
+            wrapper.innerHTML = `
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Detail</th>
+                            <th>Roll</th>
+                            <th>Oracle</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        function clearHistory() {
+            rollHistory = [];
+            renderHistory();
+        }
+
+        function exportHistory() {
+            if (rollHistory.length === 0) return;
+
+            let csv = 'Time,Type,Detail,Roll,Oracle\n';
+            rollHistory.forEach(entry => {
+                const time = entry.timestamp.toLocaleString();
+                if (entry.type === 'dice') {
+                    csv += `${time},Dice,${entry.diceType},${entry.result},-\n`;
+                } else {
+                    csv += `${time},8-Ball,${entry.mode},-,"${entry.answer}"\n`;
+                }
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dice-8ball-history.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            updateOdds();
+            updateCustomTags();
+
+            // Initialize Three.js with fallback
+            init3DEngine();
+        });
+
+        function init3DEngine() {
+            // Check if THREE loaded from CDN
+            if (typeof THREE !== 'undefined') {
+                initThreeJS();
+                return;
+            }
+
+            // If CDN already failed, go straight to fallback
+            if (window._threeFailed) {
+                initFallback3D();
+                return;
+            }
+
+            // Wait for CDN to load, then retry
+            let retries = 0;
+            const maxRetries = 30; // ~3 seconds
+
+            const checkInterval = setInterval(() => {
+                retries++;
+                if (typeof THREE !== 'undefined') {
+                    clearInterval(checkInterval);
+                    initThreeJS();
+                } else if (window._threeFailed || retries >= maxRetries) {
+                    clearInterval(checkInterval);
+                    initFallback3D();
+                }
+            }, 100);
+        }
+
+        function initFallback3D() {
+            // CSS-based 3D fallback when WebGL/Three.js unavailable
+            const container = document.querySelector('.canvas-container');
+            const loadingOverlay = document.getElementById('canvas-loading');
+
+            // Replace canvas with CSS 3D scene
+            const canvas = document.getElementById('dice-canvas');
+            canvas.style.display = 'none';
+
+            // Create CSS 3D dice element
+            const fallbackDice = document.createElement('div');
+            fallbackDice.id = 'fallback-dice';
+            fallbackDice.style.cssText = `
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                perspective: 600px;
+                position: relative;
+            `;
+
+            const diceCube = document.createElement('div');
+            diceCube.id = 'css-dice-cube';
+            diceCube.style.cssText = `
+                width: 80px;
+                height: 80px;
+                position: relative;
+                transform-style: preserve-3d;
+                transform: rotateX(-20deg) rotateY(30deg);
+                transition: transform 0.1s ease-out;
+            `;
+
+            // Create 6 faces
+            const faces = [
+                { transform: 'translateZ(40px)', bg: '#58a6ff', num: '1' },
+                { transform: 'rotateY(180deg) translateZ(40px)', bg: '#2ea44f', num: '6' },
+                { transform: 'rotateY(90deg) translateZ(40px)', bg: '#f85149', num: '3' },
+                { transform: 'rotateY(-90deg) translateZ(40px)', bg: '#d29922', num: '4' },
+                { transform: 'rotateX(90deg) translateZ(40px)', bg: '#a371f7', num: '2' },
+                { transform: 'rotateX(-90deg) translateZ(40px)', bg: '#8b949e', num: '5' }
+            ];
+
+            faces.forEach(face => {
+                const faceEl = document.createElement('div');
+                faceEl.style.cssText = `
+                    position: absolute;
+                    width: 80px;
+                    height: 80px;
+                    background: ${face.bg};
+                    border: 2px solid rgba(255,255,255,0.2);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 2rem;
+                    font-weight: bold;
+                    color: white;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+                    transform: ${face.transform};
+                    backface-visibility: visible;
+                `;
+                faceEl.textContent = face.num;
+                diceCube.appendChild(faceEl);
+            });
+
+            fallbackDice.appendChild(diceCube);
+            container.appendChild(fallbackDice);
+
+            // Hide loading overlay
+            loadingOverlay.style.display = 'none';
+
+            // Override 3D roll to use CSS animation
+            window.rollDice3D = function(sides) {
+                if (isRolling3D) return;
+                isRolling3D = true;
+
+                const cube = document.getElementById('css-dice-cube');
+                let rotation = { x: -20, y: 30 };
+                let velocity = { x: (Math.random() - 0.5) * 30, y: (Math.random() - 0.5) * 30 + 15 };
+                let frame = 0;
+                const maxFrames = 60;
+
+                function animateCube() {
+                    frame++;
+                    rotation.x += velocity.x;
+                    rotation.y += velocity.y;
+
+                    // Slow down over time
+                    velocity.x *= 0.97;
+                    velocity.y *= 0.97;
+
+                    cube.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+
+                    if (frame < maxFrames) {
+                        requestAnimationFrame(animateCube);
+                    } else {
+                        // Snap to final position
+                        const finalRotations = [
+                            { x: -20, y: 30 },   // 1
+                            { x: 160, y: 30 },   // 6
+                            { x: -20, y: 120 },  // 3
+                            { x: -20, y: -60 },  // 4
+                            { x: -110, y: 30 },  // 2
+                            { x: 70, y: 30 }     // 5
+                        ];
+                        const faceIndex = Math.floor(Math.random() * 6);
+                        cube.style.transition = 'transform 0.3s ease-out';
+                        cube.style.transform = `rotateX(${finalRotations[faceIndex].x}deg) rotateY(${finalRotations[faceIndex].y}deg)`;
+                    }
+                }
+
+                cube.style.transition = 'none';
+                requestAnimationFrame(animateCube);
+
+                const result = Math.floor(Math.random() * sides) + 1;
+
+                setTimeout(() => {
+                    isRolling3D = false;
+                    onDiceRollComplete(result, sides);
+                }, 1200);
+            };
+
+            // Override createDice to update CSS cube color
+            window.createDice = function(sides) {
+                const cube = document.getElementById('css-dice-cube');
+                if (cube) {
+                    const colors = ['#58a6ff', '#2ea44f', '#f85149', '#d29922', '#a371f7', '#8b949e'];
+                    const faceEls = cube.children;
+                    for (let i = 0; i < faceEls.length; i++) {
+                        faceEls[i].style.background = colors[i % colors.length];
+                    }
+                }
+            };
+
+            // Idle animation
+            function idleRotate() {
+                if (!isRolling3D) {
+                    const cube = document.getElementById('css-dice-cube');
+                    if (cube) {
+                        const time = Date.now() * 0.001;
+                        cube.style.transform = `rotateX(${-20 + Math.sin(time) * 10}deg) rotateY(${30 + time * 10}deg)`;
+                    }
+                }
+                requestAnimationFrame(idleRotate);
+            }
+            idleRotate();
+        }
+    </script>
+</body>
+</html>

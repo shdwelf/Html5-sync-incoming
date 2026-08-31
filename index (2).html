@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Dice & Mystic 8-Ball</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --accent-color: #58a6ff;
+            --text-color: #c9d1d9;
+            --text-dim: #8b949e;
+            --border-color: #30363d;
+            --success-color: #2ea44f;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 12px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        header { margin-bottom: 16px; text-align: center; }
+        h1 { color: var(--accent-color); font-size: 1.4rem; margin-bottom: 4px; }
+        .subtitle { color: var(--text-dim); font-size: 0.8rem; }
+        .container { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 1200px; width: 100%; }
+
+        @media (min-width: 768px) {
+            body { padding: 20px; }
+            header { margin-bottom: 25px; }
+            h1 { font-size: 2rem; }
+            .container { grid-template-columns: 1fr 1fr; gap: 20px; }
+        }
+
+        .panel { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; }
+        @media (min-width: 768px) { .panel { padding: 20px; } }
+
+        h2 { font-size: 1.3rem; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: #fff; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+        h2:hover { color: var(--accent-color); }
+        h2 .toggle-icon { font-size: 0.8rem; transition: transform 0.2s; }
+        h2.collapsed .toggle-icon { transform: rotate(-90deg); }
+        .panel-content { transition: max-height 0.3s ease, opacity 0.2s ease; overflow: hidden; max-height: 2000px; }
+        .panel-content.collapsed { max-height: 0; opacity: 0; overflow: hidden; }
+        h3 { font-size: 1rem; margin-bottom: 10px; color: var(--accent-color); }
+
+        .flex-group { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        @media (min-width: 768px) { .flex-group { gap: 10px; margin-bottom: 15px; } }
+
+        select, button, input, textarea { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 12px 15px; border-radius: 6px; font-size: 1rem; outline: none; min-height: 44px; }
+        select { flex: 1; min-width: 0; }
+        .flex-group button { white-space: nowrap; }
+        @media (max-width: 380px) { .flex-group { flex-direction: column; } .flex-group button { width: 100%; } }
+
+        button { cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        button:hover { border-color: var(--accent-color); background: #21262d; }
+        button.primary { background: var(--success-color); color: white; border: none; }
+        button.primary:hover { background: #3fb950; }
+        button.danger { background: #f85149; color: white; border: none; }
+        button.small { padding: 8px 12px; font-size: 0.85rem; min-height: 36px; }
+
+        .canvas-container { width: 100%; height: 180px; background: #161b22; border: 1px dashed var(--border-color); border-radius: 6px; margin-bottom: 12px; overflow: hidden; position: relative; }
+        @media (min-width: 768px) { .canvas-container { height: 250px; margin-bottom: 15px; } }
+        #dice-canvas { display: block; background: #0d1117; width: 100%; height: 100%; }
+        .canvas-overlay { position: absolute; bottom: 8px; right: 8px; font-size: 0.7rem; color: var(--text-dim); background: rgba(13,17,23,0.8); padding: 3px 6px; border-radius: 3px; }
+
+        .dice-result-text { text-align: center; font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 8px; min-height: 30px; }
+        .dice-result-text .result-value { color: var(--accent-color); font-size: 1.6rem; }
+        @media (min-width: 768px) { .dice-result-text { font-size: 1.5rem; margin-bottom: 10px; min-height: 36px; } .dice-result-text .result-value { font-size: 2rem; } }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 0.85rem; }
+        .stat-box { background: var(--bg-color); padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); }
+        .stat-label { color: var(--text-dim); font-size: 0.75rem; margin-bottom: 2px; }
+        @media (min-width: 768px) { .stats-grid { gap: 10px; font-size: 0.9rem; } .stat-box { padding: 10px; } .stat-label { font-size: 0.8rem; margin-bottom: 4px; } }
+
+        .ball-outer { width: 150px; height: 150px; background: radial-gradient(circle at 30% 30%, #30363d, #000); border-radius: 50%; margin: 12px auto; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); cursor: pointer; }
+        .ball-inner { width: 76px; height: 76px; background: #000; border-radius: 50%; border: 2px solid #1f242c; display: flex; justify-content: center; align-items: center; padding: 8px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
+        @media (min-width: 768px) { .ball-outer { width: 200px; height: 200px; margin: 20px auto; } .ball-inner { width: 100px; height: 100px; padding: 10px; } }
+        .ball-window { color: #58a6ff; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; word-wrap: break-word; max-width: 100%; }
+
+        .shake-animation { animation: shake 0.5s ease-in-out infinite; }
+        @keyframes shake { 0% { transform: translate(0, 0) rotate(0deg); } 20% { transform: translate(-10px, 5px) rotate(-5deg); } 40% { transform: translate(10px, -5px) rotate(5deg); } 60% { transform: translate(-10px, -5px) rotate(-5deg); } 80% { transform: translate(10px, 5px) rotate(5deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
+
+        .toggle-container { display: flex; background: var(--bg-color); padding: 4px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 15px; }
+        .toggle-btn { flex: 1; padding: 12px 8px; border: none; background: transparent; font-size: 0.9rem; min-height: 44px; }
+        .toggle-btn.active { background: var(--border-color); color: #fff; }
+
+        .custom-input-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .custom-input-section textarea { width: 100%; min-height: 60px; resize: vertical; font-size: 0.9rem; margin-bottom: 8px; }
+        .custom-input-section .input-hint { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px; }
+        .custom-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { background: var(--bg-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+        .tag .remove-tag { cursor: pointer; color: #f85149; font-weight: bold; font-size: 0.9rem; }
+
+        .history-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .history-table-wrapper { max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 320px; }
+        .history-table th { background: var(--bg-color); padding: 10px 8px; text-align: left; position: sticky; top: 0; border-bottom: 1px solid var(--border-color); color: var(--text-dim); white-space: nowrap; }
+        .history-table td { padding: 10px 8px; border-bottom: 1px solid rgba(48,54,61,0.5); }
+        .history-table .roll-val { color: var(--accent-color); font-weight: bold; }
+        .history-table .ball-answer { color: #d29922; font-style: italic; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .empty-history { text-align: center; padding: 20px; color: var(--text-dim); font-size: 0.85rem; }
+
+        @media (max-width: 480px) {
+            .history-table-wrapper { max-height: 300px; border: none; }
+            .history-table thead { display: none; }
+            .history-table, .history-table tbody, .history-table tr { display: block; width: 100%; min-width: 0; }
+            .history-table tr { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+            .history-table td { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid rgba(48,54,61,0.3); font-size: 0.85rem; }
+            .history-table td:last-child { border-bottom: none; }
+            .history-table td::before { content: attr(data-label); font-weight: 600; color: var(--text-dim); font-size: 0.75rem; margin-right: 12px; flex-shrink: 0; }
+            .history-table .ball-answer { max-width: none; text-align: right; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        @media (min-width: 768px) { .history-panel { grid-column: 1 / -1; } }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hacker Dice & Mystic 8-Ball</h1>
+        <p class="subtitle">Roll the dice. Consult the oracle. Track your fate.</p>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <h2 onclick="togglePanel(this)"><span>Multi-Shape Dice Roller</span><span class="toggle-icon">▼</span></h2>
+            <div class="panel-content">
+                <div class="flex-group">
+                    <select id="dice-type" onchange="updateOdds()">
+                        <option value="4">D4</option>
+                        <option value="6" selected>D6</option>
+                        <option value="8">D8</option>
+                        <option value="10">D10</option>
+                        <option value="12">D12</option>
+                        <option value="20">D20</option>
+                        <option value="100">D100</option>
+                    </select>
+                    <button class="primary" id="roll-btn" onclick="rollDiceHandler()">Roll Dice</button>
+                    <button onclick="resetDiceStats()">Reset</button>
+                </div>
+            <div class="canvas-container">
+                <canvas id="dice-canvas"></canvas>
+                <div class="canvas-overlay">Dice View</div>
+            </div>
+                <div class="dice-result-text" id="dice-result-text">Ready to roll</div>
+                <div class="stats-grid">
+                    <div class="stat-box"><div class="stat-label">Total Rolls</div><div id="stat-rolls" style="font-weight: bold;">0</div></div>
+                    <div class="stat-box"><div class="stat-label">Last Roll Odds</div><div id="stat-odds" style="font-weight: bold;">0%</div></div>
+                    <div class="stat-box"><div class="stat-label">Session Average</div><div id="stat-avg" style="font-weight: bold;">0.0</div></div>
+                    <div class="stat-box"><div class="stat-label">Theoretical EV</div><div id="stat-ev" style="font-weight: bold;">3.5</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 onclick="togglePanel(this)"><span>Mystic 8-Ball</span><span class="toggle-icon">▼</span></h2>
+            <div class="panel-content">
+                <div class="toggle-container">
+                    <button class="toggle-btn active" id="mode-standard" onclick="setBallMode('standard')">Standard</button>
+                    <button class="toggle-btn" id="mode-hacker" onclick="setBallMode('hacker')">Hacker Groups</button>
+                </div>
+                <div class="ball-outer" id="ball" onclick="shakeBall()">
+                    <div class="ball-inner"><div class="ball-window" id="ball-text">8</div></div>
+                </div>
+                <div style="text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-top: 10px;">Click the 8-Ball to consult the oracle.</div>
+                <div class="custom-input-section">
+                    <h3>Custom Answers</h3>
+                    <p class="input-hint">Add your own answers (comma-separated) for the current mode.</p>
+                    <textarea id="custom-input" placeholder="Enter custom answers separated by commas..."></textarea>
+                    <div class="flex-group">
+                        <button class="small" onclick="addCustomAnswers()">Add Answers</button>
+                        <button class="small" onclick="clearCustomAnswers()">Clear Custom</button>
+                    </div>
+                    <div class="custom-tags" id="custom-tags"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel history-panel">
+            <h2 onclick="togglePanel(this)"><span>Roll & Oracle History</span><span class="toggle-icon">▼</span></h2>
+            <div class="panel-content">
+                <div class="flex-group">
+                    <button class="small danger" onclick="clearHistory()">Clear History</button>
+                    <button class="small" onclick="exportHistory()">Export CSV</button>
+                </div>
+                <div class="history-table-wrapper" id="history-wrapper">
+                    <div class="empty-history">No rolls yet. Roll the dice or shake the 8-ball to begin.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== STATE =====
+        var rollCount = 0, rollSum = 0, currentMode = 'standard', isShaking = false, isRolling = false, rollHistory = [];
+        var customStandard = [], customHacker = [];
+        var standardAnswers = ["It is certain", "Reply hazy, try again", "Don't count on it", "Without a doubt", "Ask again later", "My reply is no", "Yes definitely", "Better not tell you now", "My sources say no", "As I see it, yes", "Cannot predict now", "Outlook not so good", "Most likely", "Concentrate and ask again", "Very doubtful", "Outlook good", "Signs point to yes", "Yes"];
+        var hackerAnswers = ["l0pht", "milw0rm", "razor 1911", "phrozen crew", "ninja strike force", "cult of the dead cow", "gchq", "shellphish", "plaid parliament of pwn"];
+
+        // ===== CANVAS SETUP =====
+        var canvas = document.getElementById('dice-canvas');
+        var ctx = canvas.getContext('2d');
+        var currentSides = 6, displayResult = 1, finalResult = 1, rolling = false;
+        var animFrame = null, animStart = 0, animDuration = 1000;
+
+        function resizeCanvas() {
+            var container = canvas.parentElement;
+            var w = container.clientWidth || 400;
+            var h = container.clientHeight || 180;
+            canvas.width = w;
+            canvas.height = h;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+        }
+
+        function drawDice(sides, result) {
+            if (!ctx) return;
+            var w = 400, h = 180;
+            canvas.width = w;
+            canvas.height = h;
+            ctx.fillStyle = '#0d1117';
+            ctx.fillRect(0, 0, w, h);
+            ctx.save();
+            ctx.translate(w / 2, h / 2);
+            var size = 70;
+            ctx.fillStyle = '#58a6ff';
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = 3;
+            ctx.font = 'bold 50px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.beginPath();
+            if (sides === 6) {
+                ctx.rect(-size, -size, size * 2, size * 2);
+            } else if (sides === 4 || sides === 20) {
+                ctx.moveTo(0, -size); ctx.lineTo(size, size); ctx.lineTo(-size, size); ctx.closePath();
+            } else if (sides === 8) {
+                ctx.moveTo(0, -size); ctx.lineTo(size, 0); ctx.lineTo(0, size); ctx.lineTo(-size, 0); ctx.closePath();
+            } else if (sides === 12) {
+                for (var i = 0; i < 5; i++) { var a = (i / 5) * Math.PI * 2 - Math.PI / 2; var x = Math.cos(a) * size; var y = Math.sin(a) * size; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+                ctx.closePath();
+            } else if (sides === 10) {
+                ctx.moveTo(0, -size); ctx.lineTo(size * 0.7, -size * 0.2); ctx.lineTo(size * 0.5, size); ctx.lineTo(-size * 0.5, size); ctx.lineTo(-size * 0.7, -size * 0.2); ctx.closePath();
+            } else {
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+            }
+            ctx.stroke();
+            ctx.fillText(String(result), 0, 0);
+            ctx.restore();
+        }
+
+        function rollDice(type) {
+            if (rolling) return;
+            rolling = true;
+            isRolling = true;
+            currentSides = type;
+            finalResult = Math.floor(Math.random() * type) + 1;
+            animStart = performance.now();
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animateRoll();
+        }
+
+        function animateRoll() {
+            var now = performance.now();
+            var elapsed = now - animStart;
+            var progress = Math.min(elapsed / animDuration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+
+            // Show random faces during roll
+            if (progress < 0.85) {
+                displayResult = (Math.floor(elapsed / 60) % currentSides) + 1;
+            } else {
+                displayResult = finalResult; // Settle to result
+            }
+
+            // Draw with shake
+            var shake = (1 - eased) * 8;
+            var w = canvas.width / (window.devicePixelRatio || 1);
+            var h = canvas.height / (window.devicePixelRatio || 1);
+            ctx.clearRect(0, 0, w, h);
+            ctx.save();
+            ctx.translate(w / 2 + (Math.random() - 0.5) * shake, h / 2 + (Math.random() - 0.5) * shake);
+            ctx.rotate((1 - eased) * 0.3 * (Math.random() - 0.5));
+            var size = Math.min(w, h) * 0.5;
+
+            ctx.fillStyle = '#58a6ff';
+            ctx.strokeStyle = '#58a6ff';
+            ctx.lineWidth = 3;
+            ctx.font = 'bold ' + (size * 0.5) + 'px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Draw shape
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillText(displayResult, 0, 0);
+            ctx.restore();
+
+            if (progress < 1) {
+                animFrame = requestAnimationFrame(animateRoll);
+            } else {
+                // Roll complete
+                drawDice(currentSides, finalResult);
+                rolling = false;
+                isRolling = false;
+                onDiceRollComplete(finalResult, currentSides);
+            }
+        }
+
+        function onDiceRollComplete(result, sides) {
+            rollCount++;
+            rollSum += result;
+            var avg = rollCount > 0 ? (rollSum / rollCount).toFixed(1) : "0.0";
+            document.getElementById('dice-result-text').innerHTML = 'Result: <span class="result-value">' + result + '</span>';
+            document.getElementById('stat-rolls').textContent = rollCount;
+            document.getElementById('stat-avg').textContent = avg;
+            document.getElementById('stat-odds').textContent = '1/' + sides + ' (' + ((1/sides)*100).toFixed(1) + '%)';
+            addHistoryEntry({ type: 'dice', diceType: 'D' + sides, result: result, timestamp: new Date() });
+            document.getElementById('roll-btn').disabled = false;
+        }
+
+        function updateOdds() {
+            var selectEl = document.getElementById('dice-type');
+            var sides = parseInt(selectEl ? selectEl.value : '6');
+            if (isNaN(sides)) sides = 6;
+            var ev = ((sides + 1) / 2).toFixed(1);
+            document.getElementById('stat-ev').textContent = ev;
+            if (rollCount === 0) document.getElementById('stat-odds').textContent = '1/' + sides + ' (' + ((1/sides)*100).toFixed(1) + '%)';
+            currentSides = sides;
+            if (!rolling) drawDice(sides, displayResult);
+        }
+
+        function rollDiceHandler() {
+            var sides = parseInt(document.getElementById('dice-type').value);
+            document.getElementById('roll-btn').disabled = true;
+            document.getElementById('dice-result-text').innerHTML = '<span style="color: var(--text-dim);">Rolling...</span>';
+            rollDice(sides);
+        }
+
+        function resetDiceStats() {
+            rollCount = 0; rollSum = 0;
+            document.getElementById('dice-result-text').innerHTML = 'Ready to roll';
+            document.getElementById('stat-rolls').textContent = '0';
+            document.getElementById('stat-avg').textContent = '0.0';
+            updateOdds();
+        }
+
+        // 8-BALL
+        function setBallMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-standard').classList.toggle('active', mode === 'standard');
+            document.getElementById('mode-hacker').classList.toggle('active', mode === 'hacker');
+            document.getElementById('ball-text').textContent = '8';
+            updateCustomTags();
+        }
+
+        function getAnswerPool() {
+            var base = currentMode === 'standard' ? standardAnswers : hackerAnswers;
+            var custom = currentMode === 'standard' ? customStandard : customHacker;
+            return base.concat(custom);
+        }
+
+        function shakeBall() {
+            if (isShaking) return;
+            isShaking = true;
+            var ball = document.getElementById('ball');
+            var ballText = document.getElementById('ball-text');
+            ballText.textContent = '';
+            ball.classList.add('shake-animation');
+            setTimeout(function() {
+                ball.classList.remove('shake-animation');
+                var pool = getAnswerPool();
+                var choice = pool[Math.floor(Math.random() * pool.length)];
+                ballText.textContent = choice;
+                isShaking = false;
+                addHistoryEntry({ type: '8ball', mode: currentMode, answer: choice, timestamp: new Date() });
+            }, 600);
+        }
+
+        // CUSTOM ANSWERS
+        function addCustomAnswers() {
+            var input = document.getElementById('custom-input');
+            var text = input.value.trim();
+            if (!text) return;
+            var answers = text.split(',').map(function(a) { return a.trim(); }).filter(function(a) { return a.length > 0; });
+            if (currentMode === 'standard') customStandard = customStandard.concat(answers); else customHacker = customHacker.concat(answers);
+            input.value = '';
+            updateCustomTags();
+        }
+
+        function clearCustomAnswers() {
+            if (currentMode === 'standard') customStandard = []; else customHacker = [];
+            updateCustomTags();
+        }
+
+        function removeCustomAnswer(mode, index) {
+            if (mode === 'standard') customStandard.splice(index, 1); else customHacker.splice(index, 1);
+            updateCustomTags();
+        }
+
+        function updateCustomTags() {
+            var container = document.getElementById('custom-tags');
+            var custom = currentMode === 'standard' ? customStandard : customHacker;
+            if (custom.length === 0) { container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-dim);">No custom answers added.</span>'; return; }
+            container.innerHTML = custom.map(function(ans, i) { return '<span class="tag">' + ans + '<span class="remove-tag" onclick="removeCustomAnswer(\'' + currentMode + '\', ' + i + ')">&times;</span></span>'; }).join('');
+        }
+
+        // HISTORY
+        function addHistoryEntry(entry) { rollHistory.unshift(entry); if (rollHistory.length > 100) rollHistory.pop(); renderHistory(); }
+
+        function renderHistory() {
+            var wrapper = document.getElementById('history-wrapper');
+            if (rollHistory.length === 0) { wrapper.innerHTML = '<div class="empty-history">No rolls yet. Roll the dice or shake the 8-ball to begin.</div>'; return; }
+            var rows = rollHistory.map(function(entry) {
+                var time = entry.timestamp.toLocaleTimeString();
+                if (entry.type === 'dice') return '<tr><td data-label="Time">' + time + '</td><td data-label="Type">Dice</td><td data-label="Detail">' + entry.diceType + '</td><td data-label="Roll" class="roll-val">' + entry.result + '</td><td data-label="Oracle">—</td></tr>';
+                else return '<tr><td data-label="Time">' + time + '</td><td data-label="Type">8-Ball</td><td data-label="Detail">' + entry.mode + '</td><td data-label="Roll">—</td><td data-label="Oracle" class="ball-answer">' + entry.answer + '</td></tr>';
+            }).join('');
+            wrapper.innerHTML = '<table class="history-table"><thead><tr><th>Time</th><th>Type</th><th>Detail</th><th>Roll</th><th>Oracle</th></tr></thead><tbody>' + rows + '</tbody></table>';
+        }
+
+        function clearHistory() { rollHistory = []; renderHistory(); }
+
+        function exportHistory() {
+            if (rollHistory.length === 0) return;
+            var csv = 'Time,Type,Detail,Roll,Oracle\n';
+            rollHistory.forEach(function(entry) {
+                var time = entry.timestamp.toLocaleString();
+                if (entry.type === 'dice') csv += time + ',Dice,' + entry.diceType + ',' + entry.result + ',-\n';
+                else csv += time + ',8-Ball,' + entry.mode + ',-,"' + entry.answer + '"\n';
+            });
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a'); a.href = url; a.download = 'dice-8ball-history.csv'; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // PANEL TOGGLE (Hamburger/Collapse)
+        function togglePanel(header) {
+            header.classList.toggle('collapsed');
+            var content = header.nextElementSibling;
+            if (content && content.classList.contains('panel-content')) {
+                content.classList.toggle('collapsed');
+            }
+        }
+
+        // INIT
+        window.addEventListener('load', function() {
+            updateOdds();
+            updateCustomTags();
+            window.addEventListener('resize', resizeCanvas);
+            drawDice(6, 1);
+        });
+    </script>
+</body>
+</html>

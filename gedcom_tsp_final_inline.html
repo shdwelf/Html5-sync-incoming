@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GEDCOM → HTML5 + Melissa Geocoding + TSP Route Planner</title>
+  <style>
+    :root{
+      --bg:#07111f; --panel:#101a2d; --panel2:#15243d; --ink:#ecf4ff; --muted:#9fb2d2;
+      --line:#283a5d; --accent:#43d7ff; --accent2:#8b5cf6; --good:#22c55e; --warn:#f59e0b; --bad:#fb7185;
+      --chip:#1d2c49; --input:#091426; --shadow:0 16px 50px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0%,rgba(67,215,255,.16),transparent 28%),radial-gradient(circle at 95% 10%,rgba(139,92,246,.16),transparent 28%),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.42}
+    header{padding:26px 28px 16px;border-bottom:1px solid var(--line);background:rgba(7,17,31,.88);position:sticky;top:0;z-index:30;backdrop-filter:blur(12px)}
+    h1{font-size:clamp(1.45rem,2.6vw,2.55rem);letter-spacing:-.035em;margin:0 0 6px}
+    .subtitle{color:var(--muted);max-width:1250px}
+    main{max-width:1700px;margin:0 auto;padding:18px;display:grid;grid-template-columns:410px minmax(0,1fr);gap:18px}
+    @media(max-width:1050px){main{grid-template-columns:1fr}.sticky{position:static!important}}
+    .card{background:rgba(16,26,45,.96);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+    .card h2{font-size:1rem;margin:0;padding:13px 16px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(67,215,255,.12),rgba(139,92,246,.08));display:flex;align-items:center;gap:.55rem}
+    .card h3{font-size:.95rem;color:#dceaff;margin:18px 0 8px}
+    .content{padding:15px 16px}.sticky{position:sticky;top:104px;align-self:start}
+    label{display:block;font-size:.82rem;color:#cad8f2;margin:9px 0 5px}
+    input,select,textarea,button{font:inherit}
+    input[type="text"],input[type="password"],input[type="number"],select,textarea{width:100%;border:1px solid #365173;border-radius:11px;background:var(--input);color:var(--ink);padding:9px 10px;outline:none}
+    textarea{resize:vertical;min-height:110px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.84rem}
+    input[type="file"]{width:100%;color:var(--muted);background:var(--input);border:1px dashed #456489;border-radius:11px;padding:10px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media(max-width:620px){.row,.row3{grid-template-columns:1fr}}
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    button,.buttonlink{border:1px solid #3f5d82;background:linear-gradient(180deg,#1f3860,#172a49);color:var(--ink);border-radius:11px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+    button:hover,.buttonlink:hover{filter:brightness(1.12);border-color:#6d91bf}button:disabled{opacity:.48;cursor:not-allowed}
+    button.primary{background:linear-gradient(180deg,#0e7490,#155e75);border-color:#22d3ee}button.good{background:linear-gradient(180deg,#166534,#14532d);border-color:#22c55e}button.warn{background:linear-gradient(180deg,#854d0e,#713f12);border-color:#f59e0b}button.bad{background:linear-gradient(180deg,#9f1239,#581c2a);border-color:#fb7185}
+    .small,.hint{color:var(--muted);font-size:.82rem}.hint{margin-top:8px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.nowrap{white-space:nowrap}
+    .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid #365173;border-radius:999px;padding:4px 9px;color:#dceaff;font-size:.78rem;margin:2px}
+    .status{padding:10px 12px;border-radius:13px;border:1px solid var(--line);background:#0b1628;color:#d8e7ff;margin:10px 0;white-space:pre-wrap}.ok{border-color:rgba(34,197,94,.48);background:rgba(20,83,45,.22)}.warnbox{border-color:rgba(245,158,11,.52);background:rgba(113,63,18,.22)}.badbox{border-color:rgba(251,113,133,.56);background:rgba(127,29,29,.20)}
+    .metricgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}@media(max-width:1200px){.metricgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:620px){.metricgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .metric{background:#0b1628;border:1px solid var(--line);border-radius:14px;padding:12px}.metric b{display:block;font-size:1.22rem;color:white}.metric span{color:var(--muted);font-size:.78rem}
+    table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#14223b;color:#d7e6ff;z-index:5}tbody tr:hover{background:rgba(67,215,255,.055)}.tablewrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:13px;background:#091426}.num{text-align:right;font-variant-numeric:tabular-nums}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.tab{padding:8px 10px;border-radius:10px;background:#0b1628;border:1px solid var(--line);cursor:pointer;color:#d7e6ff}.tab.active{background:#1e365c;border-color:var(--accent);color:white}.hidden{display:none!important}
+    #mapSvg{width:100%;min-height:380px;background:radial-gradient(circle at 30% 20%,rgba(67,215,255,.08),transparent 32%),#07111f;border:1px solid var(--line);border-radius:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}@media(max-width:1250px){.grid2{grid-template-columns:1fr}}
+    .placeInput{width:100%;min-width:88px;padding:6px 7px!important;border-radius:8px!important;font-size:.8rem}.copybox{min-height:190px}.reportFrame{width:100%;height:430px;border:1px solid var(--line);border-radius:13px;background:white;color:#111}.kpiLine{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}.sourceList a{color:#a5f3fc}
+    details{border:1px solid var(--line);border-radius:12px;background:#0b1628;padding:9px 10px;margin:10px 0}summary{cursor:pointer;color:#dceaff}
+    footer{padding:22px 28px 36px;color:var(--muted);text-align:center;border-top:1px solid var(--line)}
+    .globalStatus{position:sticky;top:82px;z-index:26;display:flex;align-items:center;gap:10px;justify-content:space-between;padding:9px 18px;background:rgba(11,22,40,.96);border-bottom:1px solid var(--line);color:#d8e7ff;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+    .globalStatus button{padding:7px 10px;min-width:104px}.globalStatus.ok{border-bottom-color:rgba(34,197,94,.55)}.globalStatus.warnbox{border-bottom-color:rgba(245,158,11,.65)}.globalStatus.badbox{border-bottom-color:rgba(251,113,133,.7)}
+    .mobileJump{display:none}
+    #inputPanel,#dataPanel,#routePanel,#reportPanel{scroll-margin-top:140px}
+    @media(max-width:700px){
+      header{position:static;padding:18px 14px 12px}header .subtitle{font-size:.88rem}main{padding:10px;gap:12px}.card{border-radius:14px}.card h2{padding:12px 13px}.content{padding:12px}.sticky{top:auto}input[type="text"],input[type="password"],input[type="number"],select,textarea{font-size:16px;padding:10px 11px}.btns{gap:7px}.btns button,.btns .buttonlink{flex:1 1 100%;width:100%;min-height:42px}.row,.row3{gap:7px}.metricgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{padding:10px}.tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px;-webkit-overflow-scrolling:touch}.tab{flex:0 0 auto;white-space:nowrap}.tablewrap{max-height:58vh;border-radius:11px}table{font-size:.78rem}th,td{padding:6px}#mapSvg{min-height:260px}.reportFrame{height:320px}.copybox{min-height:140px}textarea{min-height:95px}.mobileJump{position:sticky;top:0;z-index:27;display:flex;gap:6px;padding:8px 10px;background:rgba(7,17,31,.94);border-bottom:1px solid var(--line);overflow-x:auto}.mobileJump a{flex:1 0 auto;text-align:center;text-decoration:none;color:#e8f5ff;background:#14233c;border:1px solid #365173;border-radius:999px;padding:8px 10px;font-size:.84rem}.globalStatus{top:49px;padding:8px 10px;font-size:.82rem;gap:7px}.globalStatus button{min-width:88px;padding:7px 8px;font-size:.78rem}#inputPanel,#dataPanel,#routePanel,#reportPanel{scroll-margin-top:104px}.sourceList ul{padding-left:18px}#placesTable th:nth-child(5),#placesTable td:nth-child(5),#routeTable th:nth-child(6),#routeTable td:nth-child(6),#routeTable th:nth-child(7),#routeTable td:nth-child(7){display:none}}
+    @media(max-width:430px){h1{font-size:1.38rem}.metric b{font-size:1.05rem}.metric span{font-size:.72rem}table{font-size:.72rem}th,td{padding:5px}.pill{font-size:.72rem}.card h3{font-size:.9rem}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>GEDCOM → HTML5 + Melissa Geocoding + TSP Planner</h1>
+  <div class="subtitle">Final inline single-file HTML5 build: loads GEDCOM, converts genealogy/place data into an HTML5 report, geocodes places with Melissa Cloud or alternative lookups, then creates Traveling Salesman Problem route solutions with downloadable travel lists.</div>
+</header>
+<nav class="mobileJump" aria-label="Mobile shortcuts"><a href="#inputPanel">Input</a><a href="#dataPanel">Data</a><a href="#routePanel">Route</a><a href="#reportPanel">Report</a></nav>
+<div id="globalStatus" class="globalStatus" role="status" aria-live="polite"><span id="globalStatusText">Ready. Load a GEDCOM file or tap “Load working example”.</span><button id="jumpResults" type="button">View results</button></div>
+
+<main>
+  <aside class="card sticky" id="inputPanel">
+    <h2>1) GEDCOM input</h2>
+    <div class="content">
+      <label for="gedFile">Load GEDCOM file</label>
+      <input id="gedFile" type="file" accept=".ged,.gedcom,text/plain" />
+      <label for="gedText">Or paste GEDCOM text</label>
+      <textarea id="gedText" placeholder="Paste GEDCOM here or load the working example..."></textarea>
+      <div class="btns">
+        <button class="primary" id="parseBtn">Parse + convert</button>
+        <button id="sampleBtn">Load working example</button>
+      </div>
+      <div class="hint">Reads common GEDCOM events such as <span class="mono">BIRT</span>, <span class="mono">DEAT</span>, <span class="mono">MARR</span>, <span class="mono">RESI</span>, <span class="mono">CENS</span>, <span class="mono">BURI</span>, and <span class="mono">PLAC</span> with optional <span class="mono">MAP/LATI/LONG</span>.</div>
+      <div id="inputQuickStatus" class="status">Ready. Results also appear in the Data, Route, and Report sections.</div>
+    </div>
+
+    <h2>2) Melissa lookup settings</h2>
+    <div class="content">
+      <div class="status warnbox"><b>Melissa Cloud note:</b> browser geocoding needs your Melissa License Key and may require CORS support or a small server/proxy. The app never embeds a key; enter it only when you want live lookups.</div>
+      <label for="melissaKey">Melissa License Key</label>
+      <input id="melissaKey" type="password" placeholder="REPLACE-WITH-YOUR-LICENSE-KEY" autocomplete="off" />
+      <label for="melissaEndpoint">Global Address endpoint</label>
+      <input id="melissaEndpoint" type="text" value="https://address.melissadata.net/V3/WEB/GlobalAddress/doGlobalAddress" />
+      <div class="row">
+        <div>
+          <label for="defaultCountry">Default country</label>
+          <input id="defaultCountry" type="text" value="USA" />
+        </div>
+        <div>
+          <label for="lookupDelay">Delay ms / lookup</label>
+          <input id="lookupDelay" type="number" min="0" step="100" value="350" />
+        </div>
+      </div>
+      <label for="proxyTemplate">Optional CORS proxy URL template (Melissa / alternatives)</label>
+      <input id="proxyTemplate" type="text" placeholder="Optional, e.g. https://your-proxy.example/fetch?url={url}" />
+      <div class="btns">
+        <button class="good" id="melissaBtn">Melissa geocode missing</button>
+        <button id="testMelissaBtn">Test selected place</button>
+        <button id="copyMelissaUrls">Copy lookup URLs</button>
+      </div>
+      <details>
+        <summary>Melissa API resources used by this app</summary>
+        <div class="small sourceList">
+          <p>This app is wired for Melissa Cloud Global Address Verification, which can append latitude and longitude when an address/place is accepted.</p>
+          <ul>
+            <li><a target="_blank" rel="noopener" href="https://github.com/MelissaData">MelissaData GitHub</a></li>
+            <li><a target="_blank" rel="noopener" href="https://github.com/MelissaData/MelissaCloudAPI-OpenAPI-Specifications">Melissa Cloud API OpenAPI repo</a></li>
+            <li><a target="_blank" rel="noopener" href="https://developer.melissa.com/apis/global-address-verification">Global Address OpenAPI page</a></li>
+            <li><a target="_blank" rel="noopener" href="https://docs.melissa.com/cloud-api/global-address-verification/global-address-verification-index.html">Global Address docs</a></li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+
+    <h2>2b) Alternative geocoders</h2>
+    <div class="content">
+      <div class="status warnbox"><b>Research-backed alternatives:</b> use Census for U.S./Puerto Rico addresses without a key; use key-based providers for higher volume or global lookups. Nominatim-compatible support is intended for a self-hosted or explicitly approved endpoint, not unattended bulk use of the public server.</div>
+      <label for="altProvider">Provider</label>
+      <select id="altProvider">
+        <option value="census">U.S. Census Geocoder — no key, U.S./Puerto Rico only</option>
+        <option value="geoapify">Geoapify — API key, global</option>
+        <option value="geocodio">Geocod.io — API key, U.S./Canada</option>
+        <option value="opencage">OpenCage — API key, global</option>
+        <option value="here">HERE Geocoding/Search — API key, global</option>
+        <option value="mapbox">Mapbox Geocoding — access token, global</option>
+        <option value="locationiq">LocationIQ — API key, Nominatim-compatible global</option>
+        <option value="maptiler">MapTiler Geocoding — API key, global</option>
+        <option value="mapquest">MapQuest Geocoding — API key</option>
+        <option value="arcgis">ArcGIS World Geocoding — API key/token</option>
+        <option value="nominatim_custom">Nominatim-compatible custom endpoint</option>
+        <option value="geonames">GeoNames — username, gazetteer/place names</option>
+        <option value="wikidata">Wikidata SPARQL — no key, historical/gazetteer fallback</option>
+        <option value="pelias_custom">Pelias-compatible endpoint</option>
+        <option value="photon_custom">Photon-compatible endpoint</option>
+        <option value="custom_json">Custom JSON URL template — recursive lat/lon parser</option>
+      </select>
+      <label for="altApiKey">Alternative provider API key / token</label>
+      <input id="altApiKey" type="password" placeholder="API key, access token, or GeoNames username" autocomplete="off" />
+      <label for="altTemplate">Custom or Nominatim-compatible URL template</label>
+      <input id="altTemplate" type="text" placeholder="Use {query} and optionally {key}, e.g. https://example/geocode?q={query}&key={key}" />
+      <div class="row">
+        <div>
+          <label for="altDelay">Delay ms / lookup</label>
+          <input id="altDelay" type="number" min="0" step="100" value="500" />
+        </div>
+        <div>
+          <label for="altLimit">Lookup limit this run</label>
+          <input id="altLimit" type="number" min="1" step="1" value="50" />
+        </div>
+      </div>
+      <div class="btns">
+        <button class="good" id="altGeocodeBtn">Alternative geocode missing</button>
+        <button id="altTestBtn">Test selected place</button>
+        <button id="copyAltUrls">Copy alternative URLs</button>
+      </div>
+      <details>
+        <summary>Provider endpoint notes</summary>
+        <div class="small sourceList">
+          <ul>
+            <li>Census: <span class="mono">/geocoder/locations/onelineaddress?address=...&benchmark=Public_AR_Current&format=json</span></li>
+            <li>Geoapify: <span class="mono">https://api.geoapify.com/v1/geocode/search?text=...&format=json&apiKey=KEY</span></li>
+            <li>Geocod.io: <span class="mono">https://api.geocod.io/v1.7/geocode?q=...&api_key=KEY</span></li>
+            <li>OpenCage: <span class="mono">https://api.opencagedata.com/geocode/v1/json?q=...&key=KEY</span></li>
+            <li>HERE: <span class="mono">https://geocode.search.hereapi.com/v1/geocode?q=...&apiKey=KEY</span></li>
+            <li>Mapbox: <span class="mono">https://api.mapbox.com/geocoding/v5/mapbox.places/{query}.json?access_token=TOKEN</span></li>
+            <li>LocationIQ: <span class="mono">https://us1.locationiq.com/v1/search?key=KEY&q=...&format=json</span></li>
+            <li>MapTiler: <span class="mono">https://api.maptiler.com/geocoding/{query}.json?key=KEY</span></li>
+            <li>MapQuest: <span class="mono">https://www.mapquestapi.com/geocoding/v1/address?key=KEY&location=...</span></li>
+            <li>ArcGIS: <span class="mono">/World/GeocodeServer/findAddressCandidates?singleLine=...&f=json&token=TOKEN</span></li>
+            <li>GeoNames: <span class="mono">https://secure.geonames.org/searchJSON?q=...&maxRows=1&username=USERNAME</span></li>
+            <li>Wikidata: SPARQL lookup for entities with coordinate location <span class="mono">P625</span></li>
+            <li>Pelias: <span class="mono">/v1/search?text=...</span>; Photon: <span class="mono">/api?q=...</span></li>
+          </ul>
+        </div>
+      </details>
+    </div>
+    <h2>3) Coordinates + TSP</h2>
+    <div class="content">
+      <label for="manualCsv">Manual or demo coordinate CSV</label>
+      <textarea id="manualCsv" placeholder="place,lat,lon,elev_m&#10;&quot;Boston, Suffolk County, Massachusetts, USA&quot;,42.3601,-71.0589,43"></textarea>
+      <div class="btns">
+        <button id="sampleCoords">Load demo coordinates</button>
+        <button class="good" id="applyCsv">Apply coordinates</button>
+      </div>
+      <h3>Geocode cache</h3>
+      <input id="cacheFile" type="file" accept=".json,application/json" />
+      <div class="btns">
+        <button id="saveCacheBtn">Save browser cache</button>
+        <button id="loadCacheBtn">Load browser cache</button>
+        <button id="downloadCacheBtn">Download cache JSON</button>
+      </div>
+      <div class="row">
+        <div>
+          <label for="costMode">Optimization cost</label>
+          <select id="costMode">
+            <option value="distance">Intercity distance</option>
+            <option value="walkingTopo">Walking/topographic estimate</option>
+          </select>
+        </div>
+        <div>
+          <label for="startPlace">Start place</label>
+          <select id="startPlace"><option value="">Auto best start</option></select>
+        </div>
+      </div>
+      <label><input id="returnStart" type="checkbox" /> Return to start / closed tour</label>
+      <div class="row3">
+        <div><label for="detourFactor">Walk detour</label><input id="detourFactor" type="number" min="1" step="0.05" value="1.25" /></div>
+        <div><label for="unknownElev">Unknown elev. m</label><input id="unknownElev" type="number" step="1" value="0" /></div>
+        <div><label for="maxPlaces">Max places</label><input id="maxPlaces" type="number" min="2" step="1" value="90" /></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="solveBtn">Solve TSP route</button>
+        <button id="reverseBtn">Reverse route</button>
+        <button class="bad" id="clearBtn">Clear</button>
+      </div>
+    </div>
+  </aside>
+
+  <section>
+    <div class="grid2">
+      <div class="card" id="dataPanel">
+        <h2>Status + data</h2>
+        <div class="content">
+          <div class="metricgrid">
+            <div class="metric"><b id="mPersons">0</b><span>people</span></div>
+            <div class="metric"><b id="mEvents">0</b><span>place events</span></div>
+            <div class="metric"><b id="mPlaces">0</b><span>unique places</span></div>
+            <div class="metric"><b id="mGeocoded">0</b><span>geocoded</span></div>
+            <div class="metric"><b id="mRoute">—</b><span>route length</span></div>
+          </div>
+          <div id="status" class="status">Load a GEDCOM file or use the working example.</div>
+          <div class="tabs">
+            <button class="tab active" data-tab="placesPane">Places</button>
+            <button class="tab" data-tab="eventsPane">Events</button>
+            <button class="tab" data-tab="peoplePane">People</button>
+            <button class="tab" data-tab="melissaPane">Melissa URLs</button>
+          </div>
+          <div id="placesPane"><div class="tablewrap"><table id="placesTable"></table></div></div>
+          <div id="eventsPane" class="hidden"><div class="tablewrap"><table id="eventsTable"></table></div></div>
+          <div id="peoplePane" class="hidden"><div class="tablewrap"><table id="peopleTable"></table></div></div>
+          <div id="melissaPane" class="hidden"><h3>Melissa lookup URLs</h3><textarea id="melissaUrls" class="copybox" readonly></textarea><h3>Alternative provider URLs</h3><textarea id="altUrls" class="copybox" readonly></textarea></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Offline map preview</h2>
+        <div class="content">
+          <svg id="mapSvg" viewBox="0 0 900 430" role="img" aria-label="Route map preview"></svg>
+          <div class="hint">SVG preview uses latitude/longitude points only. Export GeoJSON for a GIS or mapping system.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="routePanel" style="margin-bottom:18px">
+      <h2>TSP solution + travel outputs</h2>
+      <div class="content">
+        <div id="routeSummary" class="status">No TSP solution yet.</div>
+        <div class="btns">
+          <button id="copyTravel">Copy travel list</button>
+          <button id="downloadRouteCsv">Download route CSV</button>
+          <button id="downloadGeojson">Download GeoJSON</button>
+        </div>
+        <h3>Travel list</h3>
+        <textarea id="travelList" class="copybox" readonly placeholder="Route output appears here..."></textarea>
+        <h3>Route legs</h3>
+        <div class="tablewrap"><table id="routeTable"></table></div>
+      </div>
+    </div>
+
+    <div class="card" id="reportPanel">
+      <h2>GEDCOM converted to standalone HTML5 report</h2>
+      <div class="content">
+        <div class="btns">
+          <button class="primary" id="buildReportBtn">Build HTML5 report</button>
+          <button id="copyReportBtn">Copy report HTML</button>
+          <button id="downloadReportBtn">Download report HTML</button>
+        </div>
+        <div class="hint">The report is self-contained HTML5: people, events, places, geocoding status, and route/travel list if solved.</div>
+        <h3>Report preview</h3>
+        <iframe id="reportFrame" class="reportFrame" title="Converted GEDCOM HTML5 report preview"></iframe>
+        <h3>Report source</h3>
+        <textarea id="reportHtml" class="copybox" readonly></textarea>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>Single-file app. Your GEDCOM remains in your browser except when you explicitly run Melissa lookups.</footer>
+
+<script>
+'use strict';
+
+const EVENT_LABELS = {BIRT:'Birth',CHR:'Christening',BAPM:'Baptism',DEAT:'Death',BURI:'Burial',CREM:'Cremation',MARR:'Marriage',DIV:'Divorce',RESI:'Residence',CENS:'Census',EVEN:'Event',OCCU:'Occupation',IMMI:'Immigration',EMIG:'Emigration',NATU:'Naturalization',GRAD:'Graduation',RETI:'Retirement',PROB:'Probate'};
+const EVENT_TAGS = new Set(Object.keys(EVENT_LABELS));
+const state = { persons:new Map(), events:[], places:new Map(), route:[], routeLegs:[], selectedPlace:'', report:'' };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n,d=1) => Number.isFinite(n) ? Number(n).toFixed(d) : '—';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+window.addEventListener('error', e => {
+  try { setStatus('App error: ' + (e.message || 'unknown error') + '. Try reloading the file; if it repeats, send the error text.', 'bad'); }
+  catch(_) {}
+});
+window.addEventListener('unhandledrejection', e => {
+  try { setStatus('App request/error: ' + (e.reason?.message || e.reason || 'unknown error'), 'bad'); }
+  catch(_) {}
+});
+function jumpToResults(){ const el=$('dataPanel'); if(el && typeof el.scrollIntoView === 'function') el.scrollIntoView({behavior:'smooth', block:'start'}); }
+
+const SAMPLE_GEDCOM = `0 HEAD
+1 SOUR MELISSA_TSP_DEMO
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Benjamin /Franklin/
+1 SEX M
+1 BIRT
+2 DATE 17 JAN 1706
+2 PLAC Boston, Suffolk County, Massachusetts, USA
+1 RESI
+2 DATE 1723
+2 PLAC Philadelphia, Philadelphia County, Pennsylvania, USA
+1 EVEN
+2 TYPE Diplomatic visit
+2 DATE 1776
+2 PLAC New York City, New York, USA
+1 DEAT
+2 DATE 17 APR 1790
+2 PLAC Philadelphia, Philadelphia County, Pennsylvania, USA
+0 @I2@ INDI
+1 NAME Mary /Young/
+1 SEX F
+1 BIRT
+2 DATE ABT 1730
+2 PLAC Baltimore, Maryland, USA
+1 RESI
+2 DATE 1760
+2 PLAC Annapolis, Maryland, USA
+1 DEAT
+2 DATE 1800
+2 PLAC Washington, District of Columbia, USA
+0 @I3@ INDI
+1 NAME Samuel /Example/
+1 SEX M
+1 BIRT
+2 DATE 1820
+2 PLAC Richmond, Virginia, USA
+1 CENS
+2 DATE 1850
+2 PLAC Washington, District of Columbia, USA
+1 BURI
+2 DATE 1888
+2 PLAC Arlington, Virginia, USA
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 MARR
+2 DATE 1750
+2 PLAC Philadelphia, Philadelphia County, Pennsylvania, USA
+0 TRLR`;
+
+const SAMPLE_COORDS = `place,lat,lon,elev_m
+"Boston, Suffolk County, Massachusetts, USA",42.3601,-71.0589,43
+"Philadelphia, Philadelphia County, Pennsylvania, USA",39.9526,-75.1652,12
+"New York City, New York, USA",40.7128,-74.0060,10
+"Baltimore, Maryland, USA",39.2904,-76.6122,10
+"Annapolis, Maryland, USA",38.9784,-76.4922,12
+"Washington, District of Columbia, USA",38.9072,-77.0369,7
+"Richmond, Virginia, USA",37.5407,-77.4360,50
+"Arlington, Virginia, USA",38.8816,-77.0910,86`;
+
+function parseLine(raw){
+  const m = raw.match(/^(\d+)\s+(?:(@[^@]+@)\s+)?([A-Za-z0-9_]+)(?:\s+(.*))?$/);
+  if(!m) return null;
+  return {level:+m[1], xref:m[2]||'', tag:m[3].toUpperCase(), value:(m[4]||'').trim(), raw};
+}
+function cleanName(s){ return String(s||'').replace(/\//g,'').replace(/\s+/g,' ').trim(); }
+function normPlace(s){ return String(s||'').replace(/\s+/g,' ').replace(/\s*,\s*/g,', ').replace(/,+$/,'').trim(); }
+function parseGedCoord(v){
+  let s=String(v||'').trim().toUpperCase(); let sign=1;
+  if(s.startsWith('S')||s.startsWith('W')) sign=-1;
+  s=s.replace(/[NSEW]/g,'').trim(); const n=parseFloat(s);
+  return Number.isFinite(n) ? sign*n : null;
+}
+function parseGedcom(text){
+  if(!String(text||'').trim()){ setStatus('No GEDCOM text found. Load a file, paste GEDCOM text, or tap “Load working example”.', 'warn'); return; }
+  state.persons.clear(); state.events=[]; state.places.clear(); state.route=[]; state.routeLegs=[]; state.report='';
+  const lines = text.split(/\r?\n/).map(parseLine).filter(Boolean);
+  let entity={type:'',id:'',name:''}, curEvent=null;
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    if(line.level===0){
+      entity={type:line.tag,id:line.xref,name:line.xref||line.tag}; curEvent=null;
+      if(line.tag==='INDI') state.persons.set(line.xref,{id:line.xref,name:line.xref,sex:'',events:[]});
+      continue;
+    }
+    if(entity.type==='INDI' && line.level===1 && line.tag==='NAME'){
+      entity.name=cleanName(line.value); const p=state.persons.get(entity.id); if(p) p.name=entity.name; continue;
+    }
+    if(entity.type==='INDI' && line.level===1 && line.tag==='SEX'){
+      const p=state.persons.get(entity.id); if(p) p.sex=line.value; continue;
+    }
+    if(line.level===1 && EVENT_TAGS.has(line.tag)){
+      curEvent={tag:line.tag,label:EVENT_LABELS[line.tag]||line.tag,date:'',type:''}; continue;
+    }
+    if(curEvent && line.level===2 && line.tag==='DATE'){ curEvent.date=line.value; continue; }
+    if(curEvent && line.level===2 && line.tag==='TYPE'){ curEvent.type=line.value; continue; }
+    if(line.tag==='PLAC'){
+      let name=line.value, lat=null, lon=null; const base=line.level;
+      for(let j=i+1;j<lines.length && lines[j].level>base;j++){
+        const sub=lines[j];
+        if((sub.tag==='CONT'||sub.tag==='CONC') && sub.level===base+1) name += (sub.tag==='CONT'?', ':'') + sub.value;
+        if(sub.tag==='LATI') lat=parseGedCoord(sub.value);
+        if(sub.tag==='LONG') lon=parseGedCoord(sub.value);
+      }
+      name=normPlace(name); if(!name) continue;
+      const owner = entity.type==='INDI' ? (state.persons.get(entity.id)?.name || entity.id) : entity.id || entity.type;
+      const ev={person:owner, entityId:entity.id, entityType:entity.type, place:name, tag:curEvent?.tag||'', event:curEvent?.type||curEvent?.label||'Place', date:curEvent?.date||'', lat, lon};
+      state.events.push(ev); if(entity.type==='INDI') state.persons.get(entity.id)?.events.push(ev);
+      upsertPlace(name, ev, lat, lon, undefined, lat!==null && lon!==null ? 'GEDCOM MAP' : '');
+    }
+  }
+  setStatus(`Parsed ${state.persons.size} person record(s), ${state.events.length} place event(s), and ${state.places.size} unique place(s).`, 'ok');
+  renderAll(); buildReport();
+}
+function upsertPlace(name, ev, lat, lon, elev, source){
+  const key=normPlace(name); if(!key) return;
+  if(!state.places.has(key)) state.places.set(key,{name:key,events:[],lat:null,lon:null,elev:null,source:'',melissa:''});
+  const p=state.places.get(key); if(ev) p.events.push(ev);
+  if(Number.isFinite(lat)&&Number.isFinite(lon)){p.lat=+lat;p.lon=+lon;p.source=source||p.source||'coordinates';}
+  if(Number.isFinite(elev)) p.elev=+elev;
+}
+
+function parseCsv(text){
+  const rows=[]; let row=[], field='', quote=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i], n=text[i+1];
+    if(c==='"' && quote && n==='"'){ field+='"'; i++; }
+    else if(c==='"'){ quote=!quote; }
+    else if(c===',' && !quote){ row.push(field.trim()); field=''; }
+    else if((c==='\n'||c==='\r') && !quote){ if(c==='\r'&&n==='\n') i++; row.push(field.trim()); field=''; if(row.some(x=>x!=='')) rows.push(row); row=[]; }
+    else field += c;
+  }
+  row.push(field.trim()); if(row.some(x=>x!=='')) rows.push(row); return rows;
+}
+function applyCoordinateCsv(text){
+  const rows=parseCsv(text); if(!rows.length) return setStatus('No coordinate CSV rows found.', 'bad');
+  let header=rows[0].map(x=>x.toLowerCase().replace(/[^a-z0-9_]/g,'')); let start=1;
+  const hasHeader=header.some(h=>['place','name','lat','latitude','lon','lng','longitude'].includes(h));
+  if(!hasHeader){header=['place','lat','lon','elev_m']; start=0;}
+  const idx=(...names)=>names.map(n=>header.indexOf(n)).find(i=>i>=0);
+  const pi=idx('place','name','location','plac'), lati=idx('lat','latitude'), loni=idx('lon','lng','long','longitude'), ei=idx('elev_m','elevation','elevationm','altitude','elev');
+  if(pi===undefined||lati===undefined||loni===undefined) return setStatus('CSV needs place/name, lat/latitude, and lon/lng/longitude columns.', 'bad');
+  let applied=0, created=0;
+  for(let r=start;r<rows.length;r++){
+    const rec=coordinateRecordFromRow(rows[r],{pi,lati,loni,ei}); if(!rec) continue;
+    if(!state.places.has(rec.name)) created++;
+    upsertPlace(rec.name,null,rec.lat,rec.lon,rec.elev,'manual/demo CSV'); applied++;
+  }
+  setStatus(`Applied ${applied} coordinate row(s). ${created ? created+' new place(s) added.' : ''}`, applied?'ok':'warn');
+  state.route=[]; state.routeLegs=[]; renderAll(); buildReport();
+}
+function coordinateRecordFromRow(row, cols){
+  if(!row||!row.length) return null;
+  let name=normPlace(row[cols.pi]), lat=parseFloat(row[cols.lati]), lon=parseFloat(row[cols.loni]), elev=cols.ei!==undefined?parseFloat(row[cols.ei]):NaN;
+  if(name&&Number.isFinite(lat)&&Number.isFinite(lon)) return {name,lat,lon,elev};
+  for(let k=row.length-2;k>=1;k--){
+    const candLat=parseFloat(row[k]), candLon=parseFloat(row[k+1]);
+    if(candLat>=-90&&candLat<=90&&candLon>=-180&&candLon<=180){
+      const candName=normPlace(row.slice(0,k).join(', ')); const candElev=k+2<row.length?parseFloat(row[k+2]):NaN;
+      if(candName) return {name:candName,lat:candLat,lon:candLon,elev:candElev};
+    }
+  }
+  return null;
+}
+
+function splitPlace(place){
+  const parts=String(place).split(',').map(s=>s.trim()).filter(Boolean);
+  const ctry = parts.find(p=>/^(usa|us|united states|canada|uk|united kingdom)$/i.test(p)) || $('defaultCountry').value.trim();
+  let admarea='', loc='';
+  if(parts.length>=3){ loc=parts[0]; admarea=parts[parts.length-2]; }
+  else if(parts.length===2){ loc=parts[0]; admarea=parts[1]; }
+  else loc=parts[0]||place;
+  return {a1:place, loc, admarea, ctry};
+}
+function melissaUrlForPlace(place){
+  const key=$('melissaKey').value.trim() || 'REPLACE-WITH-YOUR-LICENSE-KEY';
+  const params=splitPlace(place);
+  const qs=new URLSearchParams({format:'JSON', id:key, a1:params.a1, loc:params.loc, admarea:params.admarea, ctry:params.ctry});
+  return `${$('melissaEndpoint').value.trim()}?${qs.toString()}`;
+}
+function proxiedUrl(url){
+  const tpl=$('proxyTemplate').value.trim(); return tpl ? tpl.replaceAll('{url}', encodeURIComponent(url)) : url;
+}
+function melissaUrlsText(){ return [...state.places.values()].map(p=>`${p.name}\t${melissaUrlForPlace(p.name)}`).join('\n'); }
+function missingPlaces(){ return [...state.places.values()].filter(p=>!Number.isFinite(p.lat)||!Number.isFinite(p.lon)); }
+async function melissaGeocodeMissing(limitOne=false){
+  const key=$('melissaKey').value.trim(); if(!key) return setStatus('Enter a Melissa License Key first, or use demo/manual CSV coordinates.', 'bad');
+  const list = limitOne && state.selectedPlace && state.places.get(state.selectedPlace) ? [state.places.get(state.selectedPlace)] : missingPlaces();
+  if(!list.length) return setStatus('No missing places to geocode.', 'ok');
+  let ok=0, fail=0; const delay=Math.max(0, parseInt($('lookupDelay').value,10)||0);
+  for(let i=0;i<list.length;i++){
+    const p=list[i]; const direct=melissaUrlForPlace(p.name); const url=proxiedUrl(direct);
+    setStatus(`Melissa lookup ${i+1}/${list.length}: ${p.name}`, 'warn');
+    try{
+      const res=await fetch(url,{headers:{'Accept':'application/json'}});
+      const text=await res.text(); let data; try{data=JSON.parse(text);}catch{data=text;}
+      const pair=findLatLon(data); p.melissa=typeof data==='string'?data.slice(0,500):JSON.stringify(data).slice(0,500);
+      if(pair){ p.lat=pair.lat; p.lon=pair.lon; p.source='Melissa Global Address'; ok++; }
+      else fail++;
+    }catch(err){ fail++; p.melissa=err.message; }
+    renderAll(); if(delay && i<list.length-1) await sleep(delay);
+  }
+  setStatus(`Melissa lookup complete. Geocoded ${ok}; failed ${fail}. If failures are CORS-related, use the proxy template or paste CSV coordinates.`, ok?'ok':'warn');
+  renderAll(); buildReport();
+}
+function findLatLon(obj){
+  if(!obj) return null;
+  if(typeof obj==='string'){
+    const m=obj.match(/(-?\d{1,2}\.\d{3,})\s*[,; ]\s*(-?\d{1,3}\.\d{3,})/);
+    if(m){const lat=+m[1], lon=+m[2]; if(validLatLon(lat,lon)) return {lat,lon};}
+    return null;
+  }
+  if(Array.isArray(obj)){ for(const x of obj){const r=findLatLon(x); if(r) return r;} return null; }
+  if(typeof obj==='object'){
+    const coords=obj?.features?.[0]?.geometry?.coordinates || obj?.geometry?.coordinates || obj?.center;
+    if(Array.isArray(coords) && coords.length>=2){ const lon=parseFloat(coords[0]), lat=parseFloat(coords[1]); if(validLatLon(lat,lon)) return {lat,lon}; }
+    const latVal=obj.Latitude ?? obj.latitude ?? obj.lat ?? obj.Lat;
+    const lonVal=obj.Longitude ?? obj.longitude ?? obj.lon ?? obj.lng ?? obj.Long;
+    const lat=parseFloat(latVal), lon=parseFloat(lonVal); if(validLatLon(lat,lon)) return {lat,lon};
+    for(const v of Object.values(obj)){const r=findLatLon(v); if(r) return r;}
+  }
+  return null;
+}
+function validLatLon(lat,lon){ return Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180; }
+
+function altNeedsKey(provider){ return ['geoapify','geocodio','opencage','here','mapbox','locationiq','maptiler','mapquest','arcgis','geonames'].includes(provider); }
+function altProviderLabel(provider){
+  return ({census:'U.S. Census Geocoder', geoapify:'Geoapify', geocodio:'Geocod.io', opencage:'OpenCage', here:'HERE', mapbox:'Mapbox', locationiq:'LocationIQ', maptiler:'MapTiler', mapquest:'MapQuest', arcgis:'ArcGIS World Geocoding', nominatim_custom:'Nominatim-compatible', geonames:'GeoNames', wikidata:'Wikidata', pelias_custom:'Pelias-compatible', photon_custom:'Photon-compatible', custom_json:'Custom JSON geocoder'})[provider] || provider;
+}
+function altUrlForPlace(place){
+  const provider=$('altProvider').value, key=$('altApiKey').value.trim(), q=encodeURIComponent(place);
+  if(provider==='census') return `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${q}&benchmark=Public_AR_Current&format=json`;
+  if(provider==='geoapify') return `https://api.geoapify.com/v1/geocode/search?text=${q}&format=json&apiKey=${encodeURIComponent(key||'YOUR_API_KEY')}`;
+  if(provider==='geocodio') return `https://api.geocod.io/v1.7/geocode?q=${q}&api_key=${encodeURIComponent(key||'YOUR_API_KEY')}`;
+  if(provider==='opencage') return `https://api.opencagedata.com/geocode/v1/json?q=${q}&key=${encodeURIComponent(key||'YOUR_API_KEY')}&no_annotations=1&limit=1`;
+  if(provider==='here') return `https://geocode.search.hereapi.com/v1/geocode?q=${q}&apiKey=${encodeURIComponent(key||'YOUR_API_KEY')}&limit=1`;
+  if(provider==='mapbox') return `https://api.mapbox.com/geocoding/v5/mapbox.places/${q}.json?access_token=${encodeURIComponent(key||'YOUR_ACCESS_TOKEN')}&limit=1`;
+  if(provider==='locationiq') return `https://us1.locationiq.com/v1/search?key=${encodeURIComponent(key||'YOUR_ACCESS_TOKEN')}&q=${q}&format=json&limit=1&addressdetails=1`;
+  if(provider==='maptiler') return `https://api.maptiler.com/geocoding/${q}.json?key=${encodeURIComponent(key||'YOUR_API_KEY')}&limit=1`;
+  if(provider==='mapquest') return `https://www.mapquestapi.com/geocoding/v1/address?key=${encodeURIComponent(key||'YOUR_API_KEY')}&location=${q}&outFormat=json&thumbMaps=false&maxResults=1`;
+  if(provider==='arcgis') return `https://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?singleLine=${q}&f=json&maxLocations=1&outFields=Score,Addr_type,Match_addr&token=${encodeURIComponent(key||'YOUR_ACCESS_TOKEN')}`;
+  if(provider==='nominatim_custom'){
+    const tpl=$('altTemplate').value.trim() || 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q={query}';
+    return tpl.replaceAll('{query}', q).replaceAll('{key}', encodeURIComponent(key));
+  }
+  if(provider==='geonames') return `https://secure.geonames.org/searchJSON?q=${q}&maxRows=1&username=${encodeURIComponent(key||'USERNAME')}`;
+  if(provider==='wikidata') return wikidataUrlForPlace(place);
+  if(provider==='pelias_custom'){
+    const tpl=$('altTemplate').value.trim() || 'https://api.geocode.earth/v1/search?text={query}&api_key={key}';
+    return tpl.replaceAll('{query}', q).replaceAll('{key}', encodeURIComponent(key));
+  }
+  if(provider==='photon_custom'){
+    const tpl=$('altTemplate').value.trim() || 'https://photon.komoot.io/api?q={query}&limit=1';
+    return tpl.replaceAll('{query}', q).replaceAll('{key}', encodeURIComponent(key));
+  }
+  const tpl=$('altTemplate').value.trim();
+  if(!tpl) return '';
+  return tpl.replaceAll('{query}', q).replaceAll('{key}', encodeURIComponent(key));
+}
+function wikidataUrlForPlace(place){
+  const first=String(place).split(',')[0].trim() || place;
+  const query=`SELECT ?place ?placeLabel ?coord WHERE {
+  SERVICE wikibase:mwapi {
+    bd:serviceParam wikibase:endpoint "www.wikidata.org";
+      wikibase:api "EntitySearch";
+      mwapi:search "${first.replaceAll('"','\\"')}";
+      mwapi:language "en";
+      mwapi:limit "5".
+    ?place wikibase:apiOutputItem mwapi:item.
+  }
+  ?place wdt:P625 ?coord.
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+} LIMIT 1`;
+  return 'https://query.wikidata.org/sparql?format=json&query=' + encodeURIComponent(query);
+}
+function altUrlsText(){ return [...state.places.values()].map(p=>`${p.name}	${altUrlForPlace(p.name)}`).join('\n'); }
+async function alternativeGeocodeMissing(limitOne=false){
+  const provider=$('altProvider').value, key=$('altApiKey').value.trim();
+  if(altNeedsKey(provider) && !key) return setStatus(`Enter a credential for ${altProviderLabel(provider)} first, or choose Census/manual CSV. GeoNames uses a username; most other keyed providers use an API key or token.`, 'bad');
+  if(provider==='custom_json' && !$('altTemplate').value.trim()) return setStatus('Enter a custom JSON URL template using {query} and optionally {key}.', 'bad');
+  if(provider==='nominatim_custom'){
+    const msg='Nominatim-compatible mode should use a self-hosted/custom endpoint or a public endpoint only after you deliberately verify its policy. The app will throttle to at least 1.2 seconds per request. Continue?';
+    if(!confirm(msg)) return;
+    $('altDelay').value = Math.max(parseInt($('altDelay').value,10)||0, 1200);
+  }
+  if(provider==='photon_custom' && !$('altTemplate').value.trim()){
+    if(!confirm('Default Photon mode uses a public endpoint. For repeated/bulk work, prefer a self-hosted Photon endpoint or set a custom endpoint. Continue?')) return;
+    $('altDelay').value = Math.max(parseInt($('altDelay').value,10)||0, 1000);
+  }
+  const selected=state.selectedPlace && state.places.get(state.selectedPlace) ? state.places.get(state.selectedPlace) : null;
+  let list=limitOne && selected ? [selected] : missingPlaces();
+  const cap=Math.max(1, parseInt($('altLimit').value,10)||50); list=list.slice(0,cap);
+  if(!list.length) return setStatus('No missing places to geocode with the selected alternative provider.', 'ok');
+  let ok=0, fail=0; const delay=Math.max(0, parseInt($('altDelay').value,10)||0);
+  for(let i=0;i<list.length;i++){
+    const p=list[i], direct=altUrlForPlace(p.name), url=proxiedUrl(direct);
+    setStatus(`${altProviderLabel(provider)} lookup ${i+1}/${list.length}: ${p.name}`, 'warn');
+    try{
+      const res=await fetch(url,{headers:{'Accept':'application/json'}});
+      const text=await res.text(); let data; try{data=JSON.parse(text);}catch{data=text;}
+      const pair=parseAltProviderLatLon(provider,data);
+      p.melissa=typeof data==='string'?data.slice(0,500):JSON.stringify(data).slice(0,500);
+      if(pair){ p.lat=pair.lat; p.lon=pair.lon; p.source=altProviderLabel(provider); ok++; }
+      else fail++;
+    }catch(err){ fail++; p.melissa=err.message; }
+    renderAll(); if(delay && i<list.length-1) await sleep(delay);
+  }
+  setStatus(`${altProviderLabel(provider)} lookup complete. Geocoded ${ok}; failed ${fail}.`, ok?'ok':'warn');
+  renderAll(); buildReport();
+}
+function parseAltProviderLatLon(provider,data){
+  try{
+    if(provider==='census'){
+      const c=data?.result?.addressMatches?.[0]?.coordinates; const lat=parseFloat(c?.y), lon=parseFloat(c?.x); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='geoapify'){
+      const r=data?.results?.[0] || data?.features?.[0]?.properties; const lat=parseFloat(r?.lat), lon=parseFloat(r?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='geocodio'){
+      const loc=data?.results?.[0]?.location; const lat=parseFloat(loc?.lat), lon=parseFloat(loc?.lng ?? loc?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='opencage'){
+      const g=data?.results?.[0]?.geometry; const lat=parseFloat(g?.lat), lon=parseFloat(g?.lng ?? g?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='here'){
+      const pos=data?.items?.[0]?.position; const lat=parseFloat(pos?.lat), lon=parseFloat(pos?.lng ?? pos?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='mapbox'){
+      const center=data?.features?.[0]?.center || data?.features?.[0]?.geometry?.coordinates; const lon=parseFloat(center?.[0]), lat=parseFloat(center?.[1]); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='locationiq'){
+      const r=Array.isArray(data)?data[0]:data; const lat=parseFloat(r?.lat), lon=parseFloat(r?.lon ?? r?.lng); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='maptiler'){
+      const center=data?.features?.[0]?.center || data?.features?.[0]?.geometry?.coordinates; const lon=parseFloat(center?.[0]), lat=parseFloat(center?.[1]); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='mapquest'){
+      const loc=data?.results?.[0]?.locations?.[0]?.latLng || data?.results?.[0]?.locations?.[0]?.displayLatLng?.latLng; const lat=parseFloat(loc?.lat), lon=parseFloat(loc?.lng ?? loc?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='arcgis'){
+      const loc=data?.candidates?.[0]?.location; const lat=parseFloat(loc?.y ?? loc?.lat), lon=parseFloat(loc?.x ?? loc?.lng ?? loc?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='nominatim_custom'){
+      const r=Array.isArray(data)?data[0]:data; const lat=parseFloat(r?.lat), lon=parseFloat(r?.lon ?? r?.lng); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='geonames'){
+      const r=data?.geonames?.[0] || data?.postalCodes?.[0]; const lat=parseFloat(r?.lat), lon=parseFloat(r?.lng ?? r?.lon); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+    if(provider==='wikidata'){
+      const v=data?.results?.bindings?.[0]?.coord?.value || ''; const m=String(v).match(/Point\((-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\)/); if(m){const lon=parseFloat(m[1]), lat=parseFloat(m[2]); if(validLatLon(lat,lon)) return {lat,lon};}
+    }
+    if(provider==='pelias_custom' || provider==='photon_custom'){
+      const coords=data?.features?.[0]?.geometry?.coordinates || data?.features?.[0]?.center; const lon=parseFloat(coords?.[0]), lat=parseFloat(coords?.[1]); if(validLatLon(lat,lon)) return {lat,lon};
+    }
+  }catch(e){}
+  return findLatLon(data);
+}
+
+
+function haversineKm(a,b){
+  const R=6371.0088, rad=x=>x*Math.PI/180; const dLat=rad(b.lat-a.lat), dLon=rad(b.lon-a.lon), lat1=rad(a.lat), lat2=rad(b.lat);
+  const s=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2; return 2*R*Math.asin(Math.sqrt(s));
+}
+function legMetrics(a,b){
+  const km=haversineKm(a,b), detour=Math.max(1,parseFloat($('detourFactor').value)||1.25), unknown=parseFloat($('unknownElev').value)||0;
+  const ea=Number.isFinite(a.elev)?a.elev:unknown, eb=Number.isFinite(b.elev)?b.elev:unknown, elevDelta=eb-ea, walkKm=km*detour;
+  const slope=walkKm>0?elevDelta/(walkKm*1000):0; let speed=6*Math.exp(-3.5*Math.abs(slope+0.05)); speed=Math.min(6.5,Math.max(1.2,speed));
+  return {km,walkKm,elevDelta,slope,speed,walkHours:walkKm/speed};
+}
+function costBetween(a,b){ return $('costMode').value==='walkingTopo' ? legMetrics(a,b).walkHours : haversineKm(a,b); }
+function routeCost(route,closed){ let c=0; for(let i=0;i<route.length-1;i++) c+=costBetween(route[i],route[i+1]); if(closed&&route.length>1)c+=costBetween(route[route.length-1],route[0]); return c; }
+function nearestRoute(nodes,start,closed){
+  const unvisited=new Set(nodes.map((_,i)=>i)); const route=[]; let cur=start; route.push(nodes[cur]); unvisited.delete(cur);
+  while(unvisited.size){ let best=null,bestC=Infinity; for(const i of unvisited){const c=costBetween(nodes[cur],nodes[i]); if(c<bestC){bestC=c;best=i;}} cur=best; route.push(nodes[cur]); unvisited.delete(cur); }
+  return twoOpt(route,closed,true);
+}
+function twoOpt(route,closed,keepFirst){
+  let best=route.slice(), bestCost=routeCost(best,closed), improved=true, guard=0;
+  while(improved&&guard++<60){ improved=false; const startI=keepFirst?1:0;
+    for(let i=startI;i<best.length-2;i++) for(let j=i+1;j<best.length-1;j++){
+      const cand=best.slice(0,i).concat(best.slice(i,j+1).reverse(),best.slice(j+1)); const c=routeCost(cand,closed);
+      if(c+1e-9<bestCost){best=cand;bestCost=c;improved=true;}
+    }
+  }
+  return best;
+}
+function solveRoute(){
+  const max=Math.max(2,parseInt($('maxPlaces').value,10)||90); const nodes=[...state.places.values()].filter(p=>validLatLon(p.lat,p.lon)).slice(0,max);
+  if(nodes.length<2) return setStatus('Need at least two geocoded places before solving TSP.', 'bad');
+  const closed=$('returnStart').checked, startName=$('startPlace').value; let best=null,bestC=Infinity;
+  if(startName){ const idx=nodes.findIndex(p=>p.name===startName); if(idx<0) return setStatus('Selected start place is not geocoded.', 'bad'); best=nearestRoute(nodes,idx,closed); }
+  else for(let i=0;i<nodes.length;i++){ const r=nearestRoute(nodes,i,closed), c=routeCost(r,closed); if(c<bestC){best=r;bestC=c;} }
+  state.route=best; buildRouteLegs(); setStatus(`Solved TSP route for ${nodes.length} place(s) using nearest-neighbor + 2-opt.`, 'ok'); renderAll(); buildReport();
+}
+function buildRouteLegs(){
+  state.routeLegs=[]; const r=state.route, closed=$('returnStart').checked; if(r.length<2) return;
+  for(let i=0;i<r.length-1;i++) state.routeLegs.push({from:r[i],to:r[i+1],...legMetrics(r[i],r[i+1])});
+  if(closed) state.routeLegs.push({from:r[r.length-1],to:r[0],...legMetrics(r[r.length-1],r[0])});
+}
+function formatHours(h){ if(!Number.isFinite(h)) return '—'; const m=Math.round(h*60); return `${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`; }
+
+function renderAll(){ renderMetrics(); renderPlaces(); renderEvents(); renderPeople(); renderMelissaUrls(); renderAltUrls(); renderStartSelect(); renderRoute(); renderMap(); }
+function setStatus(msg,kind=''){
+  const cls = kind==='ok'?'ok':kind==='bad'?'badbox':kind==='warn'?'warnbox':'';
+  const el=$('status'); if(el){ el.textContent=msg; el.className='status '+cls; }
+  const quick=$('inputQuickStatus'); if(quick){ quick.textContent=msg; quick.className='status '+cls; }
+  const g=$('globalStatus'), gt=$('globalStatusText');
+  if(g && gt){ gt.textContent=msg; g.className='globalStatus '+cls; }
+}
+function renderMetrics(){
+  const geos=[...state.places.values()].filter(p=>validLatLon(p.lat,p.lon)).length; $('mPersons').textContent=state.persons.size; $('mEvents').textContent=state.events.length; $('mPlaces').textContent=state.places.size; $('mGeocoded').textContent=geos; $('mRoute').textContent=state.routeLegs.length?fmt(state.routeLegs.reduce((s,l)=>s+l.km,0),0)+' km':'—';
+}
+function renderPlaces(){
+  const rows=[...state.places.values()].sort((a,b)=>a.name.localeCompare(b.name)); let html='<thead><tr><th>Place</th><th class="num">Events</th><th>Latitude</th><th>Longitude</th><th>Elev m</th><th>Source / Melissa</th></tr></thead><tbody>';
+  for(const p of rows){ html+=`<tr><td><label class="small"><input type="radio" name="selPlace" data-select-place="${esc(p.name)}" ${state.selectedPlace===p.name?'checked':''}> ${esc(p.name)}</label></td><td class="num">${p.events.length}</td><td><input class="placeInput" data-field="lat" data-place="${esc(p.name)}" value="${validLatLon(p.lat,p.lon)?p.lat:''}" placeholder="lat"></td><td><input class="placeInput" data-field="lon" data-place="${esc(p.name)}" value="${validLatLon(p.lat,p.lon)?p.lon:''}" placeholder="lon"></td><td><input class="placeInput" data-field="elev" data-place="${esc(p.name)}" value="${Number.isFinite(p.elev)?p.elev:''}" placeholder="m"></td><td><span class="small">${esc(p.source||'')}</span><br><button data-url-place="${esc(p.name)}">Copy Melissa URL</button></td></tr>`; }
+  html += rows.length?'</tbody>':'<tr><td colspan="6" class="small">No places loaded.</td></tr></tbody>'; $('placesTable').innerHTML=html;
+  document.querySelectorAll('[data-field]').forEach(inp=>inp.addEventListener('change',e=>{ const p=state.places.get(e.target.dataset.place); if(!p)return; const v=parseFloat(e.target.value), f=e.target.dataset.field; p[f]=Number.isFinite(v)?v:null; p.source=p.source||'manual table'; state.route=[]; state.routeLegs=[]; renderAll(); buildReport(); }));
+  document.querySelectorAll('[data-select-place]').forEach(inp=>inp.addEventListener('change',e=>{state.selectedPlace=e.target.dataset.selectPlace; renderAll();}));
+  document.querySelectorAll('[data-url-place]').forEach(btn=>btn.addEventListener('click',async e=>{const url=melissaUrlForPlace(e.target.dataset.urlPlace); await navigator.clipboard?.writeText(url); setStatus('Melissa URL copied. Be careful sharing URLs that contain your license key.', 'ok');}));
+}
+function renderEvents(){
+  let html='<thead><tr><th>Person/entity</th><th>Event</th><th>Date</th><th>Place</th></tr></thead><tbody>';
+  for(const e of state.events) html+=`<tr><td>${esc(e.person)}</td><td>${esc(e.event||e.tag)}</td><td>${esc(e.date)}</td><td>${esc(e.place)}</td></tr>`;
+  html+=state.events.length?'</tbody>':'<tr><td colspan="4" class="small">No events parsed.</td></tr></tbody>'; $('eventsTable').innerHTML=html;
+}
+function renderPeople(){
+  let html='<thead><tr><th>ID</th><th>Name</th><th>Sex</th><th class="num">Place events</th><th>Places</th></tr></thead><tbody>';
+  for(const p of state.persons.values()){ const places=[...new Set(p.events.map(e=>e.place))].slice(0,6).join('; '); html+=`<tr><td>${esc(p.id)}</td><td>${esc(p.name)}</td><td>${esc(p.sex)}</td><td class="num">${p.events.length}</td><td>${esc(places)}</td></tr>`; }
+  html+=state.persons.size?'</tbody>':'<tr><td colspan="5" class="small">No people parsed.</td></tr></tbody>'; $('peopleTable').innerHTML=html;
+}
+function renderMelissaUrls(){ $('melissaUrls').value=melissaUrlsText(); }
+function renderAltUrls(){ if($('altUrls')) $('altUrls').value=altUrlsText(); }
+function renderStartSelect(){
+  const current=$('startPlace').value; const geos=[...state.places.values()].filter(p=>validLatLon(p.lat,p.lon)).sort((a,b)=>a.name.localeCompare(b.name));
+  $('startPlace').innerHTML='<option value="">Auto best start</option>'+geos.map(p=>`<option value="${esc(p.name)}">${esc(p.name)}</option>`).join(''); if([...$('startPlace').options].some(o=>o.value===current)) $('startPlace').value=current;
+}
+function renderRoute(){
+  buildRouteLegs(); if(!state.route.length){$('routeSummary').textContent='No TSP solution yet.'; $('routeSummary').className='status'; $('travelList').value=''; $('routeTable').innerHTML=''; return;}
+  const totalKm=state.routeLegs.reduce((s,l)=>s+l.km,0), totalWalk=state.routeLegs.reduce((s,l)=>s+l.walkKm,0), hours=state.routeLegs.reduce((s,l)=>s+l.walkHours,0), ascent=state.routeLegs.reduce((s,l)=>s+Math.max(0,l.elevDelta),0), descent=state.routeLegs.reduce((s,l)=>s+Math.max(0,-l.elevDelta),0);
+  $('routeSummary').className='status ok'; $('routeSummary').textContent=`Stops: ${state.route.length}. Direct distance: ${fmt(totalKm,1)} km. Walking-adjusted: ${fmt(totalWalk,1)} km. Estimated walking time: ${formatHours(hours)}. Elevation endpoint ascent/descent: +${fmt(ascent,0)} m / -${fmt(descent,0)} m.`;
+  $('travelList').value=makeTravelList(); let html='<thead><tr><th>#</th><th>From</th><th>To</th><th class="num">Direct km</th><th class="num">Walk km</th><th class="num">Elev Δ m</th><th class="num">Walk time</th></tr></thead><tbody>';
+  state.routeLegs.forEach((l,i)=>html+=`<tr><td>${i+1}</td><td>${esc(l.from.name)}</td><td>${esc(l.to.name)}</td><td class="num">${fmt(l.km,1)}</td><td class="num">${fmt(l.walkKm,1)}</td><td class="num">${fmt(l.elevDelta,0)}</td><td class="num">${formatHours(l.walkHours)}</td></tr>`); $('routeTable').innerHTML=html+'</tbody>';
+}
+function makeTravelList(){
+  if(!state.route.length) return ''; const lines=['GEDCOM / Melissa TSP Travel List','Generated: '+new Date().toLocaleString(),'Optimization: '+($('costMode').value==='walkingTopo'?'Walking/topographic estimate':'Intercity distance'),''];
+  state.route.forEach((p,i)=>{ lines.push(`${i+1}. ${p.name} (${fmt(p.lat,5)}, ${fmt(p.lon,5)}${Number.isFinite(p.elev)?`, elev ${fmt(p.elev,0)} m`:''}) — ${p.events.length} event(s)`); p.events.slice(0,3).forEach(e=>lines.push(`   - ${e.person}: ${e.event}${e.date?' '+e.date:''}`)); });
+  if($('returnStart').checked && state.route[0]) lines.push(`${state.route.length+1}. Return to ${state.route[0].name}`); lines.push('', 'Legs:');
+  state.routeLegs.forEach((l,i)=>lines.push(`${i+1}. ${l.from.name} → ${l.to.name}: ${fmt(l.km,1)} direct km; ${fmt(l.walkKm,1)} walking-adjusted km; walk ${formatHours(l.walkHours)}.`)); return lines.join('\n');
+}
+function renderMap(){
+  const svg=$('mapSvg'); const pts=state.route.length?state.route:[...state.places.values()].filter(p=>validLatLon(p.lat,p.lon)); if(!pts.length){svg.innerHTML='<text x="450" y="215" fill="#9fb2d2" text-anchor="middle">No geocoded places to map</text>';return;}
+  const W=900,H=430,pad=42,lats=pts.map(p=>p.lat),lons=pts.map(p=>p.lon); let minLat=Math.min(...lats),maxLat=Math.max(...lats),minLon=Math.min(...lons),maxLon=Math.max(...lons); if(maxLat===minLat){maxLat+=.5;minLat-=.5} if(maxLon===minLon){maxLon+=.5;minLon-=.5}
+  const x=lon=>pad+(lon-minLon)/(maxLon-minLon)*(W-2*pad), y=lat=>H-pad-(lat-minLat)/(maxLat-minLat)*(H-2*pad); let html='<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  for(let i=0;i<5;i++){const gx=pad+i*(W-2*pad)/4, gy=pad+i*(H-2*pad)/4; html+=`<line x1="${gx}" y1="${pad}" x2="${gx}" y2="${H-pad}" stroke="#17243d"/><line x1="${pad}" y1="${gy}" x2="${W-pad}" y2="${gy}" stroke="#17243d"/>`;}
+  if(state.route.length>1){html+=`<polyline points="${state.route.map(p=>`${x(p.lon)},${y(p.lat)}`).join(' ')}" fill="none" stroke="#43d7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>`; if($('returnStart').checked){const a=state.route[route.length-1],b=state.route[0]; html+=`<line x1="${x(a.lon)}" y1="${y(a.lat)}" x2="${x(b.lon)}" y2="${y(b.lat)}" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="8 6"/>`;}}
+  pts.forEach((p,i)=>{const cx=x(p.lon),cy=y(p.lat),label=state.route.length?String(i+1):''; html+=`<circle cx="${cx}" cy="${cy}" r="9" fill="#07111f" stroke="#43d7ff" stroke-width="3"/>`; if(label)html+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="10" fill="#fff" font-weight="700">${label}</text>`; html+=`<text x="${cx+12}" y="${cy-10}" font-size="11" fill="#dceaff">${esc(shortName(p.name))}</text>`;}); svg.innerHTML=html;
+}
+function shortName(s){ return String(s).split(',')[0].slice(0,26); }
+
+function buildReport(){
+  const people=[...state.persons.values()], places=[...state.places.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  const routeText=makeTravelList();
+  const peopleHtml=people.map(p=>`<section class="person"><h3>${esc(p.name||p.id)} <small>${esc(p.id)} ${esc(p.sex||'')}</small></h3><ul>${p.events.map(e=>`<li><b>${esc(e.event||e.tag)}</b>${e.date?' — '+esc(e.date):''}: ${esc(e.place)}</li>`).join('')}</ul></section>`).join('') || '<p>No people parsed.</p>';
+  const placesHtml=places.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.events.length}</td><td>${validLatLon(p.lat,p.lon)?`${fmt(p.lat,5)}, ${fmt(p.lon,5)}`:'missing'}</td><td>${esc(p.source||'')}</td></tr>`).join('');
+  const routeHtml=state.route.length?`<h2>TSP travel route</h2><pre>${esc(routeText)}</pre>`:'<h2>TSP travel route</h2><p>No route solved yet.</p>';
+
+  // Build the downloadable report without literal closing document tags in this
+  // inline script. Some preview/sanitizer environments prematurely terminate
+  // inline scripts when full HTML documents are embedded as raw template text.
+  const L='\x3C', G='>';
+  const tag = s => L + s + G;
+  const end = s => L + '/' + s + G;
+  const styleText = 'body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;color:#172033;background:#f5f7fb;line-height:1.45}header{background:#10213b;color:white;padding:28px}main{max-width:1100px;margin:auto;padding:20px}.kpis{display:flex;gap:10px;flex-wrap:wrap}.kpi{background:white;border:1px solid #d8e1ef;border-radius:12px;padding:12px;min-width:130px}.kpi b{display:block;font-size:1.35rem}.person,table,pre{background:white;border:1px solid #d8e1ef;border-radius:12px;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.06)}table{width:100%;border-collapse:collapse;padding:0;overflow:hidden}th,td{border-bottom:1px solid #e6edf7;padding:8px;text-align:left}th{background:#eef4ff}pre{white-space:pre-wrap}small{color:#6b7280}';
+  state.report = [
+    L+'!doctype html'+G,
+    tag('html lang="en"'),
+    tag('head'),
+    tag('meta charset="utf-8"'),
+    tag('meta name="viewport" content="width=device-width,initial-scale=1"'),
+    tag('title'),'GEDCOM HTML5 Report',end('title'),
+    tag('style'),styleText,end('style'),
+    end('head'),
+    tag('body'),
+    tag('header'),tag('h1'),'GEDCOM HTML5 Report',end('h1'),tag('p'),'Converted by GEDCOM → Melissa Geocoding + TSP Planner on '+esc(new Date().toLocaleString()),end('p'),end('header'),
+    tag('main'),
+    tag('div class="kpis"'),
+    tag('div class="kpi"'),tag('b'),String(people.length),end('b'),'people',end('div'),
+    tag('div class="kpi"'),tag('b'),String(state.events.length),end('b'),'place events',end('div'),
+    tag('div class="kpi"'),tag('b'),String(places.length),end('b'),'places',end('div'),
+    tag('div class="kpi"'),tag('b'),String(places.filter(p=>validLatLon(p.lat,p.lon)).length),end('b'),'geocoded',end('div'),
+    end('div'),
+    tag('h2'),'People',end('h2'),peopleHtml,
+    tag('h2'),'Places',end('h2'),
+    tag('table'),tag('thead'),tag('tr'),tag('th'),'Place',end('th'),tag('th'),'Events',end('th'),tag('th'),'Coordinates',end('th'),tag('th'),'Source',end('th'),end('tr'),end('thead'),tag('tbody'),placesHtml,end('tbody'),end('table'),
+    routeHtml,
+    end('main'),
+    end('body'),
+    end('html')
+  ].join('');
+  $('reportHtml').value=state.report; const frame=$('reportFrame'); frame.srcdoc=state.report;
+}
+
+function routeCsv(){ const rows=[['leg','from','to','from_lat','from_lon','to_lat','to_lon','direct_km','walking_adjusted_km','elev_delta_m','walking_time_hours']]; state.routeLegs.forEach((l,i)=>rows.push([i+1,l.from.name,l.to.name,l.from.lat,l.from.lon,l.to.lat,l.to.lon,l.km,l.walkKm,l.elevDelta,l.walkHours])); return rows.map(r=>r.map(csvCell).join(',')).join('\n'); }
+function csvCell(x){ const s=String(x??''); return /[",\n]/.test(s)?'"'+s.replaceAll('"','""')+'"':s; }
+function routeGeojson(){ const features=[]; state.route.forEach((p,i)=>features.push({type:'Feature',properties:{order:i+1,name:p.name,events:p.events.length,elevation_m:p.elev},geometry:{type:'Point',coordinates:[p.lon,p.lat]}})); if(state.route.length>1){const coords=state.route.map(p=>[p.lon,p.lat]); if($('returnStart').checked)coords.push([state.route[0].lon,state.route[0].lat]); features.push({type:'Feature',properties:{name:'GEDCOM Melissa TSP route',mode:$('costMode').value},geometry:{type:'LineString',coordinates:coords}});} return JSON.stringify({type:'FeatureCollection',features},null,2); }
+function download(name,type,text){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000); }
+
+function geocodeCacheObject(){
+  return {schema:'gedcom-melissa-tsp-geocode-cache-v1', savedAt:new Date().toISOString(), places:[...state.places.values()].filter(p=>validLatLon(p.lat,p.lon)||Number.isFinite(p.elev)).map(p=>({name:p.name,lat:p.lat,lon:p.lon,elev:p.elev,source:p.source}))};
+}
+function applyGeocodeCache(obj){
+  const rows=Array.isArray(obj?.places)?obj.places:Array.isArray(obj)?obj:[]; let applied=0, created=0;
+  for(const r of rows){
+    const name=normPlace(r.name||r.place||r.location); const lat=parseFloat(r.lat??r.latitude), lon=parseFloat(r.lon??r.lng??r.longitude), elev=parseFloat(r.elev??r.elev_m??r.elevation);
+    if(!name) continue; if(!state.places.has(name)) created++;
+    if(validLatLon(lat,lon)||Number.isFinite(elev)){ upsertPlace(name,null,lat,lon,elev,r.source||'geocode cache'); applied++; }
+  }
+  state.route=[]; state.routeLegs=[]; renderAll(); buildReport(); setStatus(`Applied ${applied} cached geocode row(s). ${created ? created+' new place(s) added.' : ''}`, applied?'ok':'warn');
+}
+function saveGeocodeCacheLocal(){ localStorage.setItem('gedcomMelissaTspGeocodeCache', JSON.stringify(geocodeCacheObject())); setStatus('Geocode cache saved in this browser.', 'ok'); }
+function loadGeocodeCacheLocal(){ const txt=localStorage.getItem('gedcomMelissaTspGeocodeCache'); if(!txt) return setStatus('No browser geocode cache found.', 'warn'); try{applyGeocodeCache(JSON.parse(txt));}catch(e){setStatus('Could not read browser cache: '+e.message,'bad');} }
+function downloadGeocodeCache(){ download('gedcom_geocode_cache.json','application/json',JSON.stringify(geocodeCacheObject(),null,2)); }
+
+$('jumpResults').addEventListener('click',jumpToResults);
+$('gedFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f)return; $('gedText').value=await f.text(); parseGedcom($('gedText').value);});
+$('parseBtn').addEventListener('click',()=>parseGedcom($('gedText').value));
+$('sampleBtn').addEventListener('click',()=>{$('gedText').value=SAMPLE_GEDCOM; $('manualCsv').value=SAMPLE_COORDS; parseGedcom(SAMPLE_GEDCOM); applyCoordinateCsv(SAMPLE_COORDS); solveRoute(); setTimeout(jumpToResults, 120);});
+$('sampleCoords').addEventListener('click',()=>{$('manualCsv').value=SAMPLE_COORDS;});
+$('applyCsv').addEventListener('click',()=>applyCoordinateCsv($('manualCsv').value));
+$('saveCacheBtn').addEventListener('click',saveGeocodeCacheLocal);
+$('loadCacheBtn').addEventListener('click',loadGeocodeCacheLocal);
+$('downloadCacheBtn').addEventListener('click',downloadGeocodeCache);
+$('cacheFile').addEventListener('change',async e=>{const f=e.target.files[0]; if(!f)return; try{applyGeocodeCache(JSON.parse(await f.text()));}catch(err){setStatus('Could not import geocode cache: '+err.message,'bad');}});
+$('melissaBtn').addEventListener('click',()=>melissaGeocodeMissing(false));
+$('testMelissaBtn').addEventListener('click',()=>melissaGeocodeMissing(true));
+$('copyMelissaUrls').addEventListener('click',async()=>{renderMelissaUrls(); await navigator.clipboard?.writeText($('melissaUrls').value); setStatus('Melissa lookup URLs copied. Do not share URLs that contain a real license key.', 'ok');});
+$('altGeocodeBtn').addEventListener('click',()=>alternativeGeocodeMissing(false));
+$('altTestBtn').addEventListener('click',()=>alternativeGeocodeMissing(true));
+$('copyAltUrls').addEventListener('click',async()=>{renderAltUrls(); await navigator.clipboard?.writeText($('altUrls').value); setStatus('Alternative provider URLs copied. Do not share URLs that contain real API keys.', 'ok');});
+['altProvider','altApiKey','altTemplate'].forEach(id=>$(id).addEventListener('change',renderAltUrls));
+$('solveBtn').addEventListener('click',solveRoute);
+$('reverseBtn').addEventListener('click',()=>{state.route.reverse(); buildRouteLegs(); renderAll(); buildReport();});
+$('clearBtn').addEventListener('click',()=>{if(confirm('Clear all loaded data?')){state.persons.clear(); state.events=[]; state.places.clear(); state.route=[]; state.routeLegs=[]; state.report=''; $('gedText').value=''; $('manualCsv').value=''; renderAll(); buildReport(); setStatus('Cleared.', 'warn');}});
+['costMode','returnStart','detourFactor','unknownElev'].forEach(id=>$(id).addEventListener('change',()=>{if(state.route.length) solveRoute(); else {renderRoute(); buildReport();}}));
+$('copyTravel').addEventListener('click',async()=>{await navigator.clipboard?.writeText($('travelList').value); setStatus('Travel list copied.', 'ok');});
+$('downloadRouteCsv').addEventListener('click',()=>{if(!state.routeLegs.length)return setStatus('Solve a route first.', 'warn'); download('gedcom_melissa_tsp_route.csv','text/csv',routeCsv());});
+$('downloadGeojson').addEventListener('click',()=>{if(!state.route.length)return setStatus('Solve a route first.', 'warn'); download('gedcom_melissa_tsp_route.geojson','application/geo+json',routeGeojson());});
+$('buildReportBtn').addEventListener('click',()=>{buildReport(); setStatus('Standalone HTML5 report built.', 'ok');});
+$('copyReportBtn').addEventListener('click',async()=>{if(!state.report)buildReport(); await navigator.clipboard?.writeText(state.report); setStatus('Report HTML copied.', 'ok');});
+$('downloadReportBtn').addEventListener('click',()=>{if(!state.report)buildReport(); download('gedcom_html5_report.html','text/html',state.report);});
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); ['placesPane','eventsPane','peoplePane','melissaPane'].forEach(id=>$(id).classList.toggle('hidden',id!==btn.dataset.tab));}));
+
+renderAll(); buildReport();
+</script>
+</body>
+</html>

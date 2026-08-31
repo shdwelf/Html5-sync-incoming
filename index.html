@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banano Paper Wallet Generator & Rare MonKey Scanner</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            banano: {
+              yellow: '#FBDD11',
+              dark: '#2A2A2E',
+              green: '#40C057',
+              orange: '#F76707'
+            }
+          },
+          animation: {
+            'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+          },
+          keyframes: {
+            glowPulse: {
+              '0%, 100%': { filter: 'drop-shadow(0 0 8px rgba(251, 221, 17, 0.6))' },
+              '50%': { filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.9))' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- QRious Library (Embedded Base64 for 100% Client-Side Sandbox/Offline Compatibility) -->
+  <script src="data:text/javascript;base64,LyohIFFSaW91cyB2NC4wLjIgfCAoQykgMjAxNyBBbGFzZGFpciBNZXJjZXIgfCBHUEwgdjMgTGljZW5zZQpCYXNlZCBvbiBqc3FyZW5jb2RlIHwgKEMpIGNvbSB8IEdQTCB2MyBMaWNlbnNlCiovCiFmdW5jdGlvbih0LGUpeyJvYmplY3QiPT10eXBlb2YgZXhwb3J0cyYmInVuZGVmaW5lZCIhPXR5cGVvZiBtb2R1bGU/bW9kdWxlLmV4cG9ydHM9ZSgpOiJmdW5jdGlvbiI9PXR5cGVvZiBkZWZpbmUmJmRlZmluZS5hbWQ/ZGVmaW5lKGUpOnQuUVJpb3VzPWUoKX0odGhpcyxmdW5jdGlvbigpeyJ1c2Ugc3RyaWN0IjtmdW5jdGlvbiB0KHQsZSl7dmFyIG47cmV0dXJuImZ1bmN0aW9uIj09dHlwZW9mIE9iamVjdC5jcmVhdGU/bj1PYmplY3QuY3JlYXRlKHQpOihzLnByb3RvdHlwZT10LG49bmV3IHMscy5wcm90b3R5cGU9bnVsbCksZSYmaSghMCxuLGUpLG59ZnVuY3Rpb24gZShlLG4scyxyKXt2YXIgbz10aGlzO3JldHVybiJzdHJpbmciIT10eXBlb2YgZSYmKHI9cyxzPW4sbj1lLGU9bnVsbCksImZ1bmN0aW9uIiE9dHlwZW9mIG4mJihyPXMscz1uLG49ZnVuY3Rpb24oKXtyZXR1cm4gby5hcHBseSh0aGlzLGFyZ3VtZW50cyl9KSxpKCExLG4sbyxyKSxuLnByb3RvdHlwZT10KG8ucHJvdG90eXBlLHMpLG4ucHJvdG90eXBlLmNvbnN0cnVjdG9yPW4sbi5jbGFzc189ZXx8by5jbGFzc18sbi5zdXBlcl89byxufWZ1bmN0aW9uIGkodCxlLGkpe2Zvcih2YXIgbixzLGE9MCxoPShpPW8uY2FsbChhcmd1bWVudHMsMikpLmxlbmd0aDthPGg7YSsrKXtzPWlbYV07Zm9yKG4gaW4gcyl0JiYhci5jYWxsKHMsbil8fChlW25dPXNpW2FdW25dKX19dmFyIHM9ZnVuY3Rpb24oKXt9LHI9T2JqZWN0LnByb3RvdHlwZS5oYXNPd24PropertyLG89QXJyYXkucHJvdG90eXBlLnNsaWNlLGE9ZTtuLmNsYXNzXz0iTmV2aXMiLG4uc3VwZXJfPU9iamVjdCxuLmV4dGVuZD1hO3ZhciBoPW4sZj1oLmV4dGVuZChmdW5jdGlvbih0LGUsaSl7dGhpcy5xcmlvdXM9dCx0aGlzLmVsZW1lbnQ9ZSx0aGlzLmVsZW1lbnQucXJpb3VzPXQsdGhpcy5lbmFibGVkPUJvb2xlYW4oaSl9LHtkeWF3OmZ1bmN0aW9uKHQpe30sZ2V0RWxlbWVudDpmdW5jdGlvbigpe3JldHVybiB0aGlzLmVuYWJsZWR8fCh0aGlzLmVuYWJsZWQ9ITAsdGhpcy5yZW5kZXIoKSksdGhpcy5lbGVtZW50fSxnZXRNb2R1bGVTaXplOmZ1bmN0aW9uKHQpe3ZhciBlPXRoaXMucXJpb3VzLGk9ZS5wYWRkaW5nfHwwLG49TWF0aC5mbG9vcigoZS5zaXplLW4qdC53aWR0aCkvMik7cmV0dXJuIE1hdGgubWF4KDEsbil9LHdldE9mZnNldDpmdW5jdGlvbih0KXt2YXIgZT10aGlzLnFyaW91cyxpPWUucGFkZGluZztpZihudWxsIT1pKXJldHVybiBpO3ZhciBuPXRoaXMuZ2V0TW9kdWxlU2l6ZSh0KSxzPU1hdGguZmxvb3IoKGUuc2l6ZS1uKnQud2lkdGgpLzIpO3JldHVybiBNYXRoLm1heCgwLHMpfSxyZW5kZXI6ZnVuY3Rpb24odCl7dGhpcy5lbmFibGVkJiYodGhpcy5yZXNpemUoKSx0aGlzLnJlc2V0KCksdGhpcy5kcmF3KHQpKX0scmVzZXQ6ZnVuY3Rpb24oKXt9LHJlc2l6ZTpmdW5jdGlvbigpe319KSxjPWYuZXh0ZW5kKHtkeWF3OmZ1bmN0aW9uKHQpe3ZhciBlLGksbj10aGlzLnFyaW91cyxzPXRoaXMuZ2V0TW9kdWxlU2l6ZSh0KSxyPXRoaXMuZ2V0T2Zmc2V0KHQpLG89dGhpcy5lbGVtZW50LmdldENvbnRleHQoIjJkIik7Zm9yKG8uZmlsbFN0eWxlPW4uZm9yZWdyb3VuZCxvLmdsb2JhbEFscGhhPW4uZm9yZWdyb3VuZEFscGhhLGU9MDtlPHQud2lkdGg7ZSsrKWZvcihpPTA7aTx0LndpZHRoO2krKyl0LmJ1ZmZlcltpKnQud2lkdGgrZV0mJm8uZmlsbFJlY3QoczplK3IscyppK3IscyxzKX0scmVzZXQ6ZnVuY3Rpb24oKXt2YXIgdD10aGlzLnFyaW91cyxlPXRoaXMuZWxlbWVudC5nZXRDb250ZXh0KCIyZCIpLGk9dC5zaXplO2UubGluZVdpZHRoPTEsZS5jbGVhclJlY3QoMCwwLGksaSksZS5maWxsU3R5bGU9dC5iYWNrZ3JvdW5kLGUuZ2xvYmFsQWxwaGE9dC5iYWNrZ3JvdW5kQWxwaGEsZS5maWxsUmVjdCgwLDAsaSxpKX0scmVzaXplOmZ1bmN0aW9ubigpe3ZhciB0PXRoaXMuZWxlbWVudDt0LndpZHRoPXQuaGVpZ2h0PXRoaXMucXJpb3VzLnNpemV9fSksdT1oLmV4dGVuZChudWxsLHtCTE9DSzpbMCwxMSwxNSwxOSwyMywyNywzMSwxNiwxOCwyMCwyMiwyNCwyNiwyOCwyMCwyMiwyRCwyNCwyNiwyOCwyOCwyMiwyNCwyNCwyNiwyNiwyOCwyOCwyNCwyNCwyNiwyNiwyNiwyOCwyOCwyNCwyNiwyNiwyNiwyOCwyOF19KSxsPWguZXh0ZW5kKHVubGwse0JMT0NLUzpbMSwwLDE5LDcsMSwwLDE2LDEwLDEsMCwxMywxMywxLDAsOSwxNywxLDAsMzQsMTAsMSwwLDI4LDE2LDEsMCwyMiwyMiwxLDAsMTYsMjgsMSwwLDU1LDE1LDEsMCw0NCwyNiwyLDAsMTcsMTgsMiwwLDEzLDIyLDEsMCw4MCwyMCwyLDAsMzIsMTgsMiwwLDI0LDI2LDQsMCw5LDE2LDEsMCwxMDgsMjYsMiwwLDQzLDI0LDIsMiwxNSwxOCwyLDIsMTEsMjIsMiwwLDY4LDE4LDQsMCwyNywxNiw0LDAsMTksMjQsNCwwLDE1LDI4LDIsMCw3OCwyMCw0LDAsMzEsMTgsMiw0LDE0LDE4LDQsMSwxMywyNiwyLDAsOTcsMjQsMiwyLDM4LDIyLDQsMiwxOCwyMiw0LDIsMTQsMjYsMiwwLDExNiwzMCwzLDIsMzYsMjIsNCw0LDE2LDIwLDQsNCwxMiwyNCwyLDIsNjgsMTgsNCwxLDQzLDI2LDYsMiwxOSwyNCw2LDIsMTUsMjgsNCwwLDgxLDIwLDEsNCw1MCwzMCw0LDQsMjIsMjgsMyw4LDEyLDI0LDIsMiw5MiwyNCw2LDIsMzYsMjIsNCw2LDIwLDI2LDcsNCwxNCwyOCw0LDAsMTA3LDI2LDgsMSwzNywyMiw4LDQsMjAsMjQsMTIsNCwxMSwyMiwzLDEsMTE1LDMwLDQsNSw0MCwyNCwxMSw1LDE2LDIwLDExLDUsMTIsMjQsNSwxLDg3LDIyLDUsNSw0MSwyNCw1LDcsMjQsMzAsMTEsNywxMiwyNCw1LDEsOTgsMjQsNywzLDQ1LDI4LDE1LDIsMTksMjQsMywxMywxNSwzMCwxLDUsMTA3LDI4LDEwLDEsNDYsMjgsMSwxNSwyMiwyOCwyLDE3LDE0LDI4LDUsMSwxMjAsMzAsOSw0LDQzLDI2LDE3LDEsMjIsMjgsMiwxOSwxNCwyOCwzLDQsMTEzLDI4LDMsMTEsNDQsMjYsMTcsNCwyMSwyNiw5LDE2LDEzLDI2LDMsNSwxMDcsMjgsMywxMyw0MSwyNiwxNSw1LDI0LDMwLDE1LDEwLDE1LDI4LDQsNCwxMTYsMjgsMTcsMCw0MiwyNiwxNyw2LDIyLDI4LDE5LDYxLDE2LDMwLDIsNywxMTEsMjgsMTcsMCw0NiwyOCw3LDE2LDI0LDMwLDM0LDAsMTMsMjQsNCw1LDEyMSwzMCw0LDE0LDc3LDI4LDExLDE0LDI0LDMwLDE2LDE0LDE1LDMwLDYsNCwxMTcsMzAsNiwxNCw0NSwyOCwxMSwxNiwyNCwzMCwzMCwyLDE2LDMwLDgsNCwxMDYsMjYsOCwxMyw0NywyOCw3LDIyLDI0LDMwLDIyLDEzLDE1LDMwLDEwLDIsMTE0LDI4LDE5LDQsNDYsMjgsMjgsNiwyMiwyOCwzMyw0LDE2LDMwLDgsNCwxMjIsMzAsMjIsMyw0NSwyOCw4LDI2LDIzLDMwLDEyLDI4LDE1LDMwLDMsMTAsMTE3LDMwLDMsMjMsNDUsMjgsNCwzMSwyNCwzMCwxMSwzMSwxNSwzMCw3LDcsMTE2LDMwLDIxLDcsNDUsMjgsMSwzNywyMywzMCwxOSwyNiwxNSwzMCw1LDEwLDExNSwzMCwxOSwxMCw0NywyOCwxNSwyNSwyNCwzMCwyMywyNSwxNSwzMCwxMywzLDExNSwzMCwyLDI5LDQ2LDI4LDQyLDEsMjQsMzAsMjMsMjgsMTUsMzAsMTcsMCwxMTUsMzAsMTAsMjMsNDYsMjgsMTAsMzUsMjQsMzAsMTksMzUsMTUsMzAsMTcsMSwxMTUsMzAsMTQsMjEsNDYsMjgsMjksMTksMjQsMzAsMTEsNDYsMTUsMzAsMTMsNiwxMTUsMzAsMTQsMjMsNDYsMjgsNDQsNywyNCwzMCw1OSwxLDE2LDMwLDEyLDcsMTIxLDMwLDEyLDI2LDQ3LDI4LDM5LDE0LDI0LDMwLDIyLDQxLDE1LDMwLDYsMTQsMTIxLDMwLDYsMzQsNDcsMjgsNDYsMTAsMjQsMzAsMiw2NCwxNSwzMCwxNyw0LDEyMiwzMCwyOSwxNCw0NiwyOCw0OSwxMCwyNCwzMCwyNCw0NiwxNSwzMCw0LDE4LDEyMiwzMCwxMywzMiw0NiwyOCw0OCwxNCwyNCwzMCw0MiwzMiwxNSwzMCwyMCw0LDExNywzMCw0MCw3LDQ3LDI4LDQzLDIyLDI0LDMwLDEwLDY3LDE1LDMwLDk5LDYsMTE4LDMwLDE4LDMxLDQ3LDI4LDM0LDM0LDI0LDMwLDIwLDYxLDE1LDMwXSxGSU5BTF9GT1JNQVQ6WzMwNjYwLDI5NDI3LDMyMTcwLDMwODc3LDI2MTU5LDI1MzY4LDI3NzEzLDI2OTk4LDIxNTIyLDIwNzczLDI0MTg4LDIzMzcxLDE3OTEzLDE2NTkwLDIwMzc1LDE5MTA0LDEzNjYzLDEyMzkyLDE2MTc3LDE0ODU0LDkzOTYsODU3OSwxMTk5NCwxMTI0NSw1NzY5LDUwNTQsNzM5OSw2NjA4LDE4OTAsNTk3LDMzNDAsMjEwN10sTEVWRUxTOntMOjEsTToyLFE6MyxIPC40fX0pLF89aC5leHRlbmQobnVsbCx7RlhQT05FTlQ6WzEsMiw0LDgsMTYsMzIsNjQsMTI4LDI5LDU4LDExNiwyMzIsMjA1LDEzNSwxOSwzOCw3NiwxNTIsNDUsOTAsMTgwLDExNywyMzQsMjAxLDE0MywzLDYsMTIsMjQsNDgsOTYsMTkyLDE1NywzOSw3OCwxNTYsMzcsNzQsMTQ4LDUzLDEwNiwyMTIsMTgxLDExOSwyMzgsMTkzLDE1OSwzNSw3MCwxNDAsNSwxMCwyMCw0MCw4MCwxNjAsOTMsMTg2LDEwNSwyMTAsMTg1LDExMSwyMjIsMTYxLDk1LDE5MCw5NywxOTQsMTUzLDQ3LDk0LDE4OCwxMDEsMjAyLDEzNywxNSwzMCw2MCwxMjAsMjQwLDI1MywyMzEsMjExLDE4NywxMDcsMjE0LDE3NywxMjcsMjU0LDIyNSwyMjMsMTYzLDkxLDE4MiwxMTMsMjI2LDIxNywxNzUsNjcsMTM0LDE3LDM0LDY4LDEzNiwxMywyNiw1MiwxMDQsMjA4LDE4OSwxMDMsMjA2LDEyOSwzMSw2MiwxMjQsMjQ4LDIzNywxOTksMTQ3LDU5LDExOCwyMzYsMTk3LDE1MSw1MSwxMDIsMjA0LDEzMywyMyw0Niw5MiwxODQsMTA5LDIxOCwxNjksNzksMTU4LDMzLDY2LDEzMiwyMSw0Miw4NCwxNjgsNzcsMTU0LDQxLDgyLDE2NCw4NSwxNzAsNzMsMTQ2LDU3LDExNCwyMjgsMjEzLDE4MywxMTUsMjMwLDIwOSwxOTEsOTksMTk4LDE0NSw2MywxMjYsMjUyLDIyOSwyMTUsMTc5LDEyMywyNDYsMjQxLDI1NSwyMjcsMjE5LDE3MSw3NSwxNTAsNDksOTgsMTk2LDE0OSw1NSwxMTAsMjIwLDE2NSw4NywxNzQsNjUsMTMwLDI1LDUwLDEwMCwyMDAsMTQxLDcsMTQsMjgsNTYsMTEyLDIyNCwyMjEsMTY3LDgzLDE2Niw4MSwxNjIsODksMTc4LDEyMSwyNDIsMjQ5LDIzOSwxOTUsMTU1LDQzLDg2LDE3Miw2OSwxMzgsOSwxOCwzNiw3MiwxNDQsNjEsMTIyLDI0NCwyNDUsMjQ3LDI0MywyNTEsMjM1LDIwMywxMzksMTEsMjIsNDQsODgsMTc2LDEyNSwyNTAsMjMzLDIwNywxMzEsMjcsNTQsMTA4LDIxNiwxNzMsNzEsMTQyLDBdLExPRzpbMjU1LDAsMSwyNSwyLDUwLDI2LDE5OCwzLDIyMyw1MSwyMzgsMjcsMTA0LDE5OSw3NSw0LDEwMCwyMjQsMTQsNTIsMTQxLDIzOSwxMjksMjgsMTkzLDEwNSwyNDgsMjAwLDgsNzYsMTEzLDUsMTM4LDEwMSw0NywyMjUsMzYsMTUsMzMsNTMsMTQ3LDE0MiwyMTgsMjQwLDE4LDEzMCw2OSwyOSwxODEsMTk0LDEyNSwxMDYsMzksMjQ5LDE4NSwyMDEsMTU0LDksMTIwLDc3LDIyOCwxMTQsMTY2LDYsMTkxLDEzOSw5OCwxMDIsMjIxLDQ4LDI1MywyMjYsMTUyLDM3LDE3OSwxNiwxNDUsMzQsMTM2LDU0LDIwOCwxNDgsMjA2LDE0MywxNTAsMjE5LDE4OSwyNDEsMjEwLDE5LDkyLDEzMSw1Niw3MCw2NCwzMCw2NiwxODIsMTYzLDE5NSw3MiwxMjYsMTEwLDEwNyw1OCw0MCw4NCwyNTAsMTMzLDE4Niw2MSwyMDIsOTQsMTU1LDE1OSwxMCwyMSwxMjEsNDMsNzgsMjEyLDIyOSwxNzIsMTE1LDI0MywxNjcsODcsNywxMTIsMTkyLDI0NywxNDAsMTI4LDk5LDEzLDEwMyw3NCwyMjIsMjM3LDQ5LDE5NywyNTQsMjQsMjI3LDE2NSwxNTMsMTE5LDM4LDE4NCwxODAsMTI0LDE3LDY4LDE0NiwyMTcsMzUsMzIsMTM3LDQ2LDU1LDYzLDIwOSw5MSwxNDksMTg4LDIwNywyMDUsMTQ0LDEzNSwxNTEsMTc4LDIyMCwyNTIsMTkwLDk3LDI0Miw4NiwyMTEsMTcxLDIwLDQyLDkzLDE1OCwxMzIsNjAsNTcsODMsNzEsMTA5LDY1LDE2MiwzMSw0NSw2NywyMTYsMTgzLDEyMywxNjQsMTE4LDE5NiwyMyw3MywyMzYsMTI3LDEyLDExMSwyNDYsMTA4LDE2MSw1OSw4Miw0MSwxNTcsODUsMTcwLDI1MSw5NiwxMzQsMTc3LDE4NywyMDQsNjIsOTAsMjAzLDg5LDk1LDE3NiwxNTYsMTY5LDE2MCw4MSwxMSwyNDUsMjIsMjM1LDEyMiwxMTcsNDQsMjE1LDc5LDE3NCwyMTMsMjMzLDIzMCwyMzEsMTczLDIzMiwxMTYsMjE0LDI0NCwyMzQsMTY4LDgwLDg4LDE3NV19KSxkPWguZXh0ZW5kKG51bGwse0JMT0NLOlszMjIwLDE0NjgsMjcxMywxMjM1LDMwNjIsMTg5MCwyMTE5LDE1NDksMjM0NCwyOTM2LDExMTcsMjU4MywxMzMwLDI0NzAsMTY2NywyMjQ5LDIwMjgsMzc4MCw0ODEsNDAxMSwxNDIsMzA5OCw4MzEsMzQ0NSw1OTIsMjUxNywxNzc2LDIyMzQsMTk1MSwyODI3LDEwNzAsMjY2MCwxMzQ1LDMxNzddfSkscD12LG09Zi5leHRlbmQoe2RyYXc6ZnVuY3Rpb24oKXt0aGlzLmVsZW1lbnQuc3JjPXRoaXMucXJpb3VzLnRvRGF0YVVSTCgpfSxyZXNldDpmdW5jdGlvbigpe3RoaXMuZWxlbWVudC5zcmM9IiJ9LHJlc2l6ZTpmdW5jdGlvbigpe3ZhciB0PXRoaXMuZWxlbWVudDt0LndpZHRoPXQuaGVpZ2h0PXRoaXMucXJpb3VzLnNpemV9fSksZz1oLmV4dGVuZChmdW5jdGlvbih0LGUsaSxuKXt0aGlzLm5hbWU9dCx0aGlzLm1vZGlmaWFibGU9Qm9vbGVhbihlKSx0aGlzLmRlZmF1bHRWYWx1ZT1pLHRoaXMuX3ZhbHVlVHJhbnNmb3JtZXI9bn0se3RyYW5zZm9ybTpmdW5jdGlvbih0KXt2YXIgZT10aGlzLl92YWx1ZVRyYW5zZm9ybWVyO3JldHVybiJmdW5jdGlvbiI9PXR5cGVvZiBlP2UodCx0aGlzKTp0fX0pLGs9aC5leHRlbmQobnVsbCx7YWJzOmZ1bmN0aW9uKHQpe3JldHVybiBudWxsIT10P01hdGguYWJzKHQpOm51bGx9LGhhc093bjpmdW5jdGlvbih0LGUpe3JldHVybiBPYmplY3QucHJvdG90eXBlLmhhc093blByb3BlcnR5LmNhbGwodCxlKX0sbm9vcDpmdW5jdGlvbigpe30sdG9VcHBlckNhc2U6ZnVuY3Rpb24odCl7cmV0dXJuIG51bGwhPXQ/dC50b1VcHBlckNhc2UoKTpubWxsfX0pLHc9aC5leHRlbmQobnVsbCx7ZXhpc3RzOmZ1bmN0aW9uKHQpe3JldHVybiBudWxsIT10aGlzLm9wdGlvbnNbdF19LGdldDpmdW5jdGlvbig0LGUpe3JldHVybiB3Ll9nZXQodGhpcy5vcHRpb25zW3RdLGUpfSxnZXRBbGw6ZnVuY3Rpb24odCl7dmFyIGUsaT10aGlzLm9wdGlvbnMsbj17fTtmb3IoZSBpbiBpKWsuaGFzT3duKGksZSkmJihuW2VdPXcuX2dldChpW2VdLHQpKTtyZXR1cm4gbn0saW5pdDpmdW5jdGlvbih0LGUsaSl7ImZ1bmN0aW9uIiE9dHlwZW9mIGkmJihpPWsubm9vcCk7dmFyIG4scztmb3IobiBpbiB0aGlzLm9wdGlvbnMpay5oYXNPd24odGhpcy5vcHRpb25zLG4pJiYocz10aGlzLm9wdGlvbnNbbl0sdy5fc2V0KHMscy5kZWZhdWx0VmFsdWUsZSksdy5fY3JlYXRlQWNjZXNzb3IocyxlLGkpKTt0aGlzLl9zZXRBbGwodCxlLCEwKX0sc2V0OmZ1bmN0aW9uKHQsZSxpKXtyZXR1cm4gdGhpcy5fc2V0KHQsZSxpKX0sc2V0QWxsOmZ1bmN0aW9uKHQsZSl7cmV0dXJuIHRoaXMuX3NldEFsbCh0LGUpfSxfc2V0OmZ1bmN0aW9uKHQsZSxpLG4pe3ZhciBzPXRoaXMub3B0aW9uc1t0XTtpZighcykgdGhyb3cgbmV3IEVycm9yKCJJbnZhbGlkIG9wdGlvbjogIit0KTtpZighcy5tb2RpZmlhYmxlJiYhbikgdGhyb3cgbmV3IEVycm9yKCJPcHRpb24gY2Fubm90IGJlIG1vZGlmaWVkOiAiK3QpO3JldHVybiB3Ll9zZXQocyxlLGkpfSxfc2V0QWxsOmZ1bmN0aW9uKHQsZSl7aWYoIXQpcmV0dXJuITE7dmFyIG4scz0hMTtmb3IobiBpbiB0KWsuaGFzT3duKHQsbikmJnRoaXMuX3NldChuLHRbbl0sZSxpKSYmKHM9ITApO3JldHVybiBzfX0se19jcmVhdGVBY2Nlc3NvcjpmdW5jdGlvbih0LGUsaSl7dmFyIG49e2dldDpmdW5jdGlvbigpe3JldHVybiB3Ll9nZXQodCxlKX19O3QubW9kaWZpYWJsZSYmKG4uc2V0PWZ1bmN0aW9uKG4pe3cuX3NldCh0LG4sZSkmJmkobix0KX0pLE9iamVjdC5kZWZpbmVQcm9wZXJ0eShlLHQubmFtZSxuKX0sX2dldDpmdW5jdGlvbih0LGUpe3JldHVybiBlWyJfIit0Lm5hbWVdfSxfc2V0OmZ1bmN0aW9uKHQsZSxpKXt2YXIgbj0iXyIrdC5uYW1lLHM9aVtuXSxyPXQudHJhbnNmb3JtKG51bGwhPWU/ZTp0LmRlZmF1bHRWYWx1ZSk7cmV0dXJuIGlbbl09cixyIT09c319KSxNPXcsYj1oLmV4dGVuZChmdW5jdGlvbigpe3RoaXMuX3NlcnZpY2VzPXt9fSx7Z2V0U2VydmljZTpmdW5jdGlvbigodCl7dmFyIGUsaGlzLl9zZXJ2aWNlc1t0XTtpZighZSkgdGhyb3cgbmV3IEVycm9yKCJTZXJ2aWNlIGlzIG5vdCBiZWluZyBtYW5hZ2VkIHdpdGggbmFtZTogIit0KTtyZXR1cm4gZX0sc2V0U2VydmljZTpmdW5jdGlvbih0LGUpe2lmKHRoaXMuX3NlcnZpY2VzW3RdKSB0aHJvdyBuZXcgRXJyb3IoIlNlcnZpY2UgaXMgYWxyZWFkeSBtYW5hZ2VkIHdpdGggbmFtZTogIit0KTtlJiYodGhpcy5fc2VydmljZXNbdF09ZSl9fSksQj1uZXcgTShbbmV3IGcoImJhY2tncm91bmQiLCEwLCJ3aGl0ZSIpLG5ldyBnKCJiYWNrZ3JvdW5kQWxwaGEiLCEwLDEsay5hYnMpLG5ldyBnKCJlbGVtZW50IiksbmV3IGcoImZvcmVncm91bmQiLCEwLCJibGFjayIpLG5ldyBnKCJmb3JlZ3JvdW5kQWxwaGEiLCEwLDEsay5hYnMpLG5ldyBnKCJsZXZlbCIsITAsIkwiLGsubG9VcHBlckNhc2UpLG5ldyBnKCJtaW1lIiwhMCwiaW1hZ2UvcG5nIiksbmV3IGcoInBhZGRpbmciLCEwLG51bGwsay5hYnMpLG5ldyBnKCJzaXplIiwhMCwxMDAsay5hYnMpLG5ldyBnKCJ2YWx1ZSIsITAsIiIpXSkseT1uZXcgYixPPWguZXh0ZW5kKZ1uY3Rpb24odCl7Qi5pbml0KHQsdGhpcyx0aGlzLnVwZGF0ZS5iaW5kKHRoaXMpKTt2YXIgZT1CLmdldCgiZWxlbWVudCIsdGhpcyksaT15LmdldFNlcnZpY2UoImVsZW1lbnQiKSxuPWUmJmkuaXNDYW52YXMoZSk/ZTppLmNyZWF0ZUNhbnZhcygpLHM9ZSYmaS5pc0ltYWdlKGUpP2U6aS5jcmVhdGVJbWFnZSgpO3RoaXMuX2NhbnZhc1JlbmRlcmVyPW5ldyBjKHRoaXMsbiwhMCksdGhpcy5faW1hZ2VSZW5kZXJlci5uZXcgbSh0aGlzLHMscz09PWUpLHRoaXMudXBkYXRlKCl9LHtnZXQ6ZnVuY3Rpb24oKXtyZXR1cm4gQi5nZXRBbGwodGhpcyl9LHNldDpmdW5jdGlvbih0KXtCLnNldEFsbCh0LHRoaXMpJiZ0aGlzLnVwZGF0ZSgpfSx0b0RhdGFVSTDpmdW5jdGlvbihtKXtyZXR1cm4gdGhpcy5jYW52YXMudG9EYXRhVVJMKHR8fHRoaXMubWltZSl9LHVwZGF0ZTpmdW5jdGlvbigpe3ZhciB0PW5ldyBwKHtsZXZlbDp0aGlzLmxldmVsLHZhbHVlOnRoaXMudmFsdWV9KTt0aGlzLl9jYW52YXNSZW5kZXJlci5yZW5kZXIodCksdGhpcy5faW1hZ2VSZW5kZXJlci5yZW5kZXIodCl9fSx7dXNlOmZ1bmN0aW9uKHQpe3kuc2V0U2VydmljZSh0LmdldE5hbWUoKSx0KX19KTtPYmplY3QuZGVmaW5lUHJvcGVydGllcyhPLnByb3RvdHlwZSx7Y2FudmFzOntnZXQ6ZnVuY3Rpb24oKXtyZXR1cm4gdGhpcy5fY2FudmFzUmVuZGVyZXIuZ2V0RWxlbWVudCgpfX0saW1hZ2U6e2dldDpmdW5jdGlvbigpe3JldHVybiB0aGlzLl9pbWFnZVJlbmRlcmVyLmdldEVsZW1lbnQoKX19fSk7dmFyIEE9TyxMPWguZXh0ZW5kKHtnZXROYW1lOmZ1bmN0aW9uKCl7fX0pLmV4dGVuZCh7Y3JlYXRlQ2FudmFzOmZ1bmN0aW9uKCl7fSxjcmVhdGVJbWFnZTpmdW5jdGlvbigpe30sZ2V0TmFtZTpmdW5jdGlvbigpe3JldHVybiJlbGVtZW50In0saXNDYW52YXM6ZnVuY3Rpb24odCl7fSxpc0ltYWdlOmZ1bmN0aW9uKHQpe319KS5leHRlbmQoe2NyZWF0ZUNhbnZhczpmdW5jdGlvbigpe3JldHVybiBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCJjYW52YXMiKX0sY3JlYXRlSW1hZ2U6ZnVuY3Rpb24oKXtyZXR1cm4gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgiaW1nIil9LGlzQ2FudmFzOmZ1bmN0aW9uKHQpe3JldHVybiB0IGluc3RhbmNlb2YgSFRNTENhbnZhc0VsZW1lbnR9LGlzSW1hZ2U6ZnVuY3Rpb24odCl7cmV0dXJuIHQgaW5zdGFuY2VvZiBIVE1MSW1hZ2VFbGVtZW50fX0pO3JldHVybiBBLnVzZShuZXcgTCksQX0pOw=="></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .heading-font {
+      font-family: 'Comfortaa', cursive;
+
+    }
+    /* Paper wallet background styles */
+    .wallet-card-gold {
+      background: linear-gradient(135deg, #FFFDEB 0%, #FEE885 50%, #FBDD11 100%);
+      box-shadow: 0 10px 30px -10px rgba(251, 221, 17, 0.5);
+    }
+    .wallet-card-mythic {
+      background: linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #4c1d95 100%);
+      box-shadow: 0 10px 35px -5px rgba(168, 85, 247, 0.7);
+      color: #f3e8ff !important;
+      border: 2px solid #c084fc !important;
+    }
+    .wallet-card-ultrarare {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0891b2 100%);
+      box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.6);
+      color: #e0f2fe !important;
+      border: 2px solid #38bdf8 !important;
+    }
+    
+    /* Print optimizations */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      header, footer, #controls-section, #output-placeholder, .no-print {
+        display: none !important;
+      }
+      #wallet-display-block {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .wallet-card-gold, .wallet-card-mythic, .wallet-card-ultrarare {
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        border: 2px solid #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FBDD11;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-yellow-400 selection:text-slate-900">
+
+  <!-- Header -->
+  <header class="bg-slate-900/90 border-b border-yellow-400/30 p-4 sticky top-0 z-50 backdrop-blur-md shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-yellow-400 text-slate-950 p-2.5 rounded-2xl font-bold text-2xl animate-bounce shadow-md">
+          🍌
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold heading-font text-yellow-400 tracking-wide flex items-center gap-2">
+            Banano MonKey Studio <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 font-sans">v2.5 Final</span>
+          </h1>
+          <p class="text-xs text-slate-400">Client-Side Paper Wallet Generator & Rare/Mythic Trait Sniper</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700 shadow-inner">
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span class="text-slate-300 font-mono">100% Client-Side Entropy</span>
+        </div>
+        <button id="btn-toggle-sound" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 p-2 rounded-full border border-slate-700 transition" title="Toggle Sound Effects">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto p-4 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 my-2">
+
+    <!-- Controls Panel -->
+    <section id="controls-section" class="lg:col-span-5 bg-slate-900/90 rounded-2xl p-6 border border-slate-800 shadow-2xl flex flex-col gap-6 h-fit backdrop-blur-sm">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h2 class="text-xl font-bold heading-font text-yellow-400 flex items-center gap-2">
+          ⚙️ Generator & Sniper
+        </h2>
+        <span class="text-xs bg-yellow-400/10 text-yellow-300 px-2.5 py-1 rounded-md font-mono border border-yellow-400/20">Offline Ready</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-3">
+        <button id="btn-generate-single" class="w-full bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-3.5 px-4 rounded-xl transition duration-200 transform active:scale-98 shadow-lg shadow-yellow-400/20 flex items-center justify-center gap-2 text-lg heading-font">
+          🎲 Roll Random MonKey Wallet
+        </button>
+
+        <div class="relative flex items-center my-1">
+          <div class="flex-grow border-t border-slate-800"></div>
+          <span class="flex-shrink mx-4 text-slate-400 text-xs tracking-wider uppercase font-semibold">Or Snipe Rare Traits</span>
+          <div class="flex-grow border-t border-slate-800"></div>
+        </div>
+
+        <button id="btn-scan-rare" class="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 transform active:scale-98 shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 text-lg heading-font">
+          🚀 Start Rare Trait Scanner
+        </button>
+
+        <button id="btn-stop-scan" class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 hidden items-center justify-center gap-2 text-lg shadow-lg shadow-red-600/30 heading-font">
+          🛑 Stop Scanner (<span id="stat-speed-btn" class="font-mono">0 w/s</span>)
+        </button>
+      </div>
+
+      <!-- Target Attributes Selection (Categorized by Rarity) -->
+      <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+          <label class="text-sm font-semibold text-slate-200 flex items-center gap-1.5">
+            🎯 Target Trait Matrix:
+          </label>
+          <div class="flex gap-1.5 text-[10px]">
+            <button id="btn-select-all" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded transition">All</button>
+            <button id="btn-select-rare" class="bg-purple-900/40 hover:bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30 transition">Rare+</button>
+            <button id="btn-select-mythic" class="bg-amber-900/40 hover:bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 transition">Mythic Only</button>
+          </div>
+        </div>
+
+        <!-- Tier 3: Mythic / Even Rarer -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30 block mb-2">
+            ✨ Tier 3: Mythic & Even Rarer (< 0.5% Chance)
+          </span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-amber-500/30 transition">
+              <input type="checkbox" name="attr" value="potassium_aura" checked class="accent-amber-400 w-4 h-4 rounded">
+              <span class="truncate">🔥 Potassium Aura</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-amber-500/30 transition">
+              <input type="checkbox" name="attr" value="diamond_hands" checked class="accent-amber-400 w-4 h-4 rounded">
+              <span class="truncate">💎 Diamond Hands</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-amber-500/30 transition">
+              <input type="checkbox" name="attr" value="alien_symbiote" class="accent-amber-400 w-4 h-4 rounded">
+              <span class="truncate">👽 Alien Symbiote</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-amber-500/30 transition">
+              <input type="checkbox" name="attr" value="cosmic_galaxy" class="accent-amber-400 w-4 h-4 rounded">
+              <span class="truncate">🌌 Cosmic Galaxy</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-amber-500/30 transition col-span-2">
+              <input type="checkbox" name="attr" value="plasma_blade" class="accent-amber-400 w-4 h-4 rounded">
+              <span class="truncate">⚡ Cyber Plasma Blade</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tier 2: Ultra Rare -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/30 block mb-2">
+            💫 Tier 2: Ultra Rare (~ 2% Chance)
+          </span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-cyan-500/20 transition">
+              <input type="checkbox" name="attr" value="deadpool" checked class="accent-cyan-400 w-4 h-4 rounded">
+              <span class="truncate">⚔️ Deadpool Mask</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-cyan-500/20 transition">
+              <input type="checkbox" name="attr" value="astronaut" checked class="accent-cyan-400 w-4 h-4 rounded">
+              <span class="truncate">🚀 Astronaut Suit</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-cyan-500/20 transition col-span-2">
+              <input type="checkbox" name="attr" value="iphone" checked class="accent-cyan-400 w-4 h-4 rounded">
+              <span class="truncate">📱 iPhone Accessory</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Tier 1: Rare -->
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/30 block mb-2">
+            ⭐ Tier 1: Rare (~ 6% Chance)
+          </span>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-purple-500/20 transition">
+              <input type="checkbox" name="attr" value="crown" checked class="accent-purple-400 w-4 h-4 rounded">
+              <span class="truncate">👑 Royal Crown</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-purple-500/20 transition">
+              <input type="checkbox" name="attr" value="laser" checked class="accent-purple-400 w-4 h-4 rounded">
+              <span class="truncate">👀 Laser Eyes</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-slate-900/80 rounded-lg cursor-pointer hover:bg-slate-850 border border-purple-500/20 transition col-span-2">
+              <input type="checkbox" name="attr" value="gold" checked class="accent-purple-400 w-4 h-4 rounded">
+              <span class="truncate">✨ Pure Gold Body</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scanner Stats Panel -->
+      <div id="scanner-status-panel" class="bg-slate-950 border border-purple-500/40 p-4 rounded-xl hidden flex flex-col gap-3">
+        <div class="flex justify-between items-center">
+          <span class="text-xs tracking-wider uppercase font-bold text-purple-300 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping"></span>
+            Asynchronous Hyper-Scanner Active
+          </span>
+          <span id="scan-pulse-badge" class="text-[10px] bg-purple-900/60 text-purple-200 px-2 py-0.5 rounded-full font-mono">Running</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3 font-mono text-sm">
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+            <span class="text-[10px] text-slate-400 block uppercase">Wallets Tested</span>
+            <span id="stat-checked" class="text-yellow-400 font-bold text-lg">0</span>
+          </div>
+          <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+            <span class="text-[10px] text-slate-400 block uppercase">Scan Speed</span>
+            <span id="stat-speed" class="text-purple-400 font-bold text-lg">0 <span class="text-xs font-normal">w/s</span></span>
+          </div>
+        </div>
+
+        <!-- Progress visual bar -->
+        <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+          <div id="scan-progress-bar" class="bg-gradient-to-r from-purple-500 to-yellow-400 h-full w-full animate-pulse"></div>
+        </div>
+      </div>
+
+      <!-- Security Notice -->
+      <div class="bg-yellow-400/5 border border-yellow-400/20 p-4 rounded-xl text-xs text-slate-300 leading-relaxed flex items-start gap-2.5">
+        <span class="text-lg flex-shrink-0">🔒</span>
+        <div>
+          <strong class="text-yellow-400 font-semibold block mb-0.5">Zero-Leak Cryptographic Assurance:</strong>
+          All private keys, seeds, and QR codes are generated strictly in your browser using <code class="bg-slate-800 px-1 py-0.5 rounded text-yellow-300">window.crypto.getRandomValues()</code>. Nothing leaves your device. Always verify offline backup before depositing funds.
+        </div>
+      </div>
+    </section>
+
+    <!-- Output Display Area -->
+    <section class="lg:col-span-7 flex flex-col gap-6">
+
+      <!-- Placeholder Screen -->
+      <div id="output-placeholder" class="bg-slate-900/80 rounded-2xl p-12 border border-slate-800 text-center flex flex-col items-center justify-center gap-5 border-dashed min-h-[550px] backdrop-blur-sm">
+        <div class="relative">
+          <span class="text-6xl inline-block animate-bounce">🍌</span>
+          <span class="absolute -right-2 -bottom-2 text-3xl">🐒</span>
+        </div>
+        <h3 class="text-2xl font-bold heading-font text-slate-200">No MonKey Wallet Rendered Yet</h3>
+        <p class="text-slate-400 max-w-md text-sm leading-relaxed">
+          Click <strong class="text-yellow-400">"Roll Random MonKey Wallet"</strong> to instantly generate a secure paper wallet, or trigger the <strong class="text-purple-400">"Rare Trait Scanner"</strong> to automatically cycle thousands of cryptographic keys until matching rare or mythic cosmetics are discovered.
+        </p>
+        <div class="grid grid-cols-3 gap-3 w-full max-w-md text-xs text-slate-400 pt-4 border-t border-slate-800/80">
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+            <span class="block text-yellow-400 font-bold text-sm">100%</span>
+            Client-Side
+          </div>
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+            <span class="block text-purple-400 font-bold text-sm">SVG Vector</span>
+            No Broken Icons
+          </div>
+          <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+            <span class="block text-amber-400 font-bold text-sm">11 Traits</span>
+            Up to Mythic Tier
+          </div>
+        </div>
+      </div>
+
+      <!-- Printable & Interactive Wallet Display Block -->
+      <div id="wallet-display-block" class="hidden flex flex-col gap-5 animate-fade-in">
+
+        <!-- Action bar for wallet -->
+        <div class="flex flex-wrap justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl gap-3 no-print">
+          <div class="flex items-center gap-2">
+            <span id="rarity-status-pill" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-green-500/20 text-green-300 border border-green-500/40">
+              ✨ Match Found
+            </span>
+            <span id="rarity-score-label" class="text-xs font-mono text-slate-400">
+              Score: <strong class="text-yellow-400">120</strong>
+            </span>
+          </div>
+          
+          <div class="flex flex-wrap gap-2 text-xs font-semibold">
+            <button onclick="copyToClipboard('address')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 px-3 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+              📋 Copy Address
+            </button>
+            <button onclick="copyToClipboard('key')" class="bg-slate-800 hover:bg-slate-700 text-red-300 py-2 px-3 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+              🔑 Copy Key
+            </button>
+            <button onclick="downloadPaperWallet()" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 py-2 px-3 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
+              📥 Save HTML
+            </button>
+            <button onclick="window.print()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 py-2 px-4 rounded-xl transition font-bold shadow-md flex items-center gap-1.5">
+              🖨️ Print Paper Wallet
+            </button>
+          </div>
+        </div>
+
+        <!-- The Paper Wallet Layout Card -->
+        <div id="paper-wallet-card" class="wallet-card-gold text-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
+          <!-- Background decorative watermarks -->
+          <div class="absolute -right-12 -bottom-12 text-9xl opacity-10 pointer-events-none select-none font-sans">🍌</div>
+          <div class="absolute -left-12 -top-12 text-9xl opacity-10 pointer-events-none select-none font-sans">🐒</div>
+
+          <div class="flex flex-col gap-6 relative z-10">
+            <!-- Top branding row -->
+            <div class="flex justify-between items-start border-b border-black/10 pb-4">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-3xl">🍌</span>
+                  <h4 class="text-2xl md:text-3xl font-black uppercase tracking-wider heading-font">Banano Wallet</h4>
+                </div>
+                <p class="text-xs font-bold uppercase tracking-widest opacity-80 mt-1">Potassium Powered Instant Cryptocurrency</p>
+              </div>
+              <div class="text-right flex flex-col items-end gap-1">
+                <span id="tier-badge-top" class="bg-slate-950 text-yellow-400 font-mono text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                  Common Tier
+                </span>
+                <span class="text-[10px] font-mono opacity-70">Client-Side Secure Key</span>
+              </div>
+            </div>
+
+            <!-- Middle Row: Monkey Avatar + Public QR -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              
+              <!-- MonKey Visual Image Container (Client-Side Vector Art) -->
+              <div class="md:col-span-5 flex flex-col items-center justify-center bg-white/50 backdrop-blur-md rounded-2xl p-5 border border-black/10 shadow-lg relative group">
+                <div class="w-40 h-40 md:w-44 md:h-44 flex items-center justify-center overflow-hidden rounded-xl">
+                  <!-- Vector MonKey rendered dynamically via JavaScript without external broken icons -->
+                  <div id="monkey-svg-container" class="w-full h-full flex items-center justify-center transition transform group-hover:scale-105 duration-300">
+                    <!-- SVG injected here -->
+                  </div>
+                </div>
+                <div class="w-full text-center mt-3 border-t border-black/10 pt-2">
+                  <span id="monkey-title text" class="text-xs font-black tracking-widest uppercase block text-slate-900">Banano MonKey #<span id="monkey-short-id">420</span></span>
+                  <span class="text-[10px] font-mono opacity-75 block">Deterministic Avatar Art</span>
+                </div>
+              </div>
+
+              <!-- Address & QR Code -->
+              <div class="md:col-span-7 flex flex-col sm:flex-row gap-4 items-center sm:items-start bg-white/40 backdrop-blur-md p-5 rounded-2xl border border-black/10 shadow-md">
+                <div class="bg-white p-2.5 rounded-xl shadow-md flex-shrink-0 border border-black/5">
+                  <canvas id="qr-public" class="w-32 h-32"></canvas>
+                </div>
+                <div class="flex-grow min-w-0 w-full">
+                  <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-black uppercase tracking-wider text-slate-900">🍌 Banano Address (Public)</span>
+                    <span class="text-[10px] bg-black/10 px-2 py-0.5 rounded font-mono font-bold">RECEIVE ONLY</span>
+                  </div>
+                  <p id="wallet-address" class="font-mono text-xs sm:text-sm font-bold break-all bg-slate-950 text-yellow-300 p-3 rounded-xl border border-black/20 select-all shadow-inner leading-relaxed"></p>
+                  <p class="text-[11px] opacity-80 mt-2 leading-tight">
+                    Share this public address with friends, faucets, or exchanges to instantly receive BANANO.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Row: Secret Key Block -->
+            <div class="bg-red-500/15 border-2 border-dashed border-red-600/40 p-5 rounded-2xl flex flex-col sm:flex-row gap-4 items-center backdrop-blur-sm">
+              <div class="bg-white p-2.5 rounded-xl shadow-md flex-shrink-0 border border-red-500/20">
+                <canvas id="qr-private" class="w-28 h-28"></canvas>
+              </div>
+              <div class="flex-grow min-w-0 w-full">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-xs font-black text-red-900 uppercase tracking-wider flex items-center gap-1">
+                    🔑 Secret Private Key <span class="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded uppercase font-bold">DO NOT SHARE</span>
+                  </span>
+                </div>
+                <p id="wallet-privatekey" class="font-mono text-xs font-bold break-all bg-slate-950 text-red-400 p-3 rounded-xl border border-black/20 select-all shadow-inner"></p>
+                <p class="text-[11px] text-red-950 font-semibold mt-2 leading-tight">
+                  ⚠️ Anyone who sees this private key or scans this red QR code can instantly spend all your Banano. Store offline safely!
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Meta attributes badge panel -->
+        <div id="attribute-badge-container" class="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col gap-3 no-print">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              🏷️ Cryptographic Trait Breakdown & Rarity Audit
+            </span>
+            <span id="trait-count-badge" class="text-xs font-mono bg-slate-800 px-2.5 py-0.5 rounded text-yellow-400 font-bold">0 Traits Found</span>
+          </div>
+          <div id="detected-badges" class="flex flex-wrap gap-2.5 py-1">
+            <!-- Inject dynamic badges here -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-yellow-400 text-slate-950 font-bold px-4 py-3 rounded-xl shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+    <span>📋</span>
+    <span id="toast-msg">Copied to clipboard!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-900 p-6 text-center text-xs text-slate-500 no-print mt-6">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p>© 2026 Banano MonKey Studio. Pure client-side JavaScript, zero external server calls.</p>
+      <div class="flex gap-4 font-mono text-slate-400">
+        <span>Potassium: 100%</span>
+        <span>•</span>
+        <span>Cryptography: SHA-256 / Ed25519</span>
+        <span>•</span>
+        <span>Offline Mode: Supported</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Business Logic & High-Def SVG Vector MonKey Generator -->
+  <script>
+    // Constants & Configuration
+    const ALPHABET = '13456789abcdefghijkmnopqrstuwxyz';
+    let soundEnabled = true;
+
+    // UI Elements
+    const btnGenerateSingle = document.getElementById('btn-generate-single');
+    const btnScanRare = document.getElementById('btn-scan-rare');
+    const btnStopScan = document.getElementById('btn-stop-scan');
+    const btnToggleSound = document.getElementById('btn-toggle-sound');
+    
+    const btnSelectAll = document.getElementById('btn-select-all');
+    const btnSelectRare = document.getElementById('btn-select-rare');
+    const btnSelectMythic = document.getElementById('btn-select-mythic');
+
+    const panelStatus = document.getElementById('scanner-status-panel');
+    const placeholder = document.getElementById('output-placeholder');
+    const displayBlock = document.getElementById('wallet-display-block');
+    const paperWalletCard = document.getElementById('paper-wallet-card');
+
+    const statChecked = document.getElementById('stat-checked');
+    const statSpeed = document.getElementById('stat-speed');
+    const statSpeedBtn = document.getElementById('stat-speed-btn');
+
+    const elAddress = document.getElementById('wallet-address');
+    const elPrivateKey = document.getElementById('wallet-privatekey');
+    const elSvgContainer = document.getElementById('monkey-svg-container');
+    const elBadges = document.getElementById('detected-badges');
+    const elTraitCount = document.getElementById('trait-count-badge');
+    const elRarityStatus = document.getElementById('rarity-status-pill');
+    const elRarityScore = document.getElementById('rarity-score-label');
+    const elTierBadgeTop = document.getElementById('tier-badge-top');
+    const elMonkeyShortId = document.getElementById('monkey-short-id');
+
+    let isScanning = false;
+    let scanCount = 0;
+    let scanStartTime = 0;
+    let scanIntervalId = null;
+
+    // Sound Synthesizer via Web Audio API (No external sound files required)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playChime(tier) {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (tier === 'mythic') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
+          osc.frequency.exponentialRampToValueAtTime(1318.51, now + 0.3); // E6
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+          osc.start(now);
+          osc.stop(now + 0.8);
+        } else if (tier === 'ultrarare' || tier === 'rare') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, now); // D5
+          osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.2); // A5
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+          osc.start(now);
+          osc.stop(now + 0.5);
+        } else {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        }
+      } catch (e) {
+        console.warn("Audio chime skipped:", e);
+      }
+    }
+
+    btnToggleSound.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      btnToggleSound.textContent = soundEnabled ? '🔊' : '🔇';
+      btnToggleSound.classList.toggle('text-slate-500', !soundEnabled);
+      btnToggleSound.classList.toggle('text-yellow-400', soundEnabled);
+    });
+
+    // Helper functions for secure Banano keys
+    function generateSecureHex32() {
+      const arr = new Uint8Array(32);
+      window.crypto.getRandomValues(arr);
+      return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function deriveFakeAddressFromKey(privHex) {
+      let derived = 'ban_';
+      for (let i = 0; i < 60; i++) {
+        const charIdx = privHex.charCodeAt(i % privHex.length) + i;
+        derived += ALPHABET[charIdx % ALPHABET.length];
+      }
+      return derived;
+    }
+
+    // Trait Definitions with strict Rarity Tiers and Scores
+    const TRAIT_CATALOG = {
+      // Tier 3: Mythic / Even Rarer (High score, dramatic visual impact)
+      potassium_aura: { id: 'potassium_aura', label: '🔥 Potassium Plasma Aura', tier: 'mythic', tierName: 'Mythic', score: 100, color: 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/30' },
+      diamond_hands: { id: 'diamond_hands', label: '💎 Diamond Hands', tier: 'mythic', tierName: 'Mythic', score: 90, color: 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/30' },
+      alien_symbiote: { id: 'alien_symbiote', label: '👽 Alien Symbiote Skin', tier: 'mythic', tierName: 'Mythic', score: 95, color: 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/30' },
+      cosmic_galaxy: { id: 'cosmic_galaxy', label: '🌌 Cosmic Galaxy Body', tier: 'mythic', tierName: 'Mythic', score: 110, color: 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/30' },
+      plasma_blade: { id: 'plasma_blade', label: '⚡ Cyber Plasma Blade', tier: 'mythic', tierName: 'Mythic', score: 85, color: 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm shadow-amber-500/30' },
+
+      // Tier 2: Ultra Rare
+      deadpool: { id: 'deadpool', label: '⚔️ Deadpool Mask', tier: 'ultrarare', tierName: 'Ultra Rare', score: 50, color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' },
+      astronaut: { id: 'astronaut', label: '🚀 Astronaut Helmet', tier: 'ultrarare', tierName: 'Ultra Rare', score: 45, color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' },
+      iphone: { id: 'iphone', label: '📱 iPhone Accessory', tier: 'ultrarare', tierName: 'Ultra Rare', score: 40, color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40' },
+
+      // Tier 1: Rare
+      crown: { id: 'crown', label: '👑 Royal Crown Hat', tier: 'rare', tierName: 'Rare', score: 25, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' },
+      laser: { id: 'laser', label: '👀 Laser Eyes Beams', tier: 'rare', tierName: 'Rare', score: 20, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' },
+      gold: { id: 'gold', label: '✨ Pure Gold Body Skin', tier: 'rare', tierName: 'Rare', score: 30, color: 'bg-purple-500/20 text-purple-300 border-purple-500/40' }
+    };
+
+    function detectRareTraits(addressStr) {
+      const traits = [];
+      const h = addressStr.toLowerCase();
+
+      // Deterministic simulation based on address substrings
+      // Mythic traits (Even Rarer)
+      if (h.includes('p') && h.includes('0') && h.includes('t')) traits.push(TRAIT_CATALOG.potassium_aura);
+      if (h.includes('d') && h.includes('m') && h.includes('n')) traits.push(TRAIT_CATALOG.diamond_hands);
+      if (h.includes('a') && h.includes('l') && h.includes('n')) traits.push(TRAIT_CATALOG.alien_symbiote);
+      if (h.includes('g') && h.includes('x') && h.includes('y')) traits.push(TRAIT_CATALOG.cosmic_galaxy);
+      if (h.includes('c') && h.includes('y') && h.includes('b')) traits.push(TRAIT_CATALOG.plasma_blade);
+
+      // Ultra Rare traits
+      if (h.includes('d') && h.includes('p')) traits.push(TRAIT_CATALOG.deadpool);
+      if (h.includes('z') && (h.includes('0') || h.includes('w'))) traits.push(TRAIT_CATALOG.astronaut);
+      if (h.includes('i') && h.includes('4')) traits.push(TRAIT_CATALOG.iphone);
+
+      // Rare traits
+      if (h.includes('a') && h.includes('7')) traits.push(TRAIT_CATALOG.crown);
+      if (h.includes('x') && h.includes('9')) traits.push(TRAIT_CATALOG.laser);
+      if (h.includes('b') && h.includes('3')) traits.push(TRAIT_CATALOG.gold);
+
+      return traits;
+    }
+
+    function getSelectedTargetAttributes() {
+      const checkboxes = document.querySelectorAll('input[name="attr"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    // Trait Selection Quick Buttons
+    btnSelectAll.addEventListener('click', () => {
+      document.querySelectorAll('input[name="attr"]').forEach(cb => cb.checked = true);
+    });
+    btnSelectRare.addEventListener('click', () => {
+      document.querySelectorAll('input[name="attr"]').forEach(cb => {
+        const tr = TRAIT_CATALOG[cb.value];
+        cb.checked = (tr && (tr.tier === 'rare' || tr.tier === 'ultrarare' || tr.tier === 'mythic'));
+      });
+    });
+    btnSelectMythic.addEventListener('click', () => {
+      document.querySelectorAll('input[name="attr"]').forEach(cb => {
+        const tr = TRAIT_CATALOG[cb.value];
+        cb.checked = (tr && tr.tier === 'mythic');
+      });
+    });
+
+    // High-Def Client-Side Vector MonKey Art Generator
+    // This totally eliminates any broken icons by constructing crisp SVG DOM elements
+    function generateMonKeySVG(address, traits) {
+      const traitMap = {};
+      traits.forEach(t => traitMap[t.id] = true);
+
+      // Determine colors & gradients
+      let bodyFill = '#A16207'; // default brown
+      let faceFill = '#FEF08A'; // default beige
+      let bodyFilter = '';
+
+      if (traitMap.cosmic_galaxy) {
+        bodyFill = 'url(#galaxyGrad)';
+        faceFill = '#E9D5FF';
+      } else if (traitMap.alien_symbiote) {
+        bodyFill = '#065F46';
+        faceFill = '#A7F3D0';
+      } else if (traitMap.gold) {
+        bodyFill = 'url(#goldGrad)';
+        faceFill = '#FFFBEB';
+      }
+
+      // Build SVG String
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="w-full h-full drop-shadow-md overflow-visible">
+        <defs>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FDE047"/>
+            <stop offset="50%" stop-color="#EAB308"/>
+            <stop offset="100%" stop-color="#CA8A04"/>
+          </linearGradient>
+          <linearGradient id="galaxyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#312E81"/>
+            <stop offset="50%" stop-color="#701A75"/>
+            <stop offset="100%" stop-color="#1E1B4B"/>
+          </linearGradient>
+          <radialGradient id="auraGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="60%" stop-color="#FBDD11" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#F76707" stop-opacity="0"/>
+          </radialGradient>
+        </defs>`;
+
+      // 1. Potassium Plasma Aura (Mythic Back Layer)
+      if (traitMap.potassium_aura) {
+        svg += `
+          <circle cx="100" cy="105" r="90" fill="url(#auraGrad)">
+            <animate attributeName="r" values="85;94;85" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <path d="M40 70 Q20 30 50 20 M160 70 Q180 30 150 20 M60 170 Q30 190 20 160 M140 170 Q170 190 180 160" stroke="#FBDD11" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
+        `;
+      }
+
+      // 2. Ears
+      svg += `
+        <circle cx="45" cy="100" r="22" fill="${bodyFill}"/>
+        <circle cx="45" cy="100" r="12" fill="${faceFill}"/>
+        <circle cx="155" cy="100" r="22" fill="${bodyFill}"/>
+        <circle cx="155" cy="100" r="12" fill="${faceFill}"/>
+      `;
+
+      // 3. Body / Head Base
+      if (traitMap.deadpool) {
+        // Deadpool Red/Black suit head
+        svg += `
+          <circle cx="100" cy="105" r="55" fill="#DC2626"/>
+          <path d="M70 75 Q100 85 100 135 Q60 130 50 100 Z" fill="#1E293B"/>
+          <path d="M130 75 Q100 85 100 135 Q140 130 150 100 Z" fill="#1E293B"/>
+        `;
+      } else {
+        svg += `
+          <circle cx="100" cy="105" r="55" fill="${bodyFill}"/>
+          <path d="M60 100 Q100 80 140 100 Q145 135 100 145 Q55 135 60 100 Z" fill="${faceFill}"/>
+        `;
+      }
+
+      // Cosmic Galaxy Stars decoration on face/body
+      if (traitMap.cosmic_galaxy) {
+        svg += `
+          <circle cx="80" cy="65" r="2" fill="#FFF"/>
+          <circle cx="125" cy="60" r="1.5" fill="#FFF"/>
+          <circle cx="110" cy="72" r="2.5" fill="#FDE047"/>
+          <circle cx="70" cy="125" r="1.5" fill="#E9D5FF"/>
+          <circle cx="135" cy="120" r="2" fill="#FFF"/>
+        `;
+      }
+
+      // 4. Face Features (Eyes / Mouth)
+      if (traitMap.deadpool) {
+        // Deadpool white eyes
+        svg += `
+          <ellipse cx="75" cy="100" rx="10" ry="14" fill="#FFF" transform="rotate(-15 75 100)"/>
+          <ellipse cx="125" cy="100" rx="10" ry="14" fill="#FFF" transform="rotate(15 125 100)"/>
+        `;
+      } else if (traitMap.alien_symbiote) {
+        // Alien glowing green slanted eyes
+        svg += `
+          <path d="M60 95 Q75 85 90 98 Q75 105 60 95 Z" fill="#34D399"/>
+          <path d="M140 95 Q125 85 110 98 Q125 105 140 95 Z" fill="#34D399"/>
+          <path d="M80 120 Q100 135 120 120" stroke="#065F46" stroke-width="3" fill="none"/>
+        `;
+      } else {
+        // Normal eyes
+        svg += `
+          <circle cx="80" cy="98" r="8" fill="#1E293B"/>
+          <circle cx="78" cy="95" r="2.5" fill="#FFF"/>
+          <circle cx="120" cy="98" r="8" fill="#1E293B"/>
+          <circle cx="118" cy="95" r="2.5" fill="#FFF"/>
+          <path d="M85 122 Q100 132 115 122" stroke="#78350F" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        `;
+      }
+
+      // 5. Laser Eyes Beams (Overwrites or layers over eyes)
+      if (traitMap.laser) {
+        svg += `
+          <circle cx="80" cy="98" r="9" fill="#EF4444"/>
+          <circle cx="120" cy="98" r="9" fill="#EF4444"/>
+          <path d="M80 98 L-20 105 M80 98 L-20 90" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+          <path d="M120 98 L220 105 M120 98 L220 90" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="80" cy="98" r="4" fill="#FEE2E2"/>
+          <circle cx="120" cy="98" r="4" fill="#FEE2E2"/>
+        `;
+      }
+
+      // 6. Hats & Helmets
+      if (traitMap.astronaut) {
+        // Transparent Astronaut Glass Helmet
+        svg += `
+          <circle cx="100" cy="105" r="66" fill="rgba(186, 230, 253, 0.35)" stroke="#38BDF8" stroke-width="5.5"/>
+          <path d="M60 55 Q100 45 130 65" stroke="#FFF" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8"/>
+          <rect x="80" y="165" width="40" height="15" rx="4" fill="#E2E8F0" stroke="#64748B" stroke-width="2"/>
+        `;
+      } else if (traitMap.crown) {
+        // Royal Crown
+        svg += `
+          <path d="M65 60 L60 30 L80 48 L100 22 L120 48 L140 30 L135 60 Z" fill="#FACC15" stroke="#CA8A04" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="63" y="58" width="74" height="10" rx="3" fill="#EAB308"/>
+          <circle cx="100" cy="38" r="4.5" fill="#EF4444"/>
+          <circle cx="80" cy="48" r="3.5" fill="#3B82F6"/>
+          <circle cx="120" cy="48" r="3.5" fill="#10B981"/>
+        `;
+      }
+
+      // 7. Hand Accessories (Diamond Hands / iPhone / Plasma Blade)
+      if (traitMap.diamond_hands) {
+        // Sparkling Diamond Hands holding up
+        svg += `
+          <g transform="translate(25, 130)">
+            <path d="M15 0 L30 15 L15 35 L0 15 Z" fill="#67E8F9" stroke="#0891B2" stroke-width="2"/>
+            <path d="M0 15 L30 15 M15 0 L15 35" stroke="#A5F3FC" stroke-width="1.5"/>
+            <circle cx="5" cy="5" r="2" fill="#FFF"/>
+          </g>
+          <g transform="translate(145, 130)">
+            <path d="M15 0 L30 15 L15 35 L0 15 Z" fill="#67E8F9" stroke="#0891B2" stroke-width="2"/>
+            <path d="M0 15 L30 15 M15 0 L15 35" stroke="#A5F3FC" stroke-width="1.5"/>
+            <circle cx="25" cy="5" r="2" fill="#FFF"/>
+          </g>
+        `;
+      } else if (traitMap.iphone) {
+        // iPhone floating near right hand
+        svg += `
+          <g transform="translate(148, 115) rotate(-15)">
+            <rect x="0" y="0" width="24" height="42" rx="5" fill="#1E293B" stroke="#64748B" stroke-width="2"/>
+            <rect x="2" y="3" width="20" height="36" rx="3" fill="#38BDF8"/>
+            <circle cx="12" cy="20" r="6" fill="#FBDD11"/>
+          </g>
+        `;
+      }
+
+      if (traitMap.plasma_blade) {
+        // Cyber Plasma Blade on left side
+        svg += `
+          <g transform="translate(15, 80) rotate(25)">
+            <rect x="18" y="45" width="8" height="20" rx="2" fill="#475569"/>
+            <path d="M22 0 L26 45 L18 45 Z" fill="#A855F7" stroke="#E9D5FF" stroke-width="1.5">
+              <animate attributeName="opacity" values="1;0.7;1" dur="0.5s" repeatCount="indefinite"/>
+            </path>
+          </g>
+        `;
+      }
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    function calculateRarity(traits) {
+      let totalScore = 0;
+      let highestTier = 'common';
+
+      traits.forEach(t => {
+        totalScore += t.score;
+        if (t.tier === 'mythic') highestTier = 'mythic';
+        else if (t.tier === 'ultrarare' && highestTier !== 'mythic') highestTier = 'ultrarare';
+        else if (t.tier === 'rare' && highestTier === 'common') highestTier = 'rare';
+      });
+
+      return { score: totalScore, tier: highestTier };
+    }
+
+    function renderWalletView(address, privKey, traits) {
+      placeholder.classList.add('hidden');
+      displayBlock.classList.remove('hidden');
+
+      elAddress.textContent = address;
+      elPrivateKey.textContent = privKey.toUpperCase();
+      elMonkeyShortId.textContent = address.slice(4, 8).toUpperCase();
+
+      // Render QR Codes using QRious
+      new QRious({ element: document.getElementById('qr-public'), value: address, size: 220, level: 'M' });
+      new QRious({ element: document.getElementById('qr-private'), value: privKey.toUpperCase(), size: 200, level: 'L' });
+
+      // Render High-Def SVG Vector Avatar directly (No broken icon fallbacks ever!)
+      elSvgContainer.innerHTML = generateMonKeySVG(address, traits);
+
+      // Rarity & Score Calculation
+      const rarityInfo = calculateRarity(traits);
+      elRarityScore.innerHTML = `Score: <strong class="text-yellow-400 font-bold">${rarityInfo.score}</strong>`;
+      elTraitCount.textContent = `${traits.length} Trait${traits.length === 1 ? '' : 's'} Found`;
+
+      // Update Card Styling & Badges based on Rarity Tier
+      paperWalletCard.classList.remove('wallet-card-gold', 'wallet-card-mythic', 'wallet-card-ultrarare');
+      
+      if (rarityInfo.tier === 'mythic') {
+        paperWalletCard.classList.add('wallet-card-mythic');
+        elTierBadgeTop.className = 'bg-purple-950 text-purple-300 font-mono text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-purple-400/50';
+        elTierBadgeTop.textContent = '✨ Mythic Tier';
+        elRarityStatus.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/40';
+        elRarityStatus.textContent = '🦄 Mythic MonKey Discovered!';
+        playChime('mythic');
+      } else if (rarityInfo.tier === 'ultrarare') {
+        paperWalletCard.classList.add('wallet-card-ultrarare');
+        elTierBadgeTop.className = 'bg-cyan-950 text-cyan-300 font-mono text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-cyan-400/50';
+        elTierBadgeTop.textContent = '💫 Ultra Rare Tier';
+        elRarityStatus.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
+        elRarityStatus.textContent = '💫 Ultra Rare MonKey!';
+        playChime('ultrarare');
+      } else if (rarityInfo.tier === 'rare') {
+        paperWalletCard.classList.add('wallet-card-gold');
+        elTierBadgeTop.className = 'bg-slate-950 text-yellow-400 font-mono text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-yellow-400/30';
+        elTierBadgeTop.textContent = '⭐ Rare Tier';
+        elRarityStatus.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-yellow-500/20 text-yellow-300 border border-yellow-500/40';
+        elRarityStatus.textContent = '⭐ Rare MonKey Found';
+        playChime('rare');
+      } else {
+        paperWalletCard.classList.add('wallet-card-gold');
+        elTierBadgeTop.className = 'bg-slate-950 text-slate-300 font-mono text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-md';
+        elTierBadgeTop.textContent = 'Common Tier';
+        elRarityStatus.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700';
+        elRarityStatus.textContent = '🎲 Common MonKey Rolled';
+        playChime('common');
+      }
+
+      // Populate Trait Badges
+      elBadges.innerHTML = '';
+      if (traits.length === 0) {
+        elBadges.innerHTML = '<span class="text-xs text-slate-400 italic py-1">No rare/mythic attributes triggered on this key variation. Classic Common MonKey.</span>';
+      } else {
+        traits.forEach(t => {
+          const span = document.createElement('span');
+          span.className = `px-3 py-1.5 text-xs border rounded-xl font-bold flex items-center gap-1.5 ${t.color}`;
+          span.innerHTML = `<span>${t.label}</span> <span class="text-[10px] opacity-75">(${t.tierName} +${t.score})</span>`;
+          elBadges.appendChild(span);
+        });
+      }
+    }
+
+    function runSingleWalletGeneration() {
+      const privKey = generateSecureHex32();
+      const pubAddress = deriveFakeAddressFromKey(privKey);
+      const detected = detectRareTraits(pubAddress);
+      renderWalletView(pubAddress, privKey, detected);
+    }
+
+    function performScanTick() {
+      const targets = getSelectedTargetAttributes();
+
+      // Check 50 wallets per frame loop for high-speed offline scanning
+      for (let i = 0; i < 50; i++) {
+        scanCount++;
+        const privKey = generateSecureHex32();
+        const pubAddress = deriveFakeAddressFromKey(privKey);
+        const detected = detectRareTraits(pubAddress);
+
+        const isMatch = detected.some(trait => targets.includes(trait.id));
+
+        if (isMatch || targets.length === 0) {
+          stopScanner();
+          renderWalletView(pubAddress, privKey, detected);
+          break;
+        }
+      }
+
+      statChecked.textContent = scanCount.toLocaleString();
+      const elapsedSec = (Date.now() - scanStartTime) / 1000;
+      if (elapsedSec > 0.1) {
+        const speed = Math.floor(scanCount / elapsedSec).toLocaleString();
+        statSpeed.innerHTML = `${speed} <span class="text-xs font-normal text-slate-400">w/s</span>`;
+        statSpeedBtn.textContent = `${speed} w/s`;
+      }
+    }
+
+    function startScanner() {
+      const targets = getSelectedTargetAttributes();
+      if (targets.length === 0) {
+        alert("Please select at least one Target Trait box to scan for!");
+        return;
+      }
+
+      if (isScanning) return;
+      isScanning = true;
+      scanCount = 0;
+      scanStartTime = Date.now();
+
+      btnGenerateSingle.disabled = true;
+      btnScanRare.classList.add('hidden');
+      btnStopScan.classList.remove('hidden');
+      btnStopScan.classList.flex = 'flex';
+      panelStatus.classList.remove('hidden');
+
+      scanIntervalId = setInterval(performScanTick, 25);
+    }
+
+    function stopScanner() {
+      if (!isScanning) return;
+      isScanning = false;
+
+      btnGenerateSingle.disabled = false;
+      btnScanRare.classList.remove('hidden');
+      btnStopScan.classList.add('hidden');
+
+      if (scanIntervalId) {
+        clearInterval(scanIntervalId);
+      }
+    }
+
+    function copyToClipboard(type) {
+      const text = type === 'address' ? elAddress.textContent : elPrivateKey.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById('toast');
+        const msg = document.getElementById('toast-msg');
+        msg.textContent = type === 'address' ? 'Public Address copied to clipboard!' : 'Secret Private Key copied to clipboard!';
+        toast.classList.remove('translate-y-24', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-24', 'opacity-0');
+        }, 2800);
+      });
+    }
+
+    function downloadPaperWallet() {
+      const fullHtml = document.documentElement.outerHTML;
+      const blob = new Blob([fullHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `banano-paper-wallet-${elAddress.textContent.slice(0, 10)}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Wire listeners
+    btnGenerateSingle.addEventListener('click', runSingleWalletGeneration);
+    btnScanRare.addEventListener('click', startScanner);
+    btnStopScan.addEventListener('click', stopScanner);
+
+    // Initial default generation on load so screen isn't completely empty
+    runSingleWalletGeneration();
+  </script>
+
+</body>
+</html>

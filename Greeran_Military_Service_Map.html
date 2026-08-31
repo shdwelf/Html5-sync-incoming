@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greeran Family — Military Service Map</title>
+<style>
+:root {
+  --bg:#0a0e1a; --panel:#111827; --border:#1e2d45;
+  --gold:#f59e0b; --red:#ef4444; --blue:#3b82f6;
+  --green:#22c55e; --purple:#a855f7; --teal:#14b8a6;
+  --indigo:#818cf8;
+  --text:#f1f5f9; --muted:#94a3b8;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; overflow:hidden; }
+body {
+  background:var(--bg); color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;
+  display:flex; flex-direction:column;
+}
+
+/* ── HEADER ── */
+.header {
+  flex-shrink:0;
+  background:linear-gradient(180deg,rgba(10,14,26,.98),rgba(10,14,26,.90));
+  border-bottom:1px solid var(--border);
+  padding:9px 16px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  flex-wrap:wrap; z-index:10;
+}
+.header h1 { font-size:1.05rem; font-weight:800; color:var(--gold); white-space:nowrap; }
+.header p  { font-size:.67rem; color:var(--muted); }
+.era-tabs  { display:flex; gap:4px; flex-wrap:wrap; }
+.era-btn {
+  padding:5px 11px; border-radius:20px; font-size:.7rem; font-weight:700;
+  border:1px solid var(--border); cursor:pointer; background:transparent;
+  color:var(--muted); transition:.18s; white-space:nowrap;
+}
+.era-btn.rev  { border-color:var(--gold);   } .era-btn.rev.active  { background:#f59e0b22; color:var(--gold);   }
+.era-btn.ww2  { border-color:var(--blue);   } .era-btn.ww2.active  { background:#3b82f622; color:var(--blue);   }
+.era-btn.viet { border-color:var(--red);    } .era-btn.viet.active { background:#ef444422; color:var(--red);    }
+.era-btn.all  { border-color:var(--purple); } .era-btn.all.active  { background:#a855f722; color:var(--purple); }
+
+/* ── MAIN AREA ── */
+.main {
+  flex:1; display:flex; overflow:hidden; min-height:0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width:300px; min-width:280px; flex-shrink:0;
+  background:var(--panel); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+
+/* Sidebar top: veteran list */
+.vet-list {
+  flex:1; overflow-y:auto; padding:10px;
+}
+.vet-list h2 {
+  font-size:.68rem; font-weight:800; color:var(--muted);
+  text-transform:uppercase; letter-spacing:1px;
+  margin-bottom:8px; padding:0 2px;
+}
+.person-card {
+  background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-left:4px solid transparent;
+  border-radius:7px; padding:10px; margin-bottom:6px;
+  cursor:pointer; transition:.15s;
+}
+.person-card:hover { background:rgba(255,255,255,.07); border-left-color:var(--gold); }
+.person-card.active { background:#141e2f; border-left-color:var(--gold); }
+.person-card.era-rev.active { border-left-color:var(--gold); }
+.person-card.era-ww2.active { border-left-color:var(--blue); }
+.person-card.era-viet.active{ border-left-color:var(--red);  }
+.pc-name { font-weight:700; font-size:.82rem; }
+.pc-dates { font-size:.68rem; color:var(--muted); margin-top:2px; }
+.pc-rel   { font-size:.67rem; color:#64748b; }
+.pc-badges{ margin-top:6px; display:flex; gap:4px; flex-wrap:wrap; }
+.badge {
+  display:inline-flex; align-items:center; gap:3px;
+  border-radius:8px; padding:2px 7px; font-size:.63rem; font-weight:800;
+  border:1px solid;
+}
+.badge-rev  { background:#f59e0b15; color:var(--gold);   border-color:#f59e0b44; }
+.badge-ww2  { background:#3b82f615; color:var(--blue);   border-color:#3b82f644; }
+.badge-viet { background:#ef444415; color:var(--red);    border-color:#ef444444; }
+.badge-home { background:#a855f715; color:var(--purple); border-color:#a855f744; }
+
+/* Sidebar bottom: detail panel */
+.detail-panel {
+  border-top:1px solid var(--border);
+  background:#0c1220;
+  flex-shrink:0;
+  overflow-y:auto;
+  max-height:55%;
+  padding:12px;
+  display:none;
+}
+.detail-panel.show { display:block; }
+.detail-panel .back-btn {
+  font-size:.68rem; color:var(--muted); cursor:pointer;
+  margin-bottom:8px; display:flex; align-items:center; gap:4px;
+  padding:3px 6px; border-radius:4px; background:rgba(255,255,255,.04);
+  border:none; width:fit-content;
+}
+.detail-panel .back-btn:hover { color:var(--text); }
+.detail-panel h3 { font-size:.88rem; font-weight:800; color:var(--gold); margin-bottom:2px; }
+.detail-panel .theatre { font-size:.7rem; color:var(--muted); margin-bottom:10px; line-height:1.4; }
+.loc-list { list-style:none; }
+.loc-list li {
+  display:flex; align-items:flex-start; gap:8px;
+  padding:6px 0; border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:.74rem;
+}
+.loc-list li:last-child { border:none; }
+.loc-dot  { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.loc-year { color:var(--gold); font-weight:800; min-width:38px; }
+.loc-note { color:var(--muted); font-size:.68rem; margin-top:1px; }
+.detail-footer {
+  margin-top:8px; padding:8px;
+  background:rgba(255,255,255,.03); border-radius:5px;
+  font-size:.68rem; color:var(--muted); font-style:italic;
+  line-height:1.4;
+}
+
+/* ── MAP AREA ── */
+#map-wrap {
+  flex:1; position:relative; overflow:hidden;
+}
+#world-svg { width:100%; height:100%; }
+
+/* Floating elements inside map */
+.legend {
+  position:absolute; right:12px; bottom:56px;
+  background:rgba(10,15,26,.92); border:1px solid var(--border);
+  border-radius:9px; padding:10px 13px;
+  backdrop-filter:blur(8px); font-size:.69rem; z-index:5; min-width:148px;
+}
+.legend h4 { font-size:.63rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:7px; }
+.leg-row { display:flex; align-items:center; gap:7px; padding:2px 0; }
+.leg-circ { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.leg-dash { width:22px; border-top:2px dashed; flex-shrink:0; }
+
+/* Timeline bar */
+.timeline {
+  position:absolute; bottom:10px; left:12px; right:172px;
+  background:rgba(10,15,26,.92); border:1px solid var(--border);
+  border-radius:9px; padding:9px 14px;
+  backdrop-filter:blur(8px); z-index:5;
+}
+.tl-title { font-size:.68rem; font-weight:700; color:var(--gold); margin-bottom:5px; }
+.tl-bar  { position:relative; height:5px; background:#1e2d45; border-radius:3px; margin:0 0 5px; }
+.tl-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--gold),var(--blue),var(--red)); }
+.tl-labels { display:flex; justify-content:space-between; font-size:.6rem; color:var(--muted); }
+.tl-eras { display:flex; gap:10px; flex-wrap:wrap; margin-top:5px; }
+.tl-era  { font-size:.62rem; color:var(--muted); display:flex; align-items:center; gap:4px; }
+.tl-dot  { width:7px; height:7px; border-radius:50%; }
+
+/* Cluster popup */
+.cluster-popup {
+  position:absolute; background:rgba(10,15,26,.96);
+  border:1px solid var(--border); border-radius:9px;
+  padding:10px 12px; z-index:20;
+  font-size:.72rem; min-width:200px;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  display:none;
+}
+.cluster-popup.show { display:block; }
+.cluster-popup h4 { font-size:.7rem; color:var(--gold); font-weight:700; margin-bottom:7px; }
+.cluster-popup .cp-row {
+  display:flex; align-items:center; gap:8px;
+  padding:5px 0; border-bottom:1px solid rgba(255,255,255,.06);
+  cursor:pointer;
+}
+.cluster-popup .cp-row:last-child { border:none; }
+.cluster-popup .cp-row:hover { color:var(--gold); }
+.cluster-popup .cp-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.cluster-popup .cp-close {
+  float:right; cursor:pointer; color:var(--muted);
+  font-size:.8rem; line-height:1;
+}
+
+/* SVG marker animations */
+.pulse-anim { animation: pulseR 2.2s ease-in-out infinite; }
+@keyframes pulseR {
+  0%,100% { r:7; opacity:.9; }
+  50%      { r:11; opacity:.4; }
+}
+.route-draw { stroke-dasharray:1200; stroke-dashoffset:1200; animation:drawRoute 3s ease forwards; }
+@keyframes drawRoute { to { stroke-dashoffset:0; } }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#1e2d45; border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <h1>⚔️ Greeran Family — Military Service Map</h1>
+    <p>Revolutionary War 1780 · WWII 1941–45 · Vietnam 1965–72 · Click markers or veteran cards for details</p>
+  </div>
+  <div class="era-tabs">
+    <button class="era-btn all active" onclick="filterEra('all')">All Eras</button>
+    <button class="era-btn rev"  onclick="filterEra('rev')">🏛 Rev. War</button>
+    <button class="era-btn ww2"  onclick="filterEra('ww2')">⚓ WWII</button>
+    <button class="era-btn viet" onclick="filterEra('viet')">🎖️ Vietnam</button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════ -->
+  <div class="sidebar">
+
+    <!-- Veteran list -->
+    <div class="vet-list" id="vet-list">
+      <h2>🎖️ Family Veterans</h2>
+
+      <div class="person-card era-rev" id="card-samuel" onclick="showDetail('samuel')">
+        <div class="pc-name">Samuel Carey</div>
+        <div class="pc-dates">b. 2 Apr 1752, Bucks Co. PA &nbsp;·&nbsp; d. 6 Sep 1823</div>
+        <div class="pc-rel">5× great-grandfather of Steven Greeran</div>
+        <div class="pc-badges">
+          <span class="badge badge-rev">🏛 Revolutionary War</span>
+        </div>
+        <div style="font-size:.66rem;color:var(--gold);margin-top:5px">NSDAR Ancestor #A020262</div>
+        <div style="font-size:.65rem;color:var(--muted)">Capt. Gibson's Co. · Plumstead Twp PA Militia</div>
+      </div>
+
+      <div class="person-card era-ww2" id="card-francis" onclick="showDetail('francis')">
+        <div class="pc-name">PVT Francis Gray Carey</div>
+        <div class="pc-dates">b. 4 Feb 1897, Pasadena CA &nbsp;·&nbsp; d. 25 Jun 1976</div>
+        <div class="pc-rel">Great-grandfather of Steven Greeran</div>
+        <div class="pc-badges">
+          <span class="badge badge-ww2">⚓ WWII</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--indigo);margin-top:5px">Private (PVT) · US Army · European Theater</div>
+      </div>
+
+      <div class="person-card era-ww2" id="card-bernard" onclick="showDetail('bernard')">
+        <div class="pc-name">Bernard Patrick Greeran</div>
+        <div class="pc-dates">b. 21 Jun 1924, Co. Down &nbsp;·&nbsp; d. 3 Feb 2017</div>
+        <div class="pc-rel">Grandfather of Steven Greeran</div>
+        <div class="pc-badges">
+          <span class="badge badge-ww2">⚓ WWII</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--teal);margin-top:5px">US Navy Veteran · Ireland → Queens NY → CA</div>
+      </div>
+
+      <div class="person-card era-ww2" id="card-james" onclick="showDetail('james')">
+        <div class="pc-name">James T. Greeran</div>
+        <div class="pc-dates">b. 11 Jul 1925, New York &nbsp;·&nbsp; d. 21 Jun 2012</div>
+        <div class="pc-rel">Great-uncle (brother of Gerard T. Greeran)</div>
+        <div class="pc-badges">
+          <span class="badge badge-ww2">⚓ WWII</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--blue);margin-top:5px">US Navy Veteran · Pacific Theater</div>
+      </div>
+
+      <div class="person-card era-ww2" id="card-ralph" onclick="showDetail('ralph')">
+        <div class="pc-name">Ralph Dunn</div>
+        <div class="pc-dates">b. 14 Aug 1918 &nbsp;·&nbsp; d. 13 Mar 2006</div>
+        <div class="pc-rel">Father-in-law of Patricia Greeran Dunn</div>
+        <div class="pc-badges">
+          <span class="badge badge-ww2">⚓ WWII</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--blue);margin-top:5px">US Navy Veteran · San Pedro CA · Pacific Fleet</div>
+      </div>
+
+      <div class="person-card era-viet" id="card-michael" onclick="showDetail('michael')">
+        <div class="pc-name">CPL Michael Patrick Greeran</div>
+        <div class="pc-dates">b. 20 Feb 1947, Queens NY &nbsp;·&nbsp; d. 21 Feb 2005</div>
+        <div class="pc-rel">Son of Bernard Patrick Greeran</div>
+        <div class="pc-badges">
+          <span class="badge badge-viet">🎖️ Vietnam War</span>
+        </div>
+        <div style="font-size:.65rem;color:var(--red);margin-top:5px">Corporal · USMC · I Corps · Đà Nẵng · Huế · Khe Sanh</div>
+      </div>
+
+      <div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:6px;font-size:.66rem;color:var(--muted);line-height:1.45">
+        <strong style="color:#64748b">Tip:</strong> Click a card above or tap any map marker to see deployment details. Use the era buttons to filter. Overlapping east-coast markers show a cluster — click to pick.
+      </div>
+    </div><!-- /vet-list -->
+
+    <!-- Detail sub-panel (slides in at bottom of sidebar) -->
+    <div class="detail-panel" id="detail-panel">
+      <button class="back-btn" onclick="closeDetail()">← Back to all veterans</button>
+      <h3 id="d-name"></h3>
+      <div class="theatre" id="d-theatre"></div>
+      <ul class="loc-list" id="d-locs"></ul>
+      <div class="detail-footer" id="d-note"></div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <!-- ═══════════════════════════════════
+       MAP
+  ═══════════════════════════════════ -->
+  <div id="map-wrap">
+
+    <svg id="world-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
+          <stop offset="0%"   style="stop-color:#0d1929"/>
+          <stop offset="100%" style="stop-color:#060b14"/>
+        </radialGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <marker id="arr-gold" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <polygon points="0 0,7 2.5,0 5" fill="#f59e0b"/>
+        </marker>
+        <marker id="arr-blue" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <polygon points="0 0,7 2.5,0 5" fill="#3b82f6"/>
+        </marker>
+        <marker id="arr-indigo" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <polygon points="0 0,7 2.5,0 5" fill="#818cf8"/>
+        </marker>
+        <marker id="arr-red" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <polygon points="0 0,7 2.5,0 5" fill="#ef4444"/>
+        </marker>
+      </defs>
+
+      <!-- Ocean -->
+      <rect width="1000" height="500" fill="url(#bgGrad)"/>
+
+      <!-- ── CONTINENTS ── -->
+      <path d="M90,60 L120,55 L150,45 L200,42 L230,50 L255,65 L270,80 L275,100 L280,125
+               L270,145 L260,165 L250,185 L240,210 L230,230 L225,255 L220,270
+               L200,280 L185,285 L170,280 L160,270 L150,255 L145,240
+               L140,225 L130,210 L120,195 L110,180 L100,160 L90,140 L82,115 L80,90 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M195,220 L205,235 L200,250 L190,255 L182,248 L183,235 Z" fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <path d="M270,20 L310,15 L330,25 L325,45 L310,55 L285,58 L268,45 Z" fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".6"/>
+      <path d="M420,65 L450,55 L480,52 L510,58 L525,70 L520,90 L510,105 L498,115
+               L480,118 L465,115 L450,108 L438,95 L428,80 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M410,68 L420,60 L428,65 L425,78 L415,82 L408,75 Z" fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <path d="M398,68 L407,62 L412,68 L408,76 L400,76 Z" fill="#1e6b3a" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M430,130 L470,120 L510,130 L530,155 L535,190 L530,225 L515,255 L500,270
+               L480,275 L460,270 L445,250 L432,225 L425,195 L422,165 L425,145 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M520,55 L580,45 L650,40 L720,45 L780,55 L820,70 L840,90 L835,115
+               L820,130 L800,140 L775,145 L750,140 L720,130 L695,125 L670,130
+               L650,140 L630,145 L610,140 L590,130 L570,120 L550,108 L535,95 L522,80 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M720,145 L740,148 L750,165 L748,185 L740,205 L728,215 L715,210 L708,195
+               L710,175 L715,160 Z" fill="#1c3020" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M775,110 L788,108 L795,120 L790,135 L778,140 L769,132 L768,120 Z" fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <path d="M802,90 L812,85 L820,92 L815,105 L805,108 L798,100 Z"  fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <ellipse cx="795" cy="138" rx="8" ry="4"  fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <circle  cx="815" cy="175" r="4"           fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <path d="M760,155 L772,150 L778,160 L773,172 L762,170 L756,162 Z" fill="#1a2535" stroke="#2a3a55" stroke-width=".8"/>
+      <path d="M760,280 L820,265 L870,270 L905,290 L910,320 L895,350 L860,365
+               L815,368 L775,355 L748,330 L742,305 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+      <path d="M195,285 L225,270 L260,275 L285,295 L295,325 L290,360 L275,390
+               L255,405 L230,408 L208,395 L195,370 L185,340 L185,310 Z"
+            fill="#1a2535" stroke="#2a3a55" stroke-width=".8" opacity=".9"/>
+
+      <!-- Grid -->
+      <g stroke="#1e2d45" stroke-width=".35" opacity=".5">
+        <line x1="0" y1="100" x2="1000" y2="100"/> <line x1="0" y1="200" x2="1000" y2="200"/>
+        <line x1="0" y1="300" x2="1000" y2="300"/> <line x1="0" y1="400" x2="1000" y2="400"/>
+        <line x1="100" y1="0" x2="100" y2="500"/>   <line x1="200" y1="0" x2="200" y2="500"/>
+        <line x1="300" y1="0" x2="300" y2="500"/>   <line x1="400" y1="0" x2="400" y2="500"/>
+        <line x1="500" y1="0" x2="500" y2="500"/>   <line x1="600" y1="0" x2="600" y2="500"/>
+        <line x1="700" y1="0" x2="700" y2="500"/>   <line x1="800" y1="0" x2="800" y2="500"/>
+        <line x1="900" y1="0" x2="900" y2="500"/>
+      </g>
+
+      <!-- ── ROUTES ── -->
+
+      <!-- Rev War: local PA -->
+      <g class="era-layer era-rev">
+        <line x1="187" y1="134" x2="193" y2="130"
+              stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,3"
+              marker-end="url(#arr-gold)" class="route-draw"/>
+      </g>
+
+      <!-- WWII: East Coast → Pacific (James/Bernard) -->
+      <g class="era-layer era-ww2">
+        <path d="M205,146 Q310,130 430,140 Q560,152 650,160 Q710,164 770,150"
+              stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-dasharray="8,4"
+              marker-end="url(#arr-blue)" class="route-draw" style="animation-delay:.4s"/>
+        <!-- Okinawa sub-arc -->
+        <path d="M795,138 Q775,128 755,140 Q735,153 728,167"
+              stroke="#3b82f6" stroke-width="1.8" fill="none" stroke-dasharray="5,3"
+              marker-end="url(#arr-blue)" class="route-draw" style="animation-delay:1.1s"/>
+      </g>
+
+      <!-- WWII: West Coast → Pacific (Ralph) -->
+      <g class="era-layer era-ww2">
+        <path d="M138,158 Q300,148 450,152 Q600,156 680,158 Q720,160 778,164"
+              stroke="#60a5fa" stroke-width="1.8" fill="none" stroke-dasharray="6,4" opacity=".75"
+              marker-end="url(#arr-blue)" class="route-draw" style="animation-delay:.7s"/>
+      </g>
+
+      <!-- WWII: West Coast → Europe (Francis) -->
+      <g class="era-layer era-ww2">
+        <path d="M142,160 Q175,148 205,147 Q285,132 355,118 Q392,108 416,96"
+              stroke="#818cf8" stroke-width="1.8" fill="none" stroke-dasharray="6,4" opacity=".8"
+              marker-end="url(#arr-indigo)" class="route-draw" style="animation-delay:.9s"/>
+      </g>
+
+      <!-- Vietnam: West Coast → Da Nang -->
+      <g class="era-layer era-viet">
+        <path d="M142,162 Q310,156 470,160 Q620,165 695,165 Q718,165 730,168"
+              stroke="#ef4444" stroke-width="2.8" fill="none" stroke-dasharray="8,4"
+              marker-end="url(#arr-red)" class="route-draw" style="animation-delay:.3s"/>
+        <!-- Vietnam internal: Da Nang → Hue → Khe Sanh -->
+        <path d="M730,168 L726,176 L722,184"
+              stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="4,3"
+              marker-end="url(#arr-red)" class="route-draw" style="animation-delay:1.4s"/>
+      </g>
+
+      <!-- ── MARKERS ── -->
+
+      <!-- IRELAND (ancestral home) -->
+      <g class="map-marker era-layer era-all" onclick="showDetail('ireland')" style="cursor:pointer">
+        <circle cx="403" cy="67" r="9"  fill="#22c55e" opacity=".18" class="pulse-anim"/>
+        <circle cx="403" cy="67" r="5"  fill="#22c55e" filter="url(#glow)"/>
+        <circle cx="403" cy="67" r="2.5" fill="#fff"/>
+        <text x="403" y="57" text-anchor="middle" fill="#22c55e" font-size="8" font-weight="bold">Co. Down 🇮🇪</text>
+      </g>
+
+      <!-- EAST COAST CLUSTER — single marker, click opens popup -->
+      <!-- This replaces the old tangle of overlapping PA/NY/CA markers -->
+      <g class="map-marker era-layer era-all" onclick="openCluster(event)" style="cursor:pointer" id="cluster-east">
+        <!-- Outer glow ring -->
+        <circle cx="194" cy="143" r="18" fill="none" stroke="#f59e0b" stroke-width="1" opacity=".25" class="pulse-anim"/>
+        <!-- Split colour: gold top (Rev), blue bottom (WWII) -->
+        <circle cx="194" cy="143" r="12" fill="#0d1929" stroke="#2a3a55" stroke-width="1"/>
+        <!-- Rev War wedge (gold) -->
+        <path d="M194,143 L194,131 A12,12 0 0,1 205.4,149.5 Z" fill="#f59e0b" opacity=".85"/>
+        <!-- WWII wedge (blue) -->
+        <path d="M194,143 L205.4,149.5 A12,12 0 0,1 182.6,149.5 Z" fill="#3b82f6" opacity=".85"/>
+        <!-- Home wedge (purple) -->
+        <path d="M194,143 L182.6,149.5 A12,12 0 0,1 194,131 Z" fill="#a855f7" opacity=".7"/>
+        <!-- Count badge -->
+        <circle cx="204" cy="133" r="7" fill="#1e2d45" stroke="#f59e0b" stroke-width="1.2"/>
+        <text x="204" y="136.5" text-anchor="middle" fill="#f59e0b" font-size="7.5" font-weight="900">5</text>
+        <!-- Label -->
+        <text x="194" y="127" text-anchor="middle" fill="#e2e8f0" font-size="7.5" font-weight="bold">East Coast</text>
+        <text x="194" y="136" text-anchor="middle" fill="#94a3b8" font-size="6.5">PA / NY / CA</text>
+      </g>
+
+      <!-- Pearl Harbor -->
+      <g class="map-marker era-layer era-ww2" onclick="showDetail('james')" style="cursor:pointer">
+        <circle cx="648" cy="185" r="9"  fill="#3b82f6" opacity=".2" class="pulse-anim"/>
+        <circle cx="648" cy="185" r="5.5" fill="#3b82f6" filter="url(#glow)"/>
+        <polygon points="648,181 651,187 645,187" fill="#fff"/>
+        <text x="648" y="174" text-anchor="middle" fill="#3b82f6" font-size="7.5" font-weight="bold">Pearl Harbor</text>
+        <text x="648" y="196" text-anchor="middle" fill="#3b82f6" font-size="6.5">1941-42</text>
+      </g>
+
+      <!-- Okinawa -->
+      <g class="map-marker era-layer era-ww2" onclick="showDetail('james')" style="cursor:pointer">
+        <circle cx="795" cy="138" r="8"  fill="#3b82f6" opacity=".22" class="pulse-anim"/>
+        <circle cx="795" cy="138" r="5"  fill="#3b82f6" filter="url(#glow)"/>
+        <polygon points="795,134 798,140 792,140" fill="#fff"/>
+        <text x="795" y="127" text-anchor="middle" fill="#3b82f6" font-size="7" font-weight="bold">Okinawa</text>
+        <text x="795" y="150" text-anchor="middle" fill="#3b82f6" font-size="6.5">Pacific 1945</text>
+      </g>
+
+      <!-- Guam -->
+      <g class="map-marker era-layer era-ww2" onclick="showDetail('james')" style="cursor:pointer">
+        <circle cx="815" cy="175" r="5.5" fill="#3b82f6" opacity=".3"/>
+        <circle cx="815" cy="175" r="3"   fill="#3b82f6"/>
+        <text x="815" y="167" text-anchor="middle" fill="#60a5fa" font-size="6.5">Guam</text>
+      </g>
+
+      <!-- European Theater -->
+      <g class="map-marker era-layer era-ww2" onclick="showDetail('francis')" style="cursor:pointer">
+        <circle cx="455" cy="90" r="9"   fill="#818cf8" opacity=".22" class="pulse-anim"/>
+        <circle cx="455" cy="90" r="5.5" fill="#818cf8" filter="url(#glow)"/>
+        <polygon points="455,86 458,92 452,92" fill="#fff"/>
+        <text x="455" y="79" text-anchor="middle" fill="#818cf8" font-size="7.5" font-weight="bold">European Theater</text>
+        <text x="455" y="103" text-anchor="middle" fill="#818cf8" font-size="6.5">France / Germany</text>
+      </g>
+
+      <!-- Da Nang (Vietnam HQ) -->
+      <g class="map-marker era-layer era-viet" onclick="showDetail('michael')" style="cursor:pointer">
+        <circle cx="730" cy="168" r="10" fill="#ef4444" opacity=".22" class="pulse-anim"/>
+        <circle cx="730" cy="168" r="6"  fill="#ef4444" filter="url(#glow)"/>
+        <polygon points="730,163 734,171 726,171" fill="#fff"/>
+        <text x="730" y="157" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="bold">Đà Nẵng</text>
+        <text x="730" y="181" text-anchor="middle" fill="#ef4444" font-size="6.5">I Corps HQ · USMC</text>
+      </g>
+
+      <!-- Hue City -->
+      <g class="map-marker era-layer era-viet" onclick="showDetail('michael')" style="cursor:pointer">
+        <circle cx="726" cy="177" r="5.5" fill="#f87171" opacity=".35"/>
+        <circle cx="726" cy="177" r="3.5" fill="#f87171" filter="url(#glow)"/>
+        <text x="726" y="168" text-anchor="middle" fill="#f87171" font-size="7" font-weight="bold">Huế</text>
+        <text x="726" y="187" text-anchor="middle" fill="#f87171" font-size="6">Tet 1968</text>
+      </g>
+
+      <!-- Khe Sanh -->
+      <g class="map-marker era-layer era-viet" onclick="showDetail('michael')" style="cursor:pointer">
+        <circle cx="720" cy="185" r="6.5" fill="#ef4444" opacity=".3" class="pulse-anim"/>
+        <circle cx="720" cy="185" r="4"   fill="#ef4444" filter="url(#glow)"/>
+        <polygon points="720,181 723,187 717,187" fill="#fff"/>
+        <text x="720" y="175" text-anchor="middle" fill="#fca5a5" font-size="7" font-weight="bold">Khe Sanh</text>
+        <text x="720" y="195" text-anchor="middle" fill="#fca5a5" font-size="6">Siege 1968</text>
+      </g>
+
+      <!-- Vietnam zone label -->
+      <g class="era-layer era-viet">
+        <text x="748" y="158" fill="#ef444466" font-size="6.5" font-style="italic">I Corps Tactical Zone</text>
+      </g>
+
+      <!-- Map labels -->
+      <text x="155" y="90"  fill="#7f8c9e" font-size="8.5" opacity=".55">NORTH AMERICA</text>
+      <text x="436" y="80"  fill="#7f8c9e" font-size="7.5" opacity=".55">EUROPE</text>
+      <text x="600" y="56"  fill="#7f8c9e" font-size="8.5" opacity=".55">ASIA</text>
+      <text x="440" y="148" fill="#7f8c9e" font-size="8.5" opacity=".55">AFRICA</text>
+      <text x="300" y="208" fill="#1e4a8a" font-size="9"   opacity=".45" font-style="italic">Atlantic Ocean</text>
+      <text x="560" y="208" fill="#1e4a8a" font-size="10"  opacity=".4"  font-style="italic">Indian Ocean</text>
+      <text x="490" y="150" fill="#1e4a8a" font-size="9"   opacity=".35" font-style="italic">Pacific Ocean</text>
+      <text x="705" y="153" fill="#7f8c9e" font-size="7"   opacity=".8">Vietnam</text>
+      <text x="399" y="79"  fill="#22c55e" font-size="6.5" opacity=".9">Ireland</text>
+
+    </svg><!-- /svg -->
+
+    <!-- Cluster popup (DOM element over map) -->
+    <div class="cluster-popup" id="cluster-popup">
+      <span class="cp-close" onclick="closeCluster()">✕</span>
+      <h4>📍 East Coast Veterans — click to view</h4>
+      <div class="cp-row" onclick="showDetail('samuel');closeCluster()">
+        <div class="cp-dot" style="background:var(--gold)"></div>
+        <div><strong>Samuel Carey</strong><br><span style="font-size:.65rem;color:var(--muted)">Bucks Co. PA · Rev. War 1780-81</span></div>
+      </div>
+      <div class="cp-row" onclick="showDetail('james');closeCluster()">
+        <div class="cp-dot" style="background:var(--blue)"></div>
+        <div><strong>James T. Greeran</strong><br><span style="font-size:.65rem;color:var(--muted)">Queens NY · US Navy WWII</span></div>
+      </div>
+      <div class="cp-row" onclick="showDetail('bernard');closeCluster()">
+        <div class="cp-dot" style="background:var(--teal)"></div>
+        <div><strong>Bernard Patrick Greeran</strong><br><span style="font-size:.65rem;color:var(--muted)">Queens NY → CA · US Navy WWII</span></div>
+      </div>
+      <div class="cp-row" onclick="showDetail('ralph');closeCluster()">
+        <div class="cp-dot" style="background:#60a5fa"></div>
+        <div><strong>Ralph Dunn</strong><br><span style="font-size:.65rem;color:var(--muted)">San Pedro CA · US Navy WWII</span></div>
+      </div>
+      <div class="cp-row" onclick="showDetail('francis');closeCluster()">
+        <div class="cp-dot" style="background:var(--indigo)"></div>
+        <div><strong>PVT Francis Gray Carey</strong><br><span style="font-size:.65rem;color:var(--muted)">Pasadena CA → Europe · US Army WWII</span></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <h4>Legend</h4>
+      <div class="leg-row"><div class="leg-circ" style="background:var(--gold)"></div>Revolutionary War</div>
+      <div class="leg-row"><div class="leg-circ" style="background:var(--blue)"></div>WWII — Navy/Pacific</div>
+      <div class="leg-row"><div class="leg-circ" style="background:var(--indigo)"></div>WWII — Army/Europe</div>
+      <div class="leg-row"><div class="leg-circ" style="background:var(--red)"></div>Vietnam — USMC</div>
+      <div class="leg-row"><div class="leg-circ" style="background:var(--green)"></div>Ancestral home</div>
+      <div class="leg-row" style="margin-top:5px">
+        <div class="leg-dash" style="border-top-color:var(--gold)"></div>
+        <span style="color:var(--muted)">Deployment route</span>
+      </div>
+      <div class="leg-row">
+        <div style="width:22px;height:22px;border-radius:50%;background:#0d1929;border:1px solid #2a3a55;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span style="font-size:7px;color:var(--gold);font-weight:900">5</span>
+        </div>
+        <span style="color:var(--muted)">Cluster — click to expand</span>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="tl-title">Service Timeline · 1780 – 1972</div>
+      <div class="tl-bar"><div class="tl-fill" style="width:100%"></div></div>
+      <div class="tl-labels">
+        <span>1780</span><span>1812</span><span>1861</span><span>1898</span>
+        <span>1918</span><span>1941</span><span>1950</span><span>1965</span><span>1972</span>
+      </div>
+      <div class="tl-eras">
+        <div class="tl-era"><div class="tl-dot" style="background:var(--gold)"></div>Rev. War 1780-81</div>
+        <div class="tl-era"><div class="tl-dot" style="background:var(--blue)"></div>WWII 1941-45 · 4 veterans</div>
+        <div class="tl-era"><div class="tl-dot" style="background:var(--red)"></div>Vietnam 1965-72 · CPL Greeran</div>
+        <div class="tl-era"><div class="tl-dot" style="background:var(--green)"></div>Co. Down, Ireland</div>
+      </div>
+    </div>
+
+  </div><!-- /map-wrap -->
+</div><!-- /main -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const details = {
+  ireland: {
+    name:'County Down, Ireland — Ancestral Home',
+    theatre:'Drumgooland Parish · Ballymacarney · Moneyslane · Co. Down, N. Ireland',
+    locs:[
+      {year:'1831',  dot:'#22c55e', place:'Bernard Greeran born, Drumgooland', note:'Great-great-grandfather of Steven Greeran. Farmer at Dechommed/Ballymacarney area.'},
+      {year:'1860',  dot:'#22c55e', place:'Bernard Greeran Jr. born, Drumgooland', note:'Son of Bernard × Mary Conalty. Married Mary Hillan 22 Aug 1894.'},
+      {year:'1896',  dot:'#22c55e', place:'Hugh Greeran born, Ballymackilreiny', note:'Son of Bernard Jr. × Mary Hillan. Emigrated to Boston, married Catherine King 1923.'},
+      {year:'1924',  dot:'#22c55e', place:'Bernard Patrick Greeran born, Co. Down', note:'Son of Hugh × Catherine King. Emigrated to Queens NY ~1940. US Navy WWII vet.'},
+      {year:'1947',  dot:'#ef4444', place:'Michael Greeran born Queens NY', note:'Son of Bernard Patrick. Served USMC Vietnam. Third generation in America.'},
+    ],
+    note:'The Greeran family farmed at Ballymacarney/Drumgooland, Co. Down for generations. Hugh King (Catherine\'s father) and the Greeran family both lived at Dechommed townland — neighbours who became family.'
+  },
+  samuel: {
+    name:'Samuel Carey — Revolutionary War',
+    theatre:'Pennsylvania Militia · Capt. Robert Gibson\'s Company · 1780–1781',
+    locs:[
+      {year:'1752', dot:'#f59e0b', place:'Born Bucks County, Pennsylvania', note:'Quaker family; 5th generation from Edward Carey (~1690 Colonial PA)'},
+      {year:'1780', dot:'#f59e0b', place:'Mustered, Plumstead Twp, Bucks Co.', note:'Capt. Robert Gibson\'s Company, Bucks County PA Militia'},
+      {year:'1780-81', dot:'#ef4444', place:'Active service, Pennsylvania', note:'Served during critical British campaign period in SE Pennsylvania'},
+      {year:'1781', dot:'#f59e0b', place:'Second enlistment confirmed', note:'Two documented enlistments in Capt. Gibson\'s Company'},
+      {year:'1823', dot:'#94a3b8', place:'Died 6 Sep 1823', note:'NSDAR Ancestor #A020262 · All Greeran descendants via Hewitt-Carey line qualify for DAR/SAR'},
+    ],
+    note:'Samuel Carey is the earliest documented military veteran in the family — 192 years before CPL Michael Greeran\'s Vietnam service. His great-great-great-grandson Francis Gray Carey also served in WWII.'
+  },
+  francis: {
+    name:'PVT Francis Gray Carey — WWII',
+    theatre:'World War II · US Army · European Theater · ~1942–1945',
+    locs:[
+      {year:'1897', dot:'#818cf8', place:'Born Pasadena, California', note:'Son of Luther Gordon Carey × Millie Ruth Bickford'},
+      {year:'~1942', dot:'#818cf8', place:'Enlisted, US Army', note:'Rank: Private (PVT) — confirmed from Find A Grave gravestone'},
+      {year:'~1943-45', dot:'#ef4444', place:'European Theater — France / Germany', note:'Age cohort (b.1897, age 45-48) suggests a specialized or support role; older enlistee'},
+      {year:'1976', dot:'#94a3b8', place:'Died 25 Jun 1976, Los Angeles Co.', note:'Buried Forest Lawn Memorial Park, Covina CA · Plot Honor, Map 4, Lot 508'},
+    ],
+    note:'To find PVT Carey\'s full unit and battle history: submit a NATF Form 86 or SF-180 to NPRC, St. Louis MO. As a deceased veteran, next-of-kin can request his OMPF at no charge via archives.gov.'
+  },
+  bernard: {
+    name:'Bernard Patrick Greeran — US Navy WWII',
+    theatre:'World War II · US Navy · Atlantic or Pacific · ~1943–1945',
+    locs:[
+      {year:'1924', dot:'#14b8a6', place:'Born 21 Jun 1924, Co. Down, Ireland', note:'Son of Hugh Greeran × Catherine King'},
+      {year:'~1940', dot:'#14b8a6', place:'Emigrated to Queens, New York', note:'Joined brothers James Thomas and John Joseph in the USA'},
+      {year:'~1943-45', dot:'#3b82f6', place:'US Navy service — theater unknown', note:'\'Navy Veteran of WWII\' confirmed from 2017 obituary'},
+      {year:'~1950s', dot:'#14b8a6', place:'Settled Covina, California', note:'Sacred Heart Catholic Church, Covina; US Steel area'},
+      {year:'2017', dot:'#94a3b8', place:'Died 3 Feb 2017, Glendora CA', note:'Oakdale Memorial Park, Glendora. Survived by sister Kathleen Scott (Ireland).'},
+    ],
+    note:'Bernard\'s US Navy service likely fast-tracked his naturalization. His naturalization papers at NARA may name his parents and birthplace — useful for confirming family records.'
+  },
+  james: {
+    name:'James T. Greeran — US Navy WWII',
+    theatre:'World War II · US Navy · Pacific Theater · ~1943–1945',
+    locs:[
+      {year:'1925', dot:'#3b82f6', place:'Born 11 Jul 1925, New York', note:'Brother of Gerard T. Greeran (Steven\'s grandfather)'},
+      {year:'~1943', dot:'#3b82f6', place:'Enlisted US Navy', note:'Age cohort (b.1925) drafted or enlisted ~1943-44'},
+      {year:'~1944-45', dot:'#ef4444', place:'Pacific Theater — Philippines / Okinawa', note:'Major late-war Pacific campaigns: Leyte Gulf, Iwo Jima, Okinawa (1944-45)'},
+      {year:'1945', dot:'#3b82f6', place:'V-J Day — Pacific War ends', note:'Japan surrendered 2 Sep 1945 following atomic bombings'},
+      {year:'2012', dot:'#94a3b8', place:'Died 21 Jun 2012', note:'Papavero Funeral Home obituary, June 2012'},
+    ],
+    note:'James T. Greeran and his brother Bernard Patrick both served in the US Navy during WWII — two sons of Irish immigrants who became American servicemen within two years of each other.'
+  },
+  ralph: {
+    name:'Ralph Dunn — US Navy WWII',
+    theatre:'World War II · US Navy · Pacific Fleet ~1942–1945',
+    locs:[
+      {year:'1918', dot:'#60a5fa', place:'Born 14 Aug 1918', note:'Grew up San Pedro, CA — home of Los Angeles Harbor / Terminal Island Naval Station'},
+      {year:'~1942', dot:'#60a5fa', place:'Enlisted US Navy, Pacific Fleet', note:'San Pedro proximity strongly implies Pacific Fleet assignment'},
+      {year:'~1942-45', dot:'#60a5fa', place:'Pacific Theater', note:'Fleet operations; specific ship/squadron unknown from available records'},
+      {year:'Post-1945', dot:'#60a5fa', place:'Graduated Muir Tech, Pasadena', note:'Engineering degree; joined US Steel as hydraulics engineer'},
+      {year:'2006', dot:'#94a3b8', place:'Died 13 Mar 2006, Pasadena CA', note:'Memorial Arcadia Friends Community Church · Pasadena Star News Mar 22 2006'},
+    ],
+    note:'Ralph Dunn married into the Greeran-extended family through his son Donald Ralph Dunn who married Patricia Greeran, daughter of Bernard Patrick. Ralph\'s San Pedro roots connect him to the Navy\'s main West Coast base.'
+  },
+  michael: {
+    name:'CPL Michael Patrick Greeran — USMC Vietnam',
+    theatre:'Vietnam War · US Marine Corps · I Corps Tactical Zone · ~1966–1969',
+    locs:[
+      {year:'1947', dot:'#ef4444', place:'Born 20 Feb 1947, Queens County, NY', note:'Son of Bernard Patrick Greeran × Jeanette Mabel Morin'},
+      {year:'~1966', dot:'#ef4444', place:'Deployed — Republic of Vietnam', note:'1st Marine Division, I Corps (northernmost 5 provinces). Arrived via Camp Pendleton → Okinawa staging → Da Nang.'},
+      {year:'1966-68', dot:'#ef4444', place:'Đà Nẵng — I Corps HQ', note:'Main Marine base, Quang Nam Province. Counter-guerrilla and pacification operations.'},
+      {year:'Jan-Mar 1968', dot:'#f87171', place:'Huế City — Tet Offensive', note:'26 days of brutal urban warfare. Marines retook old Imperial capital from NVA. ~1,900 enemy KIA.'},
+      {year:'Jan-Apr 1968', dot:'#ef4444', place:'Khe Sanh Combat Base', note:'77-day siege. 26th Marines held the hill against 1,000 shells/day. Concurrent with Tet.'},
+      {year:'2005', dot:'#94a3b8', place:'Died 21 Feb 2005, Glendora CA', note:'Gravestone: "CPL US MARINE CORPS VIETNAM BELOVED HUSBAND FATHER GRANDFATHER" · Find A Grave #192194645 · Oakdale Memorial Park'},
+    ],
+    note:'CPL Greeran\'s specific battalion (likely 1st, 5th, or 7th Marines) can be found via his OMPF at NPRC. The I Corps operations above cover all Marine ground forces in-country 1966-1969. He was the last Greeran to serve in combat — a family tradition spanning 189 years from Samuel Carey\'s musket to Michael\'s M-16.'
+  }
+};
+
+// ── STATE ──────────────────────────────────────────────────
+let activeId = null;
+
+// ── ERA FILTER ─────────────────────────────────────────────
+function filterEra(era) {
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.era-btn.'+era).classList.add('active');
+  document.querySelectorAll('.era-layer').forEach(el => {
+    const show = era==='all' || el.classList.contains('era-'+era) || el.classList.contains('era-all');
+    el.style.opacity = show ? '1' : '0.06';
+    el.style.pointerEvents = show ? 'auto' : 'none';
+  });
+  // Also dim sidebar cards
+  document.querySelectorAll('.person-card').forEach(c => {
+    const match = era==='all' || c.classList.contains('era-'+era);
+    c.style.opacity = match ? '1' : '0.3';
+  });
+  reanimateRoutes();
+}
+
+// ── SHOW DETAIL (into sidebar bottom panel) ────────────────
+function showDetail(id) {
+  const d = details[id];
+  if (!d) return;
+  activeId = id;
+
+  // Highlight sidebar card
+  document.querySelectorAll('.person-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('card-'+id);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  // Populate detail panel
+  document.getElementById('d-name').textContent = d.name;
+  document.getElementById('d-theatre').textContent = d.theatre;
+  document.getElementById('d-note').textContent = d.note;
+
+  const ul = document.getElementById('d-locs');
+  ul.innerHTML = '';
+  d.locs.forEach(loc => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="loc-dot" style="background:${loc.dot}"></div>
+      <div style="flex:1">
+        <div><span class="loc-year">${loc.year}</span> <strong>${loc.place}</strong></div>
+        <div class="loc-note">${loc.note}</div>
+      </div>`;
+    ul.appendChild(li);
+  });
+
+  document.getElementById('detail-panel').classList.add('show');
+  closeCluster();
+}
+
+// ── CLOSE DETAIL ────────────────────────────────────────────
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('show');
+  document.querySelectorAll('.person-card').forEach(c => c.classList.remove('active'));
+  activeId = null;
+}
+
+// ── CLUSTER POPUP ───────────────────────────────────────────
+function openCluster(evt) {
+  evt.stopPropagation();
+  const popup = document.getElementById('cluster-popup');
+  const wrap  = document.getElementById('map-wrap');
+  const rect  = wrap.getBoundingClientRect();
+  // Position popup near the cluster marker
+  const svg   = document.getElementById('world-svg');
+  const svgW  = svg.viewBox.baseVal.width;
+  const svgH  = svg.viewBox.baseVal.height;
+  // Cluster is at SVG coords (194,143)
+  const px = (194/svgW) * rect.width;
+  const py = (143/svgH) * rect.height;
+  popup.style.left = Math.min(px+20, rect.width-220)+'px';
+  popup.style.top  = Math.min(py-20, rect.height-280)+'px';
+  popup.classList.add('show');
+}
+function closeCluster() {
+  document.getElementById('cluster-popup').classList.remove('show');
+}
+
+// ── REANIMATE ROUTES ────────────────────────────────────────
+function reanimateRoutes() {
+  document.querySelectorAll('.route-draw').forEach(el => {
+    el.style.animation='none';
+    el.offsetHeight;
+    el.style.animation='';
+  });
+}
+
+// ── CLOSE POPUP ON OUTSIDE CLICK ────────────────────────────
+document.getElementById('map-wrap').addEventListener('click', e => {
+  if (!e.target.closest('#cluster-popup') && !e.target.closest('#cluster-east')) {
+    closeCluster();
+  }
+});
+
+// ── INIT ────────────────────────────────────────────────────
+filterEra('all');
+setTimeout(() => showDetail('michael'), 500);
+</script>
+</body>
+</html>

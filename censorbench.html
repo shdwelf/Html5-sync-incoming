@@ -1,0 +1,2022 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="description" content="CensorBench — Censorship Testing, Live Network Probes, Steganography Lab & Sorting Algorithms Benchmark Suite featuring Postman Sort by Robert Ramey. Fully portable single-file HTML5 application." />
+<title>CensorBench — Censorship Testing & Sorting Benchmark Suite</title>
+<style>
+/* ============================================================
+   CensorBench — self-contained dark UI (no frameworks)
+   ============================================================ */
+:root{
+  --bg:#0a0a12; --bg2:#0e0e18; --card:#15151f; --card2:#1a1a26;
+  --line:#26263a; --line2:#31314a;
+  --txt:#e8e8f0; --dim:#9a9ab0; --dim2:#6a6a85;
+  --red:#f87171; --red-d:#991b1b;
+  --orange:#fb923c; --amber:#fbbf24; --yellow:#facc15;
+  --green:#4ade80; --emerald:#34d399; --cyan:#22d3ee; --blue:#60a5fa;
+  --indigo:#818cf8; --purple:#a78bfa; --fuchsia:#e879f9; --pink:#f472b6;
+  --grad-red:linear-gradient(90deg,#dc2626,#ea580c);
+  --grad-purple:linear-gradient(90deg,#8b5cf6,#6366f1);
+  --grad-cyan:linear-gradient(90deg,#0891b2,#2563eb);
+  --grad-emerald:linear-gradient(90deg,#059669,#0d9488);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--txt);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overscroll-behavior:none;min-height:100vh;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+   radial-gradient(420px 420px at 12% -6%,rgba(139,92,246,.07),transparent 60%),
+   radial-gradient(420px 420px at 110% 110%,rgba(248,113,113,.06),transparent 60%);
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;-webkit-user-select:none;user-select:none}
+input,select,textarea{font:inherit;color:inherit}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#3a3a55;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#55557a}
+.hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.hidden{display:none!important}
+.wrap{max-width:1200px;margin:0 auto;padding:0 12px}
+@media(min-width:640px){.wrap{padding:0 24px}}
+
+/* ---------- Nav ---------- */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,10,18,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(38,38,58,.7)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;height:56px}
+@media(min-width:640px){.nav-row{height:64px}}
+.logo{display:flex;align-items:center;gap:8px;min-width:0}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ef4444,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(139,92,246,.3);flex-shrink:0}
+@media(min-width:640px){.logo-mark{width:40px;height:40px;font-size:20px}}
+.logo h1{font-size:16px;font-weight:800;background:linear-gradient(90deg,#f87171,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.logo p{font-size:9px;color:var(--dim2);display:none;margin-top:1px}
+@media(min-width:640px){.logo p{display:block}}
+.tabs{display:none;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px}
+@media(min-width:640px){.tabs{display:flex}}
+.tab{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--dim);white-space:nowrap;transition:.15s}
+.tab:hover{color:#fff;background:var(--card2)}
+.tab.on-red{background:var(--grad-red);color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.35)}
+.tab.on-purple{background:var(--grad-purple);color:#fff;box-shadow:0 4px 14px rgba(139,92,246,.35)}
+.tab.on-blue{background:linear-gradient(90deg,#2563eb,#0891b2);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.35)}
+.burger{padding:8px;border-radius:10px;color:var(--dim)}
+@media(min-width:640px){.burger{display:none}}
+.mmenu{border-top:1px solid var(--line);padding:8px 4px 12px}
+.mmenu button{display:block;width:100%;text-align:left;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600;color:var(--dim);margin-bottom:4px}
+.mmenu button.on-red{background:rgba(220,38,38,.12);color:var(--red);border:1px solid rgba(248,113,113,.25)}
+.mmenu button.on-purple{background:rgba(139,92,246,.12);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.mmenu button.on-blue{background:rgba(37,99,235,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25)}
+.subtabs{border-top:1px solid rgba(38,38,58,.5);background:rgba(14,14,24,.8)}
+.subtabs .inner{display:flex;gap:4px;padding:8px 0}
+.subtab{padding:6px 10px;border-radius:9px;font-size:11px;font-weight:600;color:var(--dim);white-space:nowrap;flex-shrink:0;border:1px solid transparent;transition:.15s}
+.subtab:hover{color:#fff;background:var(--card)}
+.subtab.on-red{background:rgba(220,38,38,.16);color:#fca5a5;border-color:rgba(248,113,113,.35)}
+.subtab.on-purple{background:rgba(139,92,246,.16);color:var(--purple);border-color:rgba(167,139,250,.35)}
+@media(min-width:640px){.subtab{font-size:12px;padding:7px 12px}}
+
+/* ---------- Layout ---------- */
+main{position:relative;z-index:1;padding:16px 0 80px}
+@media(min-width:640px){main{padding:24px 0 32px}}
+.view>div+*{margin-top:14px}
+footer{display:none;border-top:1px solid var(--line);padding:22px 16px;text-align:center;color:var(--dim);font-size:12px;line-height:1.6;background:var(--bg2)}
+footer .sm{font-size:10px;color:var(--dim2)}
+@media(min-width:640px){footer{display:block}}
+
+/* ---------- Mobile bottom bar ---------- */
+.bbar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(10,10,18,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+@media(min-width:640px){.bbar{display:none}}
+.bbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border-radius:10px;color:var(--dim2);font-size:10px;font-weight:600}
+.bbar button span:first-child{font-size:18px}
+.bbar button.on-red{color:var(--red)}
+.bbar button.on-purple{color:var(--purple)}
+.bbar button.on-blue{color:var(--blue)}
+
+/* ---------- Common components ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+@media(min-width:640px){.panel{padding:18px}}
+.panel-soft{background:rgba(21,21,31,.6);border:1px solid rgba(38,38,58,.6);border-radius:16px;padding:12px}
+.ph{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800;margin-bottom:6px}
+.pd{font-size:12px;color:#c9c3dd;line-height:1.55}
+@media(min-width:640px){.ph{font-size:20px}.pd{font-size:13px}}
+.hero{border-radius:16px;padding:16px;border:1px solid}
+@media(min-width:640px){.hero{padding:20px}}
+.hero h2{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800;margin-bottom:6px}
+.hero p{font-size:12px;line-height:1.55}
+@media(min-width:640px){.hero h2{font-size:24px}.hero p{font-size:13px}}
+.hero-red{background:linear-gradient(90deg,rgba(127,29,29,.35),rgba(154,52,18,.3));border-color:rgba(248,113,113,.2)}
+.hero-purple{background:linear-gradient(90deg,rgba(76,29,149,.35),rgba(49,46,129,.3));border-color:rgba(139,92,246,.2)}
+.hero-cyan{background:linear-gradient(90deg,rgba(22,78,99,.35),rgba(30,58,138,.3));border-color:rgba(34,211,238,.2)}
+.hero-emerald{background:linear-gradient(90deg,rgba(6,78,59,.35),rgba(19,78,74,.3));border-color:rgba(52,211,153,.2)}
+.hero-amber{background:linear-gradient(90deg,rgba(113,63,18,.4),rgba(153,27,27,.3));border-color:rgba(251,191,36,.2)}
+.hero-blue{background:linear-gradient(90deg,rgba(30,58,138,.4),rgba(21,94,117,.35));border-color:rgba(96,165,250,.2)}
+.hero-yellow{background:linear-gradient(135deg,rgba(113,63,18,.4),rgba(113,63,18,.15));border-color:rgba(250,204,21,.25)}
+.cgrid{display:grid;gap:10px}
+.g2{grid-template-columns:1fr}@media(min-width:640px){.g2{grid-template-columns:1fr 1fr}}
+.g3{grid-template-columns:1fr}@media(min-width:640px){.g3{grid-template-columns:1fr 1fr}}@media(min-width:1024px){.g3{grid-template-columns:1fr 1fr 1fr}}
+.g4{grid-template-columns:1fr 1fr}@media(min-width:640px){.g4{grid-template-columns:1fr 1fr 1fr 1fr}}@media(min-width:1024px){.g4{grid-template-columns:repeat(4,1fr)}}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:640px){.stats{grid-template-columns:repeat(5,1fr)}}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat .v{font-size:18px;font-weight:800}
+.stat .l{font-size:9px;color:var(--dim2);margin-top:2px;text-transform:uppercase;letter-spacing:.03em}
+@media(min-width:640px){.stat .v{font-size:24px}.stat .l{font-size:10px}}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 10px;border-radius:9px;font-size:11px;font-weight:600;color:var(--dim);background:var(--card);border:1px solid var(--line);white-space:nowrap;transition:.15s}
+.chip:hover{color:#fff;background:var(--card2)}
+.chip.on{background:#dc2626;color:#fff;border-color:#dc2626;box-shadow:0 2px 10px rgba(220,38,38,.35)}
+.chip.on-purple{background:rgba(139,92,246,.22);color:#c4b5fd;border-color:rgba(139,92,246,.45)}
+.chip.on-yellow{background:rgba(202,138,4,.22);color:#fde047;border-color:rgba(250,204,21,.45)}
+.chip.on-cyan{background:rgba(8,145,178,.5);color:#fff;border-color:#0891b2}
+.chip.on-emerald{background:rgba(5,150,105,.4);color:#6ee7b7;border-color:rgba(52,211,153,.4)}
+.chip.off{color:var(--dim2);background:rgba(21,21,31,.5);border-style:dashed}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;transition:.15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-red{background:var(--grad-red);color:#fff;box-shadow:0 4px 16px rgba(220,38,38,.3)}
+.btn-purple{background:var(--grad-purple);color:#fff;box-shadow:0 4px 16px rgba(139,92,246,.3)}
+.btn-cyan{background:var(--grad-cyan);color:#fff;box-shadow:0 4px 16px rgba(8,145,178,.3)}
+.btn-emerald{background:var(--grad-emerald);color:#fff;box-shadow:0 4px 16px rgba(5,150,105,.3)}
+.btn-fuchsia{background:linear-gradient(90deg,#c026d3,#8b5cf6);color:#fff;box-shadow:0 4px 16px rgba(192,38,211,.3)}
+.btn-ghost{background:var(--card2);color:var(--dim);border:1px solid var(--line)}
+.btn-ghost:hover{color:#fff}
+.btn-warn{background:#d97706;color:#fff}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-sm{padding:7px 12px;font-size:12px;border-radius:9px}
+.btn-xs{padding:5px 9px;font-size:11px;border-radius:8px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:700;border:1px solid;letter-spacing:.02em;flex-shrink:0}
+.risk-low{color:#4ade80;background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.3)}
+.risk-medium{color:#facc15;background:rgba(250,204,21,.08);border-color:rgba(250,204,21,.3)}
+.risk-high{color:#fb923c;background:rgba(251,146,60,.08);border-color:rgba(251,146,60,.3)}
+.risk-critical{color:#f87171;background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.3)}
+.dot{width:10px;height:10px;border-radius:99px;flex-shrink:0;align-self:flex-start;margin-top:4px}
+.d-pending{background:#6a6a85}.d-running{background:#3b82f6;animation:pulse 1s infinite}
+.d-passed{background:#22c55e}.d-failed{background:#ef4444}.d-warning{background:#eab308}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.lbl{display:block;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.input,select.input,textarea.input{width:100%;background:rgba(10,10,18,.6);border:1px solid rgba(49,49,74,.6);border-radius:10px;padding:9px 12px;font-size:13px;outline:none;transition:.15s}
+.input:focus{border-color:var(--cyan)}
+textarea.input{resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+select.input{cursor:pointer}
+select.input option{background:var(--card);color:var(--txt)}
+.outbox{background:rgba(10,10,18,.7);border:1px solid rgba(49,49,74,.5);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#6ee7b7;min-height:56px;word-break:break-all;white-space:pre-wrap;user-select:all}
+.pbar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden}
+.pbar>div{height:100%;border-radius:99px;transition:width .25s}
+.pbar-red>div{background:linear-gradient(90deg,#ef4444,#f97316)}
+.pbar-purple>div{background:linear-gradient(90deg,#8b5cf6,#6366f1)}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:.15s}
+.tcard:hover{border-color:var(--line2)}
+.tcard .head{padding:12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start}
+.tcard .body{padding:0 12px 12px;border-top:1px solid rgba(38,38,58,.5)}
+.mini{background:rgba(10,10,18,.55);border:1px solid rgba(38,38,58,.4);border-radius:10px;padding:10px}
+.mini h5{font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.mini p{font-size:11px;color:var(--dim);line-height:1.5}
+pre.raw{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;color:#c2c2d8;white-space:pre-wrap;word-break:break-word;max-height:150px;overflow-y:auto;background:rgba(10,10,18,.7);border:1px solid rgba(49,49,74,.5);border-radius:10px;padding:10px}
+.dotrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.range{width:100%;accent-color:#e879f9}
+canvas.chart{width:100%;display:block;border-radius:12px;background:rgba(10,10,18,.5)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--dim)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+table.dt{width:100%;font-size:12px;border-collapse:collapse}
+table.dt th{text-align:left;padding:8px 10px;color:var(--dim);border-bottom:1px solid var(--line);font-weight:600;font-size:11px}
+table.dt td{padding:8px 10px;border-bottom:1px solid rgba(38,38,58,.4)}
+.hl-row{background:rgba(113,63,18,.18)}
+.collapse{border-radius:14px;border:1px solid rgba(38,38,58,.5);background:rgba(21,21,31,.55);overflow:hidden}
+.collapse summary{padding:12px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--dim);list-style:none}
+.collapse summary::-webkit-details-marker{display:none}
+.collapse summary::before{content:'▸ ';color:var(--dim2)}
+.collapse[open] summary{border-bottom:1px solid rgba(38,38,58,.5)}
+.collapse[open] summary::before{content:'▾ '}
+.collapse .cbody{padding:12px 14px}
+.bar-wrap{position:relative;display:flex;align-items:flex-end;width:100%}
+.notebox{background:rgba(21,21,31,.6);border:1px solid rgba(38,38,58,.45);border-radius:12px;padding:12px;font-size:11px;color:var(--dim);line-height:1.6}
+.kcard{background:rgba(10,10,18,.5);border:1px solid rgba(38,38,58,.45);border-radius:10px;padding:10px}
+.kcard .t{font-size:11px;font-weight:700;color:#fff;margin-bottom:3px}
+.kcard .s{font-size:9px;color:var(--dim2)}
+.kcard .d{font-size:10px;color:var(--dim);line-height:1.5;margin-top:3px}
+
+/* ---------- Quine ---------- */
+.btn-quine{background:linear-gradient(120deg,#312e81,#7c3aed,#c026d3,#312e81);background-size:320% 100%;color:#fff;
+  box-shadow:0 0 16px rgba(139,92,246,.45);border:1px solid rgba(167,139,250,.45);animation:qflow 5s linear infinite}
+.btn-quine:active{transform:scale(.97)}
+@keyframes qflow{0%{background-position:0% 50%}100%{background-position:320% 50%}}
+@media(max-width:430px){.qtxt{display:none}}
+.quine-overlay{position:fixed;inset:0;z-index:200;background:rgba(5,5,10,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:12px}
+.quine-modal{background:#12121d;border:1px solid rgba(167,139,250,.4);border-radius:16px;max-width:920px;width:100%;
+  max-height:86vh;display:flex;flex-direction:column;box-shadow:0 26px 70px rgba(0,0,0,.65),0 0 40px rgba(139,92,246,.12)}
+.quine-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.quine-src{margin:0;padding:14px;overflow:auto;flex:1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:10px;line-height:1.45;color:#b8b8dc;white-space:pre;user-select:all;-webkit-user-select:all;
+  background:repeating-linear-gradient(0deg,rgba(139,92,246,.025) 0 2px,transparent 2px 26px)}
+.quine-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qbadge{font-size:9px;font-weight:700;color:#c4b5fd;background:rgba(124,58,237,.15);border:1px solid rgba(167,139,250,.35);
+  padding:3px 8px;border-radius:99px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="nav-row">
+      <div class="logo">
+        <div class="logo-mark">🛡️</div>
+        <div><h1>CensorBench</h1><p>Censorship Testing &amp; Sorting Benchmark Suite</p></div>
+      </div>
+      <div class="tabs">
+        <button class="tab" id="tab-censorship" onclick="UI.setTab('censorship')">🛡️ Censorship</button>
+        <button class="tab" id="tab-sorting" onclick="UI.setTab('sorting')">⚡ Sorting</button>
+        <button class="tab" id="tab-about" onclick="UI.setTab('about')">📖 About</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="btn btn-quine btn-sm" onclick="Quine.open()" title="Quine — this app prints its own source code">⊿ <span class="qtxt">Quine</span></button>
+        <button class="burger" id="burger" aria-label="Menu">
+          <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="mmenu hidden wrap" id="mmenu">
+    <button id="mtab-censorship" onclick="UI.setTab('censorship')">🛡️ Censorship Testing Suite</button>
+    <button id="mtab-sorting" onclick="UI.setTab('sorting')">⚡ Sorting Algorithms Benchmark</button>
+    <button id="mtab-about" onclick="UI.setTab('about')">📖 About &amp; References</button>
+    <button style="color:#c4b5fd" onclick="Quine.open();$('mmenu').className='mmenu hidden wrap'">⊿ Quine — view this app's own source</button>
+  </div>
+  <div class="subtabs hidden" id="sub-censorship"><div class="wrap"><div class="inner hscroll" id="sub-censorship-inner">
+    <button class="subtab" data-csub="tests" onclick="UI.setCSub('tests')">🧪 Test Suite</button>
+    <button class="subtab" data-csub="live" onclick="UI.setCSub('live')">📡 Live Probes</button>
+    <button class="subtab" data-csub="steg" onclick="UI.setCSub('steg')">🕵️ Steganography</button>
+    <button class="subtab" data-csub="countries" onclick="UI.setCSub('countries')">🌍 Countries</button>
+  </div></div></div>
+  <div class="subtabs hidden" id="sub-sorting"><div class="wrap"><div class="inner hscroll" id="sub-sorting-inner">
+    <button class="subtab" data-ssub="benchmark" onclick="UI.setSSub('benchmark')">📊 Benchmark</button>
+    <button class="subtab" data-ssub="visualizer" onclick="UI.setSSub('visualizer')">🎬 Live Visualizer</button>
+  </div></div></div>
+</nav>
+
+<div class="bbar">
+  <button id="btab-censorship" onclick="UI.setTab('censorship')"><span>🛡️</span><span>Censorship</span></button>
+  <button id="btab-sorting" onclick="UI.setTab('sorting')"><span>⚡</span><span>Sorting</span></button>
+  <button id="btab-about" onclick="UI.setTab('about')"><span>📖</span><span>About</span></button>
+</div>
+
+<main><div class="wrap">
+  <div class="view hidden" id="view-ctests"></div>
+  <div class="view hidden" id="view-clive"></div>
+  <div class="view hidden" id="view-csteg"></div>
+  <div class="view hidden" id="view-ccountries"></div>
+  <div class="view hidden" id="view-sbench"></div>
+  <div class="view hidden" id="view-svis"></div>
+  <div class="view hidden" id="view-about"></div>
+</div></main>
+
+<footer>
+  CensorBench — Censorship Testing &amp; Sorting Algorithms Benchmark Suite<br/>
+  <span class="sm">Featuring Postman Sort by Robert Ramey · Sort Benchmark Winner 1998 &amp; 2005 ·
+  Fully self-contained single-file HTML5 application — works offline.<br/>
+  The <b style="color:#c4b5fd">⊿ Quine</b> button in the header makes this app print its own source code.</span>
+</footer>
+
+<script>
+'use strict';
+/* ============================================================
+   CensorBench — Pure vanilla JS single-file application
+   ------------------------------------------------------------
+   Sections: DATA → UTIL → CENSORSHIP TESTS → BYPASS LAB →
+   LIVE PROBES → STEG LAB → COUNTRIES → SORT BENCH →
+   VISUALIZER → ABOUT → ROUTER/INIT
+   ============================================================ */
+const $ = (id)=>document.getElementById(id);
+const esc = (s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+const fmt = (n)=>Number(n).toLocaleString();
+const rnd = (a,b)=>a+Math.random()*(b-a);
+const ri = (a,b)=>Math.floor(a+Math.random()*(b-a+1));
+/* roundRect polyfill for older browsers (portability) */
+if(typeof CanvasRenderingContext2D!=='undefined'&&!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    r=Array.isArray(r)?(r[0]||0):(r||0);r=Math.min(r,w/2,h/2);
+    this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);
+    this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath();return this;};
+}
+
+/* ============================ DATA ============================ */
+const CATS = {
+  dns:{label:'DNS',icon:'🌐'}, http:{label:'HTTP',icon:'📡'}, tls:{label:'TLS/SSL',icon:'🔒'},
+  content:{label:'Content',icon:'📄'}, network:{label:'Network',icon:'🔌'},
+  encoding:{label:'Encoding',icon:'🔤'}, protocol:{label:'Protocol',icon:'🔀'},
+};
+const CTESTS = [
+ {id:'dns-001',name:'DNS Poisoning Detection',cat:'dns',risk:'high',desc:'Detects if DNS responses are being manipulated to redirect or block domains.',method:'Compares DNS resolution results against known-good resolvers (Google, Cloudflare, Quad9) and flags inconsistencies.',bypass:'DNS over HTTPS (DoH), DNS over TLS (DoT), DNSSEC'},
+ {id:'dns-002',name:'DNS Sinkhole Detection',cat:'dns',risk:'medium',desc:'Checks if blocked domains resolve to known sinkhole/blocking IPs.',method:'Resolves test domains and compares against known sinkhole IP databases (e.g. 0.0.0.0, blackhole.nsa-style IPs).',bypass:'Encrypted DNS protocols, alternative resolvers'},
+ {id:'dns-003',name:'NXDOMAIN Hijacking Test',cat:'dns',risk:'medium',desc:'Tests if non-existent domains return fabricated responses instead of NXDOMAIN.',method:'Queries a random non-existent subdomain (e.g. x9f3a.example.test) and checks for an A-record response instead of Status 3.',bypass:'DNSSEC validation, encrypted DNS'},
+ {id:'dns-004',name:'DNS Query Filtering',cat:'dns',risk:'high',desc:'Detects if DNS queries themselves are dropped or filtered on the wire.',method:'Sends queries for known-blocked domains on UDP/53 and measures timeouts vs successful responses.',bypass:'DNS tunneling, DoH/DoT, VPN'},
+ {id:'http-001',name:'HTTP Header Injection Detection',cat:'http',risk:'high',desc:'Detects if HTTP headers are added/removed/modified in transit by middleboxes.',method:'Sends requests with unique marker headers and verifies integrity in the echoed response.',bypass:'HTTPS encryption, HSTS'},
+ {id:'http-002',name:'URL Keyword Filtering Test',cat:'http',risk:'critical',desc:'Tests if sensitive keywords in URLs trigger blocking by DPI systems.',method:'Constructs HTTP requests with various keywords in the path and query string and observes resets/block pages.',bypass:'URL encoding, Base64 in path, domain fronting'},
+ {id:'http-003',name:'TCP RST Injection Detection',cat:'http',risk:'critical',desc:'Detects fake TCP RST packets injected to terminate connections. Signature technique of the Great Firewall — RST arrives right after a forbidden SNI/keyword.',method:'Monitors TCP sessions for unexpected RST segments from non-endpoint source with mismatched TTL.',bypass:'RST packet ignoring, TTL manipulation, fragmentation'},
+ {id:'http-004',name:'HTTP 302 Redirect Injection',cat:'http',risk:'high',desc:'Detects if HTTP responses are replaced with forced redirects to block pages.',method:'Compares expected vs actual status codes and Location headers for control URLs.',bypass:'HTTPS, HSTS preloading'},
+ {id:'tls-001',name:'SNI Filtering Detection',cat:'tls',risk:'critical',desc:'Tests if TLS connections are dropped based on the plaintext Server Name Indication in ClientHello.',method:'Opens TLS connections with various SNI values and detects interception patterns (RST, timeout, close). China’s GFW and Roskomnadzor both block at this layer.',bypass:'Encrypted Client Hello (ECH), ESNI, domain fronting'},
+ {id:'tls-002',name:'TLS Certificate Interception (MITM)',cat:'tls',risk:'critical',desc:'Detects if certificates are swapped by a man-in-the-middle proxy.',method:'Validates chain of trust, checks for unknown local CAs, compares SPKI fingerprints against CT logs.',bypass:'Certificate pinning, Certificate Transparency monitoring'},
+ {id:'tls-003',name:'TLS Downgrade Attack Test',cat:'tls',risk:'high',desc:'Tests if connections are forced to weaker protocol versions (TLS 1.0/1.1).',method:'Offers only TLS 1.3 and checks whether a downgrade to legacy versions is negotiated.',bypass:'TLS_FALLBACK_SCSV, strict version pinning'},
+ {id:'content-001',name:'Deep Packet Inspection (DPI) Detection',cat:'content',risk:'critical',desc:'Detects payload-level inspection used for keyword and protocol filtering. Iran’s DPI supports active probing and protocol allowlisting.',method:'Sends hallmark byte sequences and observes connection lifecycle anomalies (drops, resets, throttling).',bypass:'Fragmentation, obfs4, traffic morphing, TLS 1.3'},
+ {id:'content-002',name:'Media Content Filtering Test',cat:'content',risk:'high',desc:'Tests if images/media are scanned and blocked or altered in transit.',method:'Transfers test media with known checksums and verifies byte-level integrity at the receiver.',bypass:'Encrypted containers, chunked encoding, steganography'},
+ {id:'content-003',name:'Keyword Pattern Matching Evasion',cat:'content',risk:'medium',desc:'Measures filter robustness against encoded, normalized and confusable text variants.',method:'Sends payloads transformed with Base64, homoglyphs, zero-width characters, NFKC normalization tricks.',bypass:'Unicode confusables, zero-width chars, punycode'},
+ {id:'enc-001',name:'Base64 Encoding Bypass',cat:'encoding',risk:'low',desc:'Tests if filters detect Base64-wrapped forbidden content.',method:'Encodes trigger strings in Base64 (try it live in the Bypass Lab) and observes filter response.',bypass:'Multi-layer encoding, custom alphabets'},
+ {id:'enc-002',name:'Unicode Homoglyph Substitution',cat:'encoding',risk:'low',desc:'Tests bypass using visually identical characters from other scripts (Cyrillic а/е/о/с/х, Greek ο).',method:'Substitutes Latin letters with confusables and transmits through the monitored channel.',bypass:'Multi-script mixing, confusable mapping'},
+ {id:'enc-003',name:'Zero-Width Character Insertion',cat:'encoding',risk:'low',desc:'Tests whether ZWSP (U+200B), ZWNJ (U+200C), ZWJ (U+200D) break naive keyword matchers.',method:'Interleaves zero-width characters inside trigger words live in the Bypass Lab.',bypass:'ZW chars, soft hyphens, word joiners'},
+ {id:'enc-004',name:'ROT13 / Caesar Cipher Bypass',cat:'encoding',risk:'low',desc:'Tests simple substitution-cipher evasion of keyword filters.',method:'Applies ROT13 and variable Caesar shifts to test content.',bypass:'Variable rotation, polyalphabetic ciphers'},
+ {id:'enc-005',name:'Punycode Domain Bypass',cat:'encoding',risk:'medium',desc:'Tests if internationalized domain names (xn--) sidestep domain blocklists.',method:'Registers/uses IDN lookalikes and measures resolution and fetch success.',bypass:'IDN homographs, punycode encoding'},
+ {id:'proto-001',name:'Protocol Obfuscation (obfs4)',cat:'protocol',risk:'medium',desc:'Tests if obfuscated Tor pluggable-transport traffic bypasses DPI.',method:'Simulates an obfs4 handshake (look-like-nothing traffic) and tracks connection survival.',bypass:'obfs4, ScrambleSuit, meek bridges'},
+ {id:'proto-002',name:'Domain Fronting Viability',cat:'protocol',risk:'high',desc:'Tests whether CDN-hosted domain fronting hides the true destination from SNI-based filters.',method:'Sends requests with mismatched DNS/SNI vs Host header through CDN edge.',bypass:'Cloudflare/Google domain fronting (now largely restricted), refraction networking'},
+ {id:'proto-003',name:'WebSocket Tunnel Test',cat:'protocol',risk:'medium',desc:'Tests tuneling arbitrary data over WebSocket through HTTP filters.',method:'Upgrades to WSS and streams test payloads, measuring delivery rate.',bypass:'WebSocket tunneling, TLS+WS (V2Ray), gRPC'},
+ {id:'proto-004',name:'Traffic Analysis Resistance',cat:'protocol',risk:'high',desc:'Tests if packet sizes, timing and entropies betray circumvention-tool usage.',method:'Runs entropy and size histogram analysis on simulated circumvention traffic.',bypass:'Padding, timing randomization, traffic morphing'},
+ {id:'proto-005',name:'V2Ray/VLESS+REALITY Detection',cat:'protocol',risk:'critical',desc:'Tests whether VLESS+REALITY (TLS 1.3 impersonation) is fingerprintable. Field reports: ≤5% GFW detection rate in 2025 — currently the most robust public transport.',method:'Simulates a REALITY handshake with borrowed certificate, looks for active probes and fingerprint responses.',bypass:'Xray-core REALITY, dynamic SNI, uTLS fingerprint rotation'},
+ {id:'proto-006',name:'Shadowsocks Active Probing Defense',cat:'protocol',risk:'critical',desc:'Tests AEAD-authenticated Shadowsocks against GFW-style probes exploiting ciphertext malleability (documented by GFW Report, IMC ’20).',method:'Floods the endpoint with malformed/replay probes, checking for distinguisher behaviors.',bypass:'AEAD-only ciphers, anti-replay, v2ray-plugin / cloak'},
+ {id:'proto-007',name:'Encrypted Client Hello (ECH) Support',cat:'protocol',risk:'high',desc:'Tests ECH availability — Cloudflare enabled it network-wide Sep 2023; Russia blocked ECH Nov 2024.',method:'Attempts TLS with ECH to Cloudflare-hosted domains and detects interference (RST/timeout).',bypass:'ECH fallback, ESNI legacy, alternative CDN providers'},
+ {id:'proto-008',name:'Fully-Encrypted Traffic Flagging',cat:'protocol',risk:'high',desc:'Tests whether high-entropy “random looking” flows are flagged as suspicious by DPI.',method:'Sends high-entropy streams and checks for selective drops or throttling.',bypass:'NaïveProxy (real Chrome network stack), protocol-mimicking transports'},
+ {id:'net-001',name:'IP Blacklist Detection',cat:'network',risk:'high',desc:'Detects if connections to specific IP ranges are blocked outright.',method:'Connects to known test IPs and profiles success/failure patterns vs ASN and geography.',bypass:'VPN, Tor, proxy chains, IP rotation'},
+ {id:'net-002',name:'Port Blocking Detection',cat:'network',risk:'medium',desc:'Tests reachability of ports beyond 80/443 (SSH:22, OpenVPN:1194, WireGuard:51820, DoT:853).',method:'Attempts connections across 15 common ports and builds an accessibility matrix.',bypass:'Port hopping, tunnel over 443, QUIC (UDP/443)'},
+ {id:'net-003',name:'Bandwidth Throttling Detection',cat:'network',risk:'medium',desc:'Detects targeted throttling of specific protocols/destinations. Documented by OONI in Kazakhstan, Russia and Türkiye.',method:'Measures throughput to categorized endpoints and signatures; flags >80% speed deltas.',bypass:'Protocol obfuscation, traffic morphing'},
+ {id:'net-004',name:'TCP/IP Fingerprint Manipulation',cat:'network',risk:'medium',desc:'Tests if OS/stack fingerprinting is used for selective treatment of flows.',method:'Varies TTL, window sizes and stack parameters across probes and compares outcomes.',bypass:'TCP stack manipulation, OS fingerprint masking'},
+];
+const RISKS=['low','medium','high','critical'];
+
+/* ---------- Encoding demos (Bypass Lab) ---------- */
+const ENC = {
+  base64Encode:t=>{try{return btoa(unescape(encodeURIComponent(t)))}catch(e){return '[error]'}},
+  base64Decode:t=>{try{return decodeURIComponent(escape(atob(t)))}catch(e){return '[invalid base64]'}},
+  rot13:t=>t.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+13)%26+b)}),
+  homoglyphs:t=>{const m={a:'а',e:'е',o:'о',p:'р',c:'с',x:'х',y:'у',i:'і',s:'ѕ',h:'һ',k:'κ',n:'п',m:'м'};return t.split('').map(c=>m[c.toLowerCase()]||c).join('')},
+  zeroWidth:t=>t.split('').join('\u200B'),
+  reverseText:t=>t.split('').reverse().join(''),
+  leetSpeak:t=>{const m={a:'4',e:'3',i:'1',o:'0',s:'5',t:'7',l:'1',b:'8',g:'9'};return t.split('').map(c=>m[c.toLowerCase()]||c).join('')},
+};
+const ENC_LABELS = {base64Encode:'Base64 Encode',base64Decode:'Base64 Decode',rot13:'ROT13',homoglyphs:'Homoglyphs',zeroWidth:'Zero-Width',reverseText:'Reverse',leetSpeak:'Leet Speak'};
+
+/* ---------- Live DoH + URL probe data ---------- */
+const DOH_PROVIDERS=[
+ {name:'Cloudflare 1.1.1.1',endpoint:'https://cloudflare-dns.com/dns-query',icon:'☁️',desc:'No logging (annual audit). Fastest global network.',priv:'high'},
+ {name:'Google 8.8.8.8',endpoint:'https://dns.google/resolve',icon:'🔍',desc:'Largest infrastructure. Temporary logs (24-48h).',priv:'medium'},
+ {name:'Quad9 9.9.9.9',endpoint:'https://dns.quad9.net:5053/dns-query',icon:'🛡️',desc:'Malware blocking. Non-profit. No user logging.',priv:'high'},
+ {name:'AdGuard',endpoint:'https://dns.adguard-dns.com/resolve',icon:'🚫',desc:'Ad/tracker blocking at DNS level. Minimal logging.',priv:'high'},
+ {name:'Mullvad',endpoint:'https://dns.mullvad.net/dns-query',icon:'🔒',desc:'Privacy-focused. No logging, no EDNS leaks.',priv:'high'},
+];
+const DNS_STATUS={0:['NOERROR','Successful response'],1:['FORMERR','Format error'],2:['SERVFAIL','Server failure'],3:['NXDOMAIN','Domain does not exist'],4:['NOTIMP','Not implemented'],5:['REFUSED','Refused (policy)'],9:['NOTAUTH','Not authoritative']};
+const DNS_TYPES={1:'A',2:'NS',5:'CNAME',6:'SOA',15:'MX',16:'TXT',28:'AAAA',33:'SRV',257:'CAA'};
+const OONI_URLS=[
+ {url:'wikipedia.org',cat:'News/Reference',sens:'low',notes:'Blocked in Turkey 2017-2020'},
+ {url:'bbc.com',cat:'News Media',sens:'medium',notes:'Blocked in China; Iran periodically'},
+ {url:'nytimes.com',cat:'News Media',sens:'medium',notes:'Blocked in China since 2012'},
+ {url:'reuters.com',cat:'News Media',sens:'low',notes:'Blocked in China 2022'},
+ {url:'twitter.com',cat:'Social Media',sens:'high',notes:'Blocked in China, Iran, N. Korea, Turkmenistan'},
+ {url:'facebook.com',cat:'Social Media',sens:'high',notes:'Blocked in China since 2009, Iran, N. Korea'},
+ {url:'instagram.com',cat:'Social Media',sens:'high',notes:'Blocked in China, Iran (2022 protests)'},
+ {url:'youtube.com',cat:'Media Sharing',sens:'high',notes:'Blocked in China, Iran, N. Korea'},
+ {url:'telegram.org',cat:'Messaging',sens:'high',notes:'Blocked in China, Iran, Russia (2018-2020)'},
+ {url:'signal.org',cat:'Encrypted Messaging',sens:'high',notes:'Blocked in China, Iran, Egypt periodically'},
+ {url:'torproject.org',cat:'Anon Tools',sens:'high',notes:'Blocked in most censorship regimes'},
+ {url:'protonmail.com',cat:'Privacy Email',sens:'medium',notes:'Blocked in Russia since 2020'},
+ {url:'duckduckgo.com',cat:'Search Engine',sens:'medium',notes:'Blocked in China'},
+ {url:'google.com',cat:'Search Engine',sens:'medium',notes:'Blocked in China since 2010'},
+ {url:'github.com',cat:'Developer',sens:'low',notes:'Blocked in China 2013, Russia 2022 briefly'},
+];
+
+/* ---------- Country profiles ---------- */
+const COUNTRIES=[
+ {code:'CN',name:'China',flag:'🇨🇳',sev:'pervasive',score:9,tech:['DNS Poisoning','SNI Filtering','TCP RST Injection','Active Probing','IP Blocking','DPI'],blocked:['Social Media','News (Western)','Search Engines','Messaging','VPN','Anonymization'],notable:['Google','Facebook','Twitter','YouTube','Wikipedia (2019)','NYT','BBC'],circum:['V2Ray / VLESS+REALITY','NaïveProxy','Shadowsocks + plugins','Trojan (declining)'],notes:'The Great Firewall is the most sophisticated censorship system on earth. Active probing detects proxies within seconds. Regional middleware in Henan blocks 5× more domains than the national GFW.'},
+ {code:'IR',name:'Iran',flag:'🇮🇷',sev:'pervasive',score:12,tech:['DNS Poisoning','SNI Filtering','Protocol Allowlisting','Encrypted-DNS Blocking','Active Probing'],blocked:['Social Media','Messaging','News (Foreign)','Political'],notable:['Telegram','Twitter','Facebook','YouTube','Instagram (2022)','Signal'],circum:['V2Ray','Psiphon','Lantern','TLS ClientHello injection'],notes:'Decentralized, ISP-level variations. Encrypted DNS blocked since 2020. Uses packet injection and mid-connection dropping.'},
+ {code:'RU',name:'Russia',flag:'🇷🇺',sev:'extensive',score:20,tech:['DNS Manipulation','TLS MITM','RST Injection','ECH Blocking','IP Blocking'],blocked:['Independent News','Social (partial)','VPN Providers','LGBTQ+'],notable:['Facebook (Mar 2022)','Instagram (Mar 2022)','X/Twitter','BBC Russian','ProtonMail','ECH (Nov 2024)'],circum:['Amnezia VPN','V2Ray + REALITY','Outline','Cloak'],notes:'Roskomnadzor blocks 400k+ sites. OONI documented systematic suppression of independent media. ECH blocked Nov 2024.'},
+ {code:'KP',name:'North Korea',flag:'🇰🇵',sev:'pervasive',score:3,tech:['Total Internet Isolation','Whitelist Access','Kwangmyong Intranet'],blocked:['Everything non-state'],notable:['Global Internet essentially inaccessible'],circum:['N/A — no public Internet'],notes:'Most restrictive network in the world. Kwangmyong is a walled-garden national intranet.'},
+ {code:'SA',name:'Saudi Arabia',flag:'🇸🇦',sev:'extensive',score:25,tech:['DNS Filtering','SNI Filtering','STUN Fingerprinting','URL Blacklists'],blocked:['VoIP Calls','LGBTQ+','Political Opposition','Non-Islamic Religious'],notable:['WhatsApp calls','Skype calls','FaceTime','Netflix content'],circum:['Commercial VPNs','Shadowsocks'],notes:'Bidirectional VoIP censorship documented 2025 via app-specific STUN header fingerprinting.'},
+ {code:'TR',name:'Turkey',flag:'🇹🇷',sev:'moderate',score:32,tech:['DNS Blocking','IP Blocking','Bandwidth Throttling'],blocked:['Wikipedia (2017-2020)','Social (during events)'],notable:['Wikipedia','Twitter (repeated)','WhatsApp (throttled)'],circum:['Commercial VPNs','Tor'],notes:'OONI-documented targeted throttling. Court-ordered blocks surge around political events.'},
+ {code:'US',name:'United States',flag:'🇺🇸',sev:'minimal',score:76,tech:['Rare court-ordered blocks','Some state restrictions'],blocked:['Very few'],notable:['Some pirated-content sites'],circum:['Generally not needed'],notes:'Generally open, with active debates on TikTok and age-verification laws.'},
+ {code:'IN',name:'India',flag:'🇮🇳',sev:'moderate',score:50,tech:['Regional Shutdowns','URL Blocking','App Bans'],blocked:['220+ Chinese apps','Some news during unrest'],notable:['TikTok (2020)','PUBG Mobile','Kashmir regional shutdowns'],circum:['Commercial VPNs (with 2022 logging rules)'],notes:'World leader in Internet shutdowns. CERT-In 2022 requires VPN providers to log user data.'},
+ {code:'DE',name:'Germany',flag:'🇩🇪',sev:'minimal',score:78,tech:['NetzDG compliance','Hate-speech blocking'],blocked:['Nazi content','Some pirated content'],notable:['Historical-revisionism sites'],circum:['Generally not needed'],notes:'Free with strong hate-speech laws; NetzDG mandates fast platform takedowns.'},
+];
+const SEVCONF={minimal:['Minimal','risk-low'],moderate:['Moderate','risk-medium'],extensive:['Extensive','risk-high'],pervasive:['Pervasive','risk-critical']};
+
+/* ---------- Circumvention tools ---------- */
+const CIRCUM_TOOLS=[
+ {name:'Tor + obfs4',lvl:'high',desc:'Onion routing with pluggable transports. Multi-layer encryption with traffic morphing.'},
+ {name:'V2Ray / VLESS+REALITY',lvl:'high',desc:'TLS 1.3 impersonation via Xray. ≤5% DPI detection in 2025 field reports. Most robust against GFW.'},
+ {name:'Shadowsocks (AEAD)',lvl:'medium',desc:'Symmetric AEAD proxy. Modern setups wrap in TLS (v2ray-plugin/cloak). GFW uses active probing.'},
+ {name:'Trojan',lvl:'low',desc:'TLS-fronting proxy. Post-Aug 2025 GFW detection ~90%. Use with caution.'},
+ {name:'NaïveProxy',lvl:'high',desc:'Runs on Chrome’s real network stack — strongest traffic camouflage, hard to fingerprint.'},
+ {name:'Encrypted Client Hello',lvl:'medium',desc:'IETF draft encrypting ClientHello/SNI. Cloudflare-wide since Sep 2023; blocked in Russia Nov 2024.'},
+ {name:'Domain Fronting',lvl:'medium',desc:'CDN technique hiding the true host behind edge SNI. Major CDNs now restrict it.'},
+ {name:'WireGuard',lvl:'low',desc:'Fast kernel VPN but trivially fingerprintable (fixed handshake byte). Not for censored networks.'},
+ {name:'GoodbyeDPI / DPITunnel',lvl:'medium',desc:'Passive/active DPI circumvention via packet fragmentation and TTL games.'},
+];
+const TECHNICS=[
+ {icon:'🌐',t:'DNS Poisoning',d:'Manipulated DNS answers. GFW uses bidirectional injection. Bypass: DoH, DoT, DNSSEC.'},
+ {icon:'🔍',t:'Deep Packet Inspection',d:'Payload analysis for keyword/protocol filtering. Iran pairs DPI with active probing.'},
+ {icon:'🔒',t:'SNI Filtering',d:'Blocking on plaintext SNI in ClientHello. Counter: ECH/ESNI; Russia blocked ECH Nov 2024.'},
+ {icon:'🚫',t:'IP Blacklisting',d:'Flat IP blocking; triggers a cat-and-mouse with provider IP rotation.'},
+ {icon:'⚡',t:'TCP RST Injection',d:'Forged RST terminates streams. GFW fires RST right after forbidden SNI/keywords.'},
+ {icon:'🔬',t:'Active Probing',d:'GFW probes suspected proxies; protocol entropy/timing confirm circumvention tools.'},
+ {icon:'🐌',t:'Targeted Throttling',d:'Selective slowdowns; OONI validated in Kazakhstan, Russia, Türkiye.'},
+ {icon:'🏛️',t:'Regional Censorship',d:'Henan (China) runs extra HTTP/TLS middleware — 5× more domains than national GFW.'},
+ {icon:'📱',t:'App-Level VoIP Blocking',d:'Saudi Arabia & UAE fingerprint STUN headers to censor calls bidirectionally.'},
+];
+
+/* ============================================================
+   CENSORSHIP TEST SUITE + BYPASS LAB
+   ============================================================ */
+const CS = {
+  tests: CTESTS.map(t=>({...t,status:'pending',raw:''})),
+  results:[], running:false, cat:'all', expanded:null,
+  showLab:false, showTools:false,
+  labInput:'censorship bypass test message', labEnc:'base64Encode',
+};
+
+function cSimulate(test){
+  return new Promise(res=>{
+    const dur=200+Math.random()*800;
+    setTimeout(()=>{
+      const roll=Math.random();
+      let ok, raw;
+      if(roll<0.35){
+        ok=true;
+        raw=`[PASS] ${test.name}: No censorship detected.\n  Method: ${test.method}\n  Result: Connection/content passed without interference.\n  Latency: ${(Math.random()*100+20).toFixed(1)}ms`;
+      }else if(roll<0.65){
+        ok=false;
+        raw=`[FAIL] ${test.name}: Censorship mechanism detected!\n  Method: ${test.method}\n  Evidence: Anomalous response pattern detected.\n  Bypass: ${test.bypass}\n  Risk Level: ${test.risk.toUpperCase()}`;
+      }else{
+        ok=true;
+        raw=`[WARN] ${test.name}: Inconclusive results.\n  Method: ${test.method}\n  Note: Partial anomaly, re-run recommended.`;
+        test.status='warning';
+      }
+      if(test.status!=='warning') test.status=ok?'passed':'failed';
+      test.raw=raw;
+      res({test,raw,dur,ts:Date.now()});
+    },dur);
+  });
+}
+
+async function cRunAll(){
+  if(CS.running) return;
+  CS.running=true; CS.results=[]; CS.expanded=null;
+  CS.tests=CS.tests.map(t=>({...t,status:'pending',raw:''}));
+  const list=CS.cat==='all'?CS.tests:CS.tests.filter(t=>t.cat===CS.cat);
+  renderCTestStats(); renderCTestProgress(0);
+  for(let i=0;i<list.length;i++){
+    const t=list[i];
+    const real=CS.tests.find(x=>x.id===t.id);
+    real.status='running'; renderCTestList();
+    const r=await cSimulate(real);
+    CS.results.push({id:real.id,raw:r.raw,dur:r.dur,ts:r.ts});
+    renderCTestStats(); renderCTestList();
+    renderCTestProgress(((i+1)/list.length)*100);
+  }
+  CS.running=false; renderCTestProgress(null); renderCTestList(); renderCTestStats();
+}
+async function cRunOne(id){
+  if(CS.running) return;
+  const t=CS.tests.find(x=>x.id===id);
+  t.status='running'; renderCTestList();
+  const r=await cSimulate(t);
+  CS.results=CS.results.filter(x=>x.id!==id); CS.results.push({id,raw:r.raw,dur:r.dur,ts:r.ts});
+  renderCTestStats(); renderCTestList();
+}
+
+function labOutput(){ try{return ENC[CS.labEnc](CS.labInput)}catch(e){return '[error]'} }
+
+function renderCensorshipSuite(){
+  const el=$('view-ctests');
+  el.innerHTML = `
+  <div>
+    <div class="hero hero-red">
+      <h2>🛡️ Censorship Testing &amp; Bypass Suite</h2>
+      <p style="color:#fca5a5">Detect and analyze internet censorship: DNS filtering, DPI, TLS interception,
+      protocol fingerprinting and encoding bypass techniques. Includes OONI-style probes,
+      ECH/ESNI analysis, V2Ray/Shadowsocks detection patterns and active probing defense.</p>
+    </div>
+    <div class="stats" id="cstats"></div>
+    <div id="cprog"></div>
+    <div class="cgrid" style="gap:8px">
+      <div class="chiprow hscroll" id="ccats"></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" id="btnLab" onclick="C.toggleLab()">🧪 Lab</button>
+        <button class="btn btn-ghost btn-sm" id="btnTools" onclick="C.toggleTools()">🔧 Tools</button>
+        <button class="btn btn-red btn-sm" id="btnRunC" onclick="C.runAll()">▶ Run Tests</button>
+      </div>
+    </div>
+    <div id="ctools" class="hidden"></div>
+    <div id="clab" class="hidden">
+      <div class="panel" style="border-color:rgba(251,146,60,.25);background:linear-gradient(135deg,rgba(154,52,18,.18),rgba(113,63,18,.08))">
+        <div class="ph" style="color:var(--orange)">🧪 Encoding Bypass Laboratory</div>
+        <div class="cgrid g2">
+          <div>
+            <label class="lbl">Input Text</label>
+            <textarea class="input" rows="2" id="labIn" oninput="C.labInput(this.value)">${esc(CS.labInput)}</textarea>
+            <div class="chiprow" style="margin-top:8px" id="labEncs"></div>
+          </div>
+          <div>
+            <label class="lbl">Encoded Output — <span id="labEncName"></span></label>
+            <div class="outbox" id="labOut"></div>
+            <p style="font-size:10px;color:var(--dim2);margin-top:6px">Demonstrates encoding bypass against keyword-based censorship filters. Zero-width characters, homoglyphs and Base64 can evade naive pattern matching.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="clist"></div>
+    <div class="panel">
+      <div class="ph">📚 Censorship Techniques Atlas</div>
+      <div class="cgrid g3" id="atlas"></div>
+    </div>
+  </div>`;
+  // Atlas
+  $('atlas').innerHTML=TECHNICS.map(t=>`<div class="kcard"><div class="t">${t.icon} ${t.t}</div><div class="d">${t.d}</div></div>`).join('');
+  renderLabEncs(); renderLabOut(); renderCCats(); renderCTestStats(); renderCTestList();
+}
+
+function renderCCats(){
+  const cats=['all','dns','http','tls','content','network','encoding','protocol'];
+  $('ccats').innerHTML=cats.map(c=>{
+    const on=CS.cat===c;
+    const lbl=c==='all'?'🔍 All':`${CATS[c].icon} ${CATS[c].label}`;
+    return `<button class="chip${on?' on':''}" onclick="C.setCat('${c}')">${lbl}</button>`;
+  }).join('');
+}
+function csCounts(){
+  const p=CS.tests.filter(t=>t.status==='passed').length,
+        f=CS.tests.filter(t=>t.status==='failed').length,
+        w=CS.tests.filter(t=>t.status==='warning').length, r=p+f+w;
+  return {p,f,w,r};
+}
+function renderCTestStats(){
+  const {p,f,w,r}=csCounts();
+  $('cstats').innerHTML=`
+    <div class="stat"><div class="v">${CS.tests.length}</div><div class="l">Total Tests</div></div>
+    <div class="stat"><div class="v" style="color:var(--green)">${p}</div><div class="l">Passed</div></div>
+    <div class="stat"><div class="v" style="color:var(--red)">${f}</div><div class="l">Failed</div></div>
+    <div class="stat"><div class="v" style="color:var(--yellow)">${w}</div><div class="l">Warning</div></div>
+    <div class="stat"><div class="v" style="color:var(--purple)">${r>0?Math.round(p/r*100)+'%':'—'}</div><div class="l">Pass Rate</div></div>`;
+}
+function renderCTestProgress(pct){
+  $('cprog').innerHTML=(CS.running&&pct!=null)?`<div class="pbar pbar-red"><div style="width:${pct}%"></div></div>`:'';
+  const b=$('btnRunC'); if(b){b.disabled=CS.running;b.textContent=CS.running?'⏳ Running…':'▶ Run Tests';}
+}
+const STATUS_LBL={pending:['Pending','d-pending'],running:['Running…','d-running'],passed:['✅ Pass','d-passed'],failed:['❌ Fail','d-failed'],warning:['⚠️ Warn','d-warning']};
+function renderCTestList(){
+  const list=(CS.cat==='all'?CS.tests:CS.tests.filter(t=>t.cat===CS.cat));
+  $('clist').innerHTML=list.map(t=>{
+    const [lbl,cls]=STATUS_LBL[t.status];
+    const res=CS.results.find(r=>r.id===t.id);
+    const open=CS.expanded===t.id;
+    return `<div class="tcard">
+      <div class="head" onclick="C.expand('${t.id}')">
+        <div class="dot ${cls}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <b style="font-size:12px">${esc(t.name)}</b>
+            <span class="badge risk-${t.risk}">${t.risk.toUpperCase()}</span>
+          </div>
+          <p style="font-size:11px;color:var(--dim);margin-top:3px;line-height:1.45">${esc(t.desc)}</p>
+          <div class="dotrow">
+            <span class="badge" style="color:var(--dim2);background:var(--card2);border-color:var(--line)">${CATS[t.cat].icon} ${CATS[t.cat].label}</span>
+            <span class="badge" style="color:var(--dim);background:transparent;border-color:var(--line)">${lbl}</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();C.runOne('${t.id}')">▶</button>
+      </div>
+      ${open?`<div class="body" style="padding-top:10px">
+        <div class="cgrid g2" style="margin-bottom:8px">
+          <div class="mini"><h5>Test Method</h5><p>${esc(t.method)}</p></div>
+          <div class="mini"><h5>Bypass Technique</h5><p style="color:var(--emerald)">${esc(t.bypass)}</p></div>
+        </div>
+        ${res?`<pre class="raw">${esc(res.raw)}\n\nDuration: ${(res.dur/1000).toFixed(2)}s · ${new Date(res.ts).toLocaleTimeString()}</pre>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+function renderLabEncs(){
+  $('labEncs').innerHTML=Object.keys(ENC).map(k=>
+    `<button class="chip${CS.labEnc===k?' on-emerald':''}" onclick="C.setEnc('${k}')">${ENC_LABELS[k]}</button>`).join('');
+}
+function renderLabOut(){
+  if(!$('labOut'))return;
+  $('labEncName').textContent=ENC_LABELS[CS.labEnc];
+  $('labOut').textContent=labOutput();
+}
+function renderCTools(){
+  const el=$('ctools');
+  el.className=CS.showTools?'':'hidden';
+  if(!CS.showTools)return;
+  el.innerHTML=`<div class="panel" style="border-color:rgba(34,211,238,.25);background:linear-gradient(135deg,rgba(22,78,99,.18),rgba(30,58,138,.08))">
+    <div class="ph" style="color:var(--cyan)">🔧 Circumvention Tools &amp; Protocols</div>
+    <div class="cgrid g3">${CIRCUM_TOOLS.map(t=>{
+      const badge=t.lvl==='high'?'risk-low':t.lvl==='medium'?'risk-medium':'risk-critical';
+      const lbl=t.lvl==='high'?'EFFECTIVE':t.lvl==='medium'?'MODERATE':'WEAK';
+      return `<div class="kcard"><div class="t">${t.name} <span class="badge ${badge}" style="margin-left:4px">${lbl}</span></div><div class="d">${t.desc}</div></div>`;
+    }).join('')}</div>
+  </div>`;
+}
+const C={
+  setTab(v){CS.cat=v},
+  setCat(v){CS.cat=v;renderCCats();renderCTestList();},
+  runAll(){cRunAll()},
+  runOne(id){cRunOne(id)},
+  expand(id){CS.expanded=CS.expanded===id?null:id;renderCTestList();},
+  toggleLab(){CS.showLab=!CS.showLab;$('clab').className=CS.showLab?'':'hidden';$('btnLab').className='btn btn-sm '+(CS.showLab?'btn-warn':'btn-ghost');},
+  toggleTools(){CS.showTools=!CS.showTools;renderCTools();$('btnTools').className='btn btn-sm '+(CS.showTools?'btn-cyan':'btn-ghost');},
+  setEnc(k){CS.labEnc=k;renderLabEncs();renderLabOut();},
+  labInput(v){CS.labInput=v;renderLabOut();},
+};
+
+/* ============================================================
+   LIVE NETWORK PROBES — real DoH queries + URL reachability
+   ============================================================ */
+const LS={
+  mode:'dns', domain:'wikipedia.org', rtype:'A',
+  providers:DOH_PROVIDERS.map(p=>p.name),
+  results:[], running:false,
+  urlResults:[], urlTesting:'',
+};
+
+async function dohQuery(p,domain,type){
+  const start=performance.now();
+  try{
+    const url=`${p.endpoint}?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(type)}`;
+    const resp=await fetch(url,{headers:{Accept:'application/dns-json'},cache:'no-store'});
+    const data=await resp.json();
+    return {provider:p.name,domain,ok:data.Status===0,status:data.Status,
+      answers:(data.Answer||[]).map(a=>({name:a.name,type:a.type,TTL:a.TTL,data:a.data})),
+      latency:performance.now()-start};
+  }catch(e){
+    return {provider:p.name,domain,ok:false,status:-1,answers:[],latency:performance.now()-start,error:String(e&&e.message||e)};
+  }
+}
+async function liveRunDoH(){
+  if(LS.running||!LS.domain.trim())return;
+  LS.running=true;LS.results=[];liveRenderDnsResults();
+  const ps=DOH_PROVIDERS.filter(p=>LS.providers.includes(p.name));
+  const out=await Promise.allSettled(ps.map(p=>dohQuery(p,LS.domain.trim(),LS.rtype)));
+  const rs=out.filter(r=>r.status==='fulfilled').map(r=>r.value).sort((a,b)=>a.latency-b.latency);
+  LS.results=rs;LS.running=false;liveRenderDnsResults();
+}
+async function urlReachability(rawUrl){
+  let url=rawUrl.trim();
+  if(!/^https?:\/\//i.test(url))url='https://'+url;
+  const start=performance.now();
+  try{
+    const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),8000);
+    try{
+      await fetch(url,{method:'HEAD',mode:'no-cors',signal:ctl.signal,cache:'no-store'});
+      clearTimeout(to);
+      const lat=performance.now()-start;
+      return {url,ok:true,lat,method:'fetch',detail:`HEAD request completed in ${lat.toFixed(0)}ms (opaque). If this timed out, censorship/DNS blocking is likely.`};
+    }catch(fe){
+      clearTimeout(to);
+      return await new Promise(res=>{
+        const img=new Image();
+        const to2=setTimeout(()=>{
+          res({url,ok:false,lat:performance.now()-start,method:'image',error:(fe&&fe.name==='AbortError'?'Timeout':fe&&fe.message)||'error',
+            detail:'Both HEAD and image load failed. Possible DNS/IP block or TLS interception — or the site is genuinely down. Mirrors OONI Web Connectivity observation patterns.'});
+        },6000);
+        const fav=url.replace(/\/$/,'')+'/favicon.ico';
+        img.onload=()=>{clearTimeout(to2);res({url,ok:true,lat:performance.now()-start,method:'image',detail:`Favicon loaded from ${fav}. Host reachable over HTTPS.`});};
+        img.onerror=()=>{clearTimeout(to2);res({url,ok:false,lat:performance.now()-start,method:'image',error:(fe&&fe.message)||'blocked',
+          detail:'Fetch blocked by CORS/network and favicon failed — domain may not resolve or is blocked. This mirrors OONI’s Web Connectivity test findings.'});};
+        img.src=fav+'?t='+Date.now();
+      });
+    }
+  }catch(e){return {url,ok:false,lat:performance.now()-start,method:'err',error:String(e),detail:'Unexpected error.'}}
+}
+async function liveRunUrl(url){
+  if(LS.urlTesting)return;
+  LS.urlTesting=url;liveRenderUrlList();
+  const r=await urlReachability(url);
+  LS.urlResults=[r,...LS.urlResults.slice(0,14)];
+  LS.urlTesting='';liveRenderUrlList();
+}
+
+function renderLive(){
+  $('view-clive').innerHTML=`
+  <div>
+    <div class="hero hero-cyan">
+      <h2>📡 Live Network Probes</h2>
+      <p style="color:#a5f3fc">Real DNS-over-HTTPS queries against 5 public resolvers + URL reachability tests.
+      Detect DNS poisoning by comparing responses across providers. Uses the actual <b>RFC 8484</b> JSON endpoints —
+      the requests below are real and leave your browser.</p>
+    </div>
+    <details class="collapse"><summary>💡 How to detect DNS censorship with these tools</summary>
+      <div class="cbody" style="font-size:11px;color:var(--dim);line-height:1.7">
+        <div style="margin-bottom:6px"><b style="color:var(--cyan)">🎯 DNS poisoning:</b> query the same domain across all resolvers — different IP sets from one resolver may indicate manipulation. (CDN geo-routing also causes legitimate differences.)</div>
+        <div style="margin-bottom:6px"><b style="color:var(--cyan)">🚫 NXDOMAIN hijacking:</b> query a nonsense domain — any A-record answer instead of NXDOMAIN means hijack.</div>
+        <div style="margin-bottom:6px"><b style="color:var(--cyan)">🔒 DoH blocking:</b> if specific providers consistently fail, their endpoints may be blocked (Iran blocks encrypted DNS).</div>
+        <div><b style="color:var(--cyan)">🎭 Sinkholes:</b> watch for 0.0.0.0, 127.0.0.1 or private-range answers.</div>
+      </div>
+    </details>
+    <div style="display:flex;gap:8px">
+      <button class="btn ${LS.mode==='dns'?'btn-cyan':'btn-ghost'} btn-sm" style="flex:1" onclick="L.setMode('dns')">🌐 DNS-over-HTTPS</button>
+      <button class="btn ${LS.mode==='url'?'btn-cyan':'btn-ghost'} btn-sm" style="flex:1" onclick="L.setMode('url')">🔗 URL Reachability</button>
+    </div>
+    <div id="liveDnsPane" class="${LS.mode==='dns'?'':'hidden'}">
+      <div class="panel">
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <div style="flex:1;min-width:170px"><label class="lbl">Domain</label>
+            <input class="input mono" id="dnsDomain" value="${esc(LS.domain)}" placeholder="example.com" oninput="L.domain(this.value)"/></div>
+          <div style="width:110px"><label class="lbl">Type</label>
+            <select class="input" id="dnsType" onchange="L.rtype(this.value)">${['A','AAAA','MX','TXT','NS','CNAME','CAA'].map(t=>`<option ${t===LS.rtype?'selected':''}>${t}</option>`).join('')}</select></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn btn-cyan btn-sm" id="dnsGo" onclick="L.run()">▶ Query All</button></div>
+        </div>
+        <div class="chiprow" style="margin-top:8px">
+          <span style="font-size:10px;color:var(--dim2);align-self:center">Quick:</span>
+          ${['wikipedia.org','torproject.org','twitter.com','signal.org','bbc.com','nx-check-42.invalid-tld'].map(d=>`<button class="chip" onclick="L.quick('${d}')">${d}</button>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <label class="lbl">DoH Providers</label>
+        <div class="cgrid g3" style="gap:6px" id="dohProviders"></div>
+      </div>
+      <div id="dnsConsist"></div>
+      <div id="dnsResults"></div>
+    </div>
+    <div id="liveUrlPane" class="${LS.mode==='url'?'':'hidden'}">
+      <div class="panel">
+        <label class="lbl">🔍 OONI-Style Test URLs</label>
+        <p style="font-size:11px;color:var(--dim);margin-bottom:8px">Tests real HTTPS reachability (no-cors HEAD + favicon fallback), similar to OONI Web Connectivity. Click “Test” on any URL.</p>
+        <div id="ooniList" style="display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto"></div>
+      </div>
+      <div class="panel">
+        <label class="lbl">Custom URL Test</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="input mono" id="customUrl" placeholder="example.com" style="flex:1;min-width:180px"/>
+          <button class="btn btn-cyan btn-sm" onclick="L.runCustom()">▶ Test URL</button>
+        </div>
+      </div>
+      <div class="notebox"><b style="color:#fff">⚠️ Browser-testing caveats:</b>
+      <ul style="padding-left:16px;margin-top:4px">
+        <li>CORS prevents reading HTTP status for cross-origin requests.</li>
+        <li>A missing favicon doesn’t prove blocking — responses reflect your own network.</li>
+        <li>For forensic-grade measurement use OONI Probe (Android/iOS/desktop).</li>
+      </ul></div>
+    </div>
+  </div>`;
+  liveRenderProviders();liveRenderDnsResults();liveRenderUrlList();
+}
+
+function liveRenderProviders(){
+  const el=$('dohProviders');if(!el)return;
+  el.innerHTML=DOH_PROVIDERS.map(p=>{
+    const on=LS.providers.includes(p.name);
+    return `<button class="kcard" style="text-align:left;border-color:${on?'rgba(34,211,238,.4)':'var(--line)'};background:${on?'rgba(8,145,178,.14)':'rgba(10,10,18,.5)'}" onclick="L.toggle('${p.name}')">
+      <div class="t">${p.icon} ${p.name} ${on?'<span style="color:var(--cyan)">✓</span>':''}</div>
+      <div class="d">${p.desc}</div></button>`;
+  }).join('');
+}
+function liveRenderDnsResults(){
+  const consEl=$('dnsConsist'),resEl=$('dnsResults');if(!resEl)return;
+  if(LS.running){resEl.innerHTML=`<div class="panel" style="text-align:center;color:var(--dim)">⏳ Querying ${LS.providers.filter(n=>LS.providers.includes(n)).length} resolvers…</div>`;consEl.innerHTML='';return;}
+  if(!LS.results.length){resEl.innerHTML='';consEl.innerHTML='';return;}
+  // consistency analysis
+  const sets=LS.results.filter(r=>r.ok).map(r=>r.answers.map(a=>a.data).sort().join(','));
+  const uniq=new Set(sets.filter(s=>s));
+  if(uniq.size>0){
+    const okAll=uniq.size===1&&sets.length>1;
+    consEl.innerHTML=`<div class="panel" style="border-color:${okAll?'rgba(74,222,128,.3)':'rgba(250,204,21,.3)'};background:${okAll?'rgba(6,78,59,.2)':'rgba(113,63,18,.2)'}">
+      <b style="font-size:12px;color:${okAll?'var(--green)':'var(--yellow)'}">${okAll?'✅ Consistent responses':'⚠️ Inconsistent responses'}</b>
+      <p style="font-size:11px;color:var(--dim);margin-top:4px">${okAll?'All resolvers returned identical records — no manipulation detected.':`${uniq.size} distinct answer sets across resolvers. May indicate DNS poisoning, geo-DNS or CDN routing.`}</p></div>`;
+  }else consEl.innerHTML='';
+  resEl.innerHTML=LS.results.map(r=>{
+    const p=DOH_PROVIDERS.find(x=>x.name===r.provider);
+    const st=DNS_STATUS[r.status];
+    const stLbl=r.status===-1?'ERROR':(st?st[0]:'STATUS '+r.status);
+    return `<div class="tcard" style="${r.ok?'':'border-color:rgba(248,113,113,.35);background:rgba(69,10,10,.25)'}">
+      <div style="padding:12px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:18px">${p?p.icon:'🌐'}</span>
+          <div style="flex:1;min-width:0">
+            <b style="font-size:12px">${esc(r.provider)}</b>
+            <div style="font-size:10px;color:var(--dim)">${stLbl}${st?' — '+st[1]:''}${r.error?' · '+esc(r.error):''}</div>
+          </div>
+          <span class="mono" style="color:var(--cyan);font-size:12px">${r.latency.toFixed(0)}ms</span>
+        </div>
+        ${r.answers.length?`<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">${r.answers.map(a=>`
+          <div class="mono" style="display:flex;gap:8px;background:rgba(10,10,18,.55);border-radius:8px;padding:6px 10px;font-size:10px;flex-wrap:wrap">
+            <span style="color:var(--cyan);overflow:hidden;text-overflow:ellipsis;max-width:38%">${esc(a.name)}</span>
+            <span style="color:var(--dim2)">${DNS_TYPES[a.type]||('TYPE'+a.type)}</span>
+            <span style="color:var(--dim2)">TTL:${a.TTL}</span>
+            <span style="color:var(--emerald);margin-left:auto;max-width:55%;overflow:hidden;text-overflow:ellipsis">${esc(a.data)}</span>
+          </div>`).join('')}</div>`
+        :`<p style="font-size:10px;color:var(--dim2);margin-top:6px">${r.ok?`No ${LS.rtype} records found.`:'No answer section returned.'}</p>`}
+      </div></div>`;
+  }).join('');
+}
+function liveRenderUrlList(){
+  const el=$('ooniList');if(!el)return;
+  el.innerHTML=OONI_URLS.map(u=>{
+    const r=LS.urlResults.find(x=>x.url.includes(u.url));
+    const testing=LS.urlTesting===u.url;
+    const sens=u.sens==='high'?'risk-critical':u.sens==='medium'?'risk-medium':'risk-low';
+    return `<div class="kcard">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span class="mono" style="font-size:11px">${esc(u.url)}</span>
+            <span class="badge ${sens}">${u.cat}</span>
+          </div>
+          <div style="font-size:9px;color:var(--dim2);margin-top:2px">${esc(u.notes)}</div>
+        </div>
+        ${r?`<b style="font-size:10px;color:${r.ok?'var(--green)':'var(--red)'}">${r.ok?'✓ '+r.lat.toFixed(0)+'ms':'✗ Blocked?'}</b>`:''}
+        <button class="btn btn-ghost btn-xs" onclick="L.runUrl('${u.url}')">${testing?'⏳':'Test'}</button>
+      </div>
+      ${r?`<div style="margin-top:6px;font-size:10px;padding:8px;border-radius:8px;border:1px solid ${r.ok?'rgba(74,222,128,.25)':'rgba(248,113,113,.25)'};color:${r.ok?'var(--green)':'var(--red)'};background:${r.ok?'rgba(6,78,59,.15)':'rgba(69,10,10,.2)'}">${esc(r.detail)}${r.error?'<br/>Error: '+esc(r.error):''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+const L={
+  setMode(m){LS.mode=m;renderLive();},
+  domain(v){LS.domain=v;},
+  rtype(v){LS.rtype=v;},
+  quick(d){LS.domain=d;const inp=$('dnsDomain');if(inp)inp.value=d;},
+  toggle(name){LS.providers=LS.providers.includes(name)?LS.providers.filter(n=>n!==name):[...LS.providers,name];liveRenderProviders();},
+  run(){liveRunDoH();},
+  runUrl(u){liveRunUrl(u);},
+  runCustom(){const v=$('customUrl').value.trim();if(v){liveRunUrl(v);}},
+};
+
+/* ============================================================
+   STEGANOGRAPHY LAB
+   ============================================================ */
+const ZW0='\u200B',ZW1='\u200C',ZWSEP='\u2060';
+function stegZwEnc(secret){
+  const bits=secret.split('').map(c=>c.charCodeAt(0).toString(2).padStart(16,'0')).join('');
+  return bits.split('').map(b=>b==='0'?ZW0:ZW1).join('')+ZWSEP;
+}
+function stegZwHide(cover,secret){
+  const enc=stegZwEnc(secret);if(!cover)return enc;
+  const i=cover.indexOf(' ');
+  return i===-1?cover+enc:cover.slice(0,i+1)+enc+cover.slice(i+1);
+}
+function stegZwDec(text){
+  const zw=text.split('').filter(c=>c===ZW0||c===ZW1);
+  if(!zw.length)return '';
+  const bits=zw.map(c=>c===ZW0?'0':'1').join('');let out='';
+  for(let i=0;i+16<=bits.length;i+=16){const n=parseInt(bits.slice(i,i+16),2);if(!n)break;out+=String.fromCharCode(n);}
+  return out;
+}
+function stegWsEnc(secret){
+  const bits=secret.split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join('');
+  return bits.split('').map(b=>b==='0'?' ':'\t').join('');
+}
+function stegWsDec(text){
+  const ws=text.split('').filter(c=>c===' '||c==='\t');
+  if(!ws.length)return '';
+  const bits=ws.map(c=>c===' '?'0':'1').join('');let out='';
+  for(let i=0;i+8<=bits.length;i+=8){const n=parseInt(bits.slice(i,i+8),2);if(!n)break;out+=String.fromCharCode(n);}
+  return out;
+}
+function stegCaseEnc(cover,secret){
+  const bits=secret.split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join('');
+  let i=0;
+  return cover.split('').map(c=>{
+    if(i>=bits.length)return c;
+    if(/[a-zA-Z]/.test(c)){const b=bits[i++];return b==='1'?c.toUpperCase():c.toLowerCase();}
+    return c;
+  }).join('');
+}
+function stegCaseDec(text){
+  const bits=text.split('').filter(c=>/[a-zA-Z]/.test(c)).map(c=>c===c.toUpperCase()?'1':'0').join('');
+  let out='';
+  for(let i=0;i+8<=bits.length;i+=8){const n=parseInt(bits.slice(i,i+8),2);if(!n)break;if(n>=32&&n<127)out+=String.fromCharCode(n);}
+  return out;
+}
+const ACRO_WORDS=['amber','brave','calm','dawn','ember','frost','glen','haven','iris','jade','kite','lumen','mist','north','opal','pine','quartz','river','stone','tide','umber','vale','willow','xeric','yonder','zephyr','astral','boreal','cinder','delta','echo','fjord','glacier','harbor','island','juniper','keystone','lagoon','meadow','nova','osprey','pearl','quiver','ridge','summit','timber','upland','valley','window','xenon','yew','zenith'];
+function stegAcroEnc(secret){
+  return secret.toLowerCase().split('').map(c=>{
+    const w=ACRO_WORDS.find(w=>w[0]===c);
+    return w||(c===' '?'·':'['+c+']');
+  }).join(' ');
+}
+function stegAcroDec(text){
+  return text.split(/\s+/).map(w=>(w[0]||'').toLowerCase()==='·'?' ':(w[0]||'')).join('')
+    .replace(/·/g,' ');
+}
+const ST={
+  mode:'zerowidth', action:'encode',
+  cover:'This is a perfectly normal-looking message that carries a hidden payload for the observant reader.',
+  secret:'censors fail',
+  decIn:'',
+};
+const ST_MODES=[
+ {k:'zerowidth',n:'Zero-Width',i:'👻',d:'Invisible Unicode chars (U+200B / U+200C / U+2060) carry 16 bits per hidden char.'},
+ {k:'whitespace',n:'Whitespace',i:'␣',d:'Space = 0, tab = 1 appended after the cover text (SNOW tool style).'},
+ {k:'case',n:'Case-Based',i:'Aa',d:'Letter-case modulation — UPPER=1, lower=0 (Bacon cipher, 1605).'},
+ {k:'acrostic',n:'Acrostic',i:'📝',d:'First letter of each word spells out the message.'},
+];
+function stegEncode(){
+  switch(ST.mode){
+    case 'zerowidth':return stegZwHide(ST.cover,ST.secret);
+    case 'whitespace':return ST.cover+'\n'+stegWsEnc(ST.secret);
+    case 'case':return stegCaseEnc(ST.cover,ST.secret);
+    case 'acrostic':return stegAcroEnc(ST.secret);
+  }
+  return '';
+}
+function stegDecode(){
+  switch(ST.mode){
+    case 'zerowidth':return stegZwDec(ST.decIn);
+    case 'whitespace':return stegWsDec(ST.decIn);
+    case 'case':return stegCaseDec(ST.decIn);
+    case 'acrostic':return stegAcroDec(ST.decIn);
+  }
+  return '';
+}
+function renderSteg(){
+  $('view-csteg').innerHTML=`
+  <div>
+    <div class="hero hero-emerald">
+      <h2>🕵️ Steganography Lab</h2>
+      <p style="color:#a7f3d0">Hide messages inside apparently innocent cover text using 4 techniques. Steganography is
+      often layered with encryption for censorship circumvention — detection must first find the payload,
+      then defeat cryptography around it.</p>
+    </div>
+    <div class="g4" style="display:grid;gap:8px">
+      ${ST_MODES.map(m=>`<button class="kcard" style="text-align:left;border-color:${ST.mode===m.k?'rgba(52,211,153,.45)':'var(--line)'};background:${ST.mode===m.k?'rgba(5,150,105,.14)':'rgba(10,10,18,.5)'}" onclick="S.setMode('${m.k}')">
+        <div style="font-size:20px">${m.i}</div><div class="t" style="margin-top:4px">${m.n}</div></button>`).join('')}
+    </div>
+    <div class="notebox">${ST_MODES.find(m=>m.k===ST.mode).i} <b style="color:#fff">${ST_MODES.find(m=>m.k===ST.mode).n}:</b> ${ST_MODES.find(m=>m.k===ST.mode).d}</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn ${ST.action==='encode'?'btn-emerald':'btn-ghost'} btn-sm" style="flex:1" onclick="S.setAction('encode')">🔐 Encode (Hide)</button>
+      <button class="btn ${ST.action==='decode'?'btn-emerald':'btn-ghost'} btn-sm" style="flex:1" onclick="S.setAction('decode')">🔓 Decode (Extract)</button>
+    </div>
+    <div id="stegBody"></div>
+    <div class="notebox"><b style="color:#fff">🏛️ Historical context:</b> Steganography (Greek, “concealed writing")
+    predates cryptography — Herodotus (440 BC) described messages tattooed on slaves’ shaved heads.
+    Francis Bacon’s 1605 biliteral cipher hid bits in font styles. Modern uses include DRM watermarking,
+    whistleblower fingerprinting (its alleged role in the Reality Winner case), and censorship circumvention
+    where encrypted traffic itself would be blocked.</div>
+  </div>`;
+  renderStegBody();
+}
+function stegResistText(){
+  switch(ST.mode){
+    case 'zerowidth':return ['✓ High: invisible to the human eye','✗ Weak against: byte-level inspection, zero-width normalization filters','💡 Used by: journalists embedding canary tokens, PDF watermarking'];
+    case 'whitespace':return ['✓ High: invisible on rendered pages','✗ Weak against: whitespace normalization, view-source inspection','💡 Classic tool: SNOW (Steganographic Nature Of Whitespace)'];
+    case 'case':return ['✓ Moderate: reads as typing quirks','✗ Weak against: statistical case-frequency analysis','💡 Ancestor: Bacon’s biliteral cipher (1605)'];
+    case 'acrostic':return ['✓ Moderate: looks like ordinary word choice','✗ Weak against: first-letter heuristic (a very common check)','💡 Used since ancient Greece, secret societies, poetry'];
+  }
+  return [];
+}
+function renderStegBody(){
+  const el=$('stegBody');if(!el)return;
+  if(ST.action==='encode'){
+    const coverRow=(ST.mode==='zerowidth'||ST.mode==='whitespace'||ST.mode==='case')?`
+      <div class="panel"><label class="lbl">Cover Text (visible)</label>
+        <textarea class="input" rows="2" oninput="S.cover(this.value)">${esc(ST.cover)}</textarea></div>`:'';
+    el.innerHTML=`
+      ${coverRow}
+      <div class="panel"><label class="lbl">Secret Message (to hide)</label>
+        <input class="input mono" value="${esc(ST.secret)}" oninput="S.secret(this.value)"/></div>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <label class="lbl" style="margin:0">Encoded Output</label>
+          <button class="btn btn-ghost btn-xs" onclick="S.copy()">📋 Copy</button>
+        </div>
+        <div class="outbox" id="stegOut" style="margin-top:8px"></div>
+        <div class="mono" style="font-size:9px;color:var(--dim2);margin-top:4px" id="stegMeta"></div>
+        <button class="btn btn-ghost btn-xs" style="margin-top:8px" onclick="S.feed()">⤵️ Send to decoder</button>
+      </div>
+      <div class="notebox"><b style="color:#fff">🛡️ Detection resistance:</b><br/>${stegResistText().join('<br/>')}</div>`;
+    renderStegOut();
+  }else{
+    el.innerHTML=`
+      <div class="panel"><label class="lbl">Paste Encoded Text</label>
+        <textarea class="input" rows="3" placeholder="Paste text containing hidden data…" oninput="S.decIn(this.value)">${esc(ST.decIn)}</textarea></div>
+      <div class="panel"><label class="lbl">Decoded Secret</label>
+        <div class="outbox" id="stegDecOut"></div></div>`;
+    renderStegDec();
+  }
+}
+function renderStegOut(){
+  const o=$('stegOut'),m=$('stegMeta');if(!o)return;
+  const enc=stegEncode();
+  o.textContent=enc;
+  m.textContent=`Length: ${enc.length} chars · ${new Blob([enc]).size} bytes${ST.mode==='zerowidth'?' · contains invisible characters (looks identical to the cover)':''}`;
+}
+function renderStegDec(){const o=$('stegDecOut');if(!o)return;const d=stegDecode();o.textContent=d||'';o.style.color=d?'var(--emerald)':'var(--dim2)';if(!d)o.textContent='No hidden data extracted.';}
+const S={
+  setMode(m){ST.mode=m;renderSteg();},
+  setAction(a){ST.action=a;renderSteg();},
+  cover(v){ST.cover=v;renderStegOut();},
+  secret(v){ST.secret=v;renderStegOut();},
+  decIn(v){ST.decIn=v;renderStegDec();},
+  feed(){ST.decIn=stegEncode();ST.action='decode';renderSteg();},
+  copy(){const enc=stegEncode();if(navigator.clipboard){navigator.clipboard.writeText(enc).catch(()=>{});}},
+};
+
+/* ============================================================
+   COUNTRY PROFILES
+   ============================================================ */
+const CO={filter:'all',selected:0};
+function renderCountries(){
+  const sevs=['all','pervasive','extensive','moderate','minimal'];
+  const list=COUNTRIES.map((c,i)=>({...c,i})).filter(c=>CO.filter==='all'||c.sev===CO.filter).sort((a,b)=>a.score-b.score);
+  const sel=COUNTRIES[CO.selected];
+  $('view-ccountries').innerHTML=`
+  <div>
+    <div class="hero hero-amber">
+      <h2>🌍 Country Censorship Profiles</h2>
+      <p style="color:#fde68a">Detailed censorship profiles for ${COUNTRIES.length} countries. Based on
+      <b>OONI</b>, <b>Freedom House</b> and <b>Censored Planet</b> research (2024–2025).</p>
+    </div>
+    <div class="chiprow hscroll">${sevs.map(s=>`<button class="chip${CO.filter===s?' on':''}" onclick="N.setFilter('${s}')">${s==='all'?'🌐 All':SEVCONF[s][0]}</button>`).join('')}</div>
+    <div class="g4" style="display:grid;gap:8px">
+      ${list.map(c=>{
+        const [sl,bc]=SEVCONF[c.sev];
+        const on=CO.selected===c.i;
+        return `<button class="kcard" style="text-align:left;border-color:${on?'rgba(251,191,36,.5)':'var(--line)'};background:${on?'rgba(113,63,18,.22)':'rgba(10,10,18,.5)'};box-shadow:${on?'0 4px 14px rgba(251,191,36,.15)':'none'}" onclick="N.select(${c.i})">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:20px">${c.flag}</span><b style="font-size:12px">${c.name}</b></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+            <span class="badge ${bc}">${sl}</span>
+            <span style="font-size:10px;color:var(--dim)">${c.score}/100</span>
+          </div>
+          <div style="margin-top:6px;height:4px;background:rgba(10,10,18,.8);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${c.score}%;background:${c.score>=60?'#22c55e':c.score>=30?'#eab308':'#ef4444'}"></div>
+          </div></button>`;
+      }).join('')}
+    </div>
+    <div class="tcard">
+      <div style="padding:16px;border-bottom:1px solid var(--line);background:${sel.sev==='pervasive'?'linear-gradient(90deg,rgba(127,29,29,.35),rgba(69,10,10,.2))':sel.sev==='extensive'?'linear-gradient(90deg,rgba(154,52,18,.3),rgba(113,63,18,.15))':sel.sev==='moderate'?'linear-gradient(90deg,rgba(113,63,18,.25),rgba(154,52,18,.12))':'linear-gradient(90deg,rgba(6,78,59,.3),rgba(6,95,70,.15))'}">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:38px">${sel.flag}</span>
+          <div><h3 style="font-size:20px;font-weight:800">${sel.name}</h3>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center">
+              <span class="badge ${SEVCONF[sel.sev][1]}">${SEVCONF[sel.sev][0]} censorship</span>
+              <span style="font-size:11px;color:var(--dim)">Internet Freedom: <b style="color:#fff">${sel.score}/100</b></span>
+            </div></div>
+        </div>
+        <p style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:10px">${sel.notes}</p>
+      </div>
+      <div class="cgrid g2" style="padding:14px">
+        <div><label class="lbl">🔧 Censorship Techniques</label>
+          <div class="chiprow">${sel.tech.map(t=>`<span class="badge risk-critical" style="padding:4px 10px">${esc(t)}</span>`).join('')}</div></div>
+        <div><label class="lbl">🚫 Blocked Categories</label>
+          <div class="chiprow">${sel.blocked.map(t=>`<span class="badge risk-high" style="padding:4px 10px">${esc(t)}</span>`).join('')}</div></div>
+        <div><label class="lbl">🌐 Notable Blocked Sites</label>
+          <div style="display:flex;flex-direction:column;gap:4px">${sel.notable.map(t=>`<div style="font-size:11px;color:var(--dim)"><span style="color:var(--red)">✗</span> ${esc(t)}</div>`).join('')}</div></div>
+        <div><label class="lbl">🔓 Effective Circumvention</label>
+          <div style="display:flex;flex-direction:column;gap:4px">${sel.circum.map(t=>`<div style="font-size:11px;color:var(--dim)"><span style="color:var(--green)">✓</span> ${esc(t)}</div>`).join('')}</div></div>
+      </div>
+    </div>
+    <div class="notebox"><b style="color:#fff">📚 Sources:</b> OONI Explorer (2024-2025), Freedom House “Freedom on the Net”,
+    Censored Planet, GFW Report, Access Now #KeepItOn, RSF Press Freedom Index.</div>
+  </div>`;
+}
+const N={
+  setFilter(f){CO.filter=f;renderCountries();},
+  select(i){CO.selected=i;renderCountries();window.scrollTo({top:0,behavior:'smooth'});},
+};
+
+/* ============================================================
+   SORTING ALGORITHMS — benchmark implementations (12)
+   ============================================================ */
+function bench(name,fn,arr,meta){
+  const a=[...arr];let cmp=0,swp=0;const C=()=>cmp++,S=()=>swp++;
+  const t0=performance.now();const sorted=fn(a,C,S);
+  return {name,time:performance.now()-t0,cmp,swp,sorted,...meta};
+}
+
+/* --- Postman Sort (Ramey 1992): top-down MSD radix distribution --- */
+const postmanSort=(arr,C,S)=>{
+  const a=[...arr];if(a.length<=1)return a;
+  const max=Math.max(...a);let base=1;while(Math.floor(max/(base*10))>0)base*=10;
+  function dist(lo,hi,b){
+    if(hi-lo<=1||b<1){return;}
+    const div=b,buckets=Array.from({length:10},()=>[]);
+    for(let i=lo;i<hi;i++){const d=Math.floor(a[i]/div)%10;buckets[d].push(a[i]);C();}
+    let idx=lo;
+    for(let bI=0;bI<10;bI++){for(const v of buckets[bI]){a[idx++]=v;S();}}
+    idx=lo;
+    for(let bI=0;bI<10;bI++){const sz=buckets[bI].length;if(sz>1)dist(idx,idx+sz,b/10);idx+=sz;}
+  }
+  dist(0,a.length,base);
+  return a};
+/* --- Quick Sort (Hoare 1959) --- */
+const quickSort=(arr,C,S)=>{const a=[...arr];
+  (function part(lo,hi){
+    if(lo>=hi)return;
+    const piv=a[hi];let i=lo-1;
+    for(let j=lo;j<hi;j++){C();if(a[j]<piv){i++;[a[i],a[j]]=[a[j],a[i]];S();}}
+    [a[i+1],a[hi]]=[a[hi],a[i+1]];S();part(lo,i);part(i+2,hi);
+  })(0,a.length-1);return a};
+/* --- Merge Sort (von Neumann 1945) --- */
+const mergeSort=(arr,C,S)=>{
+  function mrg(l,r,idx){const out=[];let i=0,j=0;
+    while(i<l.length&&j<r.length){C();if(l[i]<=r[j])out.push(l[i++]);else out.push(r[j++]);S();}
+    while(i<l.length){out.push(l[i++]);S();}while(j<r.length){out.push(r[j++]);S();}
+    for(let k=0;k<out.length;k++)idx[k]=out[k];}
+  function rec(a){if(a.length<=1)return [...a];const m=Math.floor(a.length/2);
+    const L=rec(a.slice(0,m)),R=rec(a.slice(m));const out=new Array(a.length);mrg(L,R,out);return out;}
+  return rec(arr)};
+/* --- Heap Sort (Williams 1964) --- */
+const heapSort=(arr,C,S)=>{const a=[...arr];const n=a.length;
+  function hp(size,i){let lg=i;const l=2*i+1,r=2*i+2;
+    if(l<size){C();if(a[l]>a[lg])lg=l;}if(r<size){C();if(a[r]>a[lg])lg=r;}
+    if(lg!==i){[a[i],a[lg]]=[a[lg],a[i]];S();hp(size,lg);}}
+  for(let i=Math.floor(n/2)-1;i>=0;i--)hp(n,i);
+  for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];S();hp(i,0);}return a};
+/* --- Tim Sort (Peters 2002, simplified: merge runs of 32) --- */
+const timSort=(arr,C,S)=>{const a=[...arr];const n=a.length,RUN=32;
+  for(let i=0;i<n;i+=RUN){const end=Math.min(i+RUN,n);
+    for(let j=i+1;j<end;j++){const k=a[j];let x=j-1;
+      while(x>=i&&a[x]>k){C();a[x+1]=a[x];S();x--;}
+      if(x>=i)C();a[x+1]=k;}}
+  for(let size=RUN;size<n;size*=2){
+    for(let left=0;left<n;left+=2*size){
+      const mid=Math.min(left+size,n),right=Math.min(left+2*size,n);
+      if(mid<right){const L=a.slice(left,mid),R=a.slice(mid,right);let i=0,j=0,k=left;
+        while(i<L.length&&j<R.length){C();if(L[i]<=R[j])a[k++]=L[i++];else a[k++]=R[j++];S();}
+        while(i<L.length){a[k++]=L[i++];S();}while(j<R.length){a[k++]=R[j++];S();}}}}
+  return a};
+/* --- Intro Sort (Musser 1997): quick→heap→insertion --- */
+const introSort=(arr,C,S)=>{const a=[...arr];const n=a.length;if(n<2)return a;
+  const maxD=2*Math.floor(Math.log2(n));
+  function ins(lo,hi){for(let i=lo+1;i<=hi;i++){const k=a[i];let j=i-1;
+    while(j>=lo&&a[j]>k){C();a[j+1]=a[j];S();j--;}if(j>=lo)C();a[j+1]=k;}}
+  function hp(lo,hi){const size=hi-lo+1;
+    function sif(len,i){let lg=i;const l=2*i+1,r=2*i+2;
+      if(l<len){C();if(a[lo+l]>a[lo+lg])lg=l;}if(r<len){C();if(a[lo+r]>a[lo+lg])lg=r;}
+      if(lg!==i){[a[lo+i],a[lo+lg]]=[a[lo+lg],a[lo+i]];S();sif(len,lg);}}
+    for(let i=Math.floor(size/2)-1;i>=0;i--)sif(size,i);
+    for(let i=size-1;i>0;i--){[a[lo],a[lo+i]]=[a[lo+i],a[lo]];S();sif(i,0);}}
+  function go(lo,hi,d){const sz=hi-lo+1;
+    if(sz<=16)return ins(lo,hi);
+    if(d===0)return hp(lo,hi);
+    const piv=a[hi];let i=lo-1;
+    for(let j=lo;j<hi;j++){C();if(a[j]<piv){i++;[a[i],a[j]]=[a[j],a[i]];S();}}
+    [a[i+1],a[hi]]=[a[hi],a[i+1]];S();go(lo,i,d-1);go(i+2,hi,d-1);}
+  go(0,n-1,maxD);return a};
+/* --- Spreadsort (Ross, Boost): MSD radix + comparison fallback --- */
+const spreadSort=(arr,C,S)=>{const a=[...arr];if(a.length<2)return a;
+  const max=Math.max(...a);let bits=0;while((max>>bits)>0)bits++;
+  function go(lo,hi,shift){
+    const sz=hi-lo;
+    if(sz<=16||shift<0){for(let i=lo+1;i<hi;i++){const k=a[i];let j=i-1;
+      while(j>=lo&&a[j]>k){C();a[j+1]=a[j];S();j--;}if(j>=lo)C();a[j+1]=k;}return;}
+    const bk=Array.from({length:4},()=>[]);
+    for(let i=lo;i<hi;i++){bk[(a[i]>>shift)&3].push(a[i]);C();}
+    let idx=lo;for(let b=0;b<4;b++)for(const v of bk[b]){a[idx++]=v;S();}
+    idx=lo;for(let b=0;b<4;b++){if(bk[b].length>1)go(idx,idx+bk[b].length,shift-2);idx+=bk[b].length;}
+  }
+  go(0,a.length,Math.floor(bits/2)*2);return a};
+/* --- Shell Sort (Shell 1959) --- */
+const shellSort=(arr,C,S)=>{const a=[...arr];let gap=Math.floor(a.length/2);
+  while(gap>0){for(let i=gap;i<a.length;i++){const t=a[i];let j=i;
+    while(j>=gap&&a[j-gap]>t){C();a[j]=a[j-gap];S();j-=gap;}if(j>=gap)C();a[j]=t;}
+    gap=Math.floor(gap/2);}return a};
+/* --- Radix Sort LSD --- */
+const radixSortLSD=(arr,C,S)=>{const a=[...arr];if(a.length<2)return a;
+  const max=Math.max(...a);let exp=1;
+  while(Math.floor(max/exp)>0){
+    const bk=Array.from({length:10},()=>[]);
+    for(const v of a){bk[Math.floor(v/exp)%10].push(v);C();}
+    let i=0;for(const b of bk)for(const v of b){a[i++]=v;S();}
+    exp*=10;}return a};
+/* --- Counting Sort --- */
+const countingSort=(arr,C,S)=>{const a=[...arr];if(a.length<2)return a;
+  const mn=Math.min(...a),mx=Math.max(...a),cnt=new Array(mx-mn+1).fill(0);
+  for(const v of a){cnt[v-mn]++;C();}
+  for(let i=1;i<cnt.length;i++)cnt[i]+=cnt[i-1];
+  const out=new Array(a.length);
+  for(let i=a.length-1;i>=0;i--){out[--cnt[a[i]-mn]]=a[i];S();}return out};
+/* --- Insertion Sort --- */
+const insertionSort=(arr,C,S)=>{const a=[...arr];
+  for(let i=1;i<a.length;i++){const k=a[i];let j=i-1;
+    while(j>=0&&a[j]>k){C();a[j+1]=a[j];S();j--;}
+    if(j>=0)C();a[j+1]=k;}return a};
+/* --- Bubble Sort --- */
+const bubbleSort=(arr,C,S)=>{const a=[...arr];const n=a.length;
+  for(let i=0;i<n-1;i++){let swapped=false;
+    for(let j=0;j<n-i-1;j++){C();if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];S();swapped=true;}}
+    if(!swapped)break;}return a};
+
+const SORT_ALGOS=[
+ {name:'Postman Sort',fn:postmanSort,complex:'O(cn) — key size × n',author:'Robert Ramey',year:'C Users Journal 1992 · Sort Benchmark 1998 & 2005',
+  desc:'Top-down (MSD) radix distribution: records are poured into buckets by the most significant key part first, then each bucket recurses — exactly how postal sorters work (country → state → route). Non-comparative: keys are never compared against each other, beating the O(n log n) comparison bound.',hl:true,color:'#facc15'},
+ {name:'Quick Sort',fn:quickSort,complex:'O(n log n) avg · O(n²) worst',author:'Tony Hoare',year:'1959',
+  desc:'Pivot-based divide & conquer; the workhorse behind many library sorts.',color:'#a78bfa'},
+ {name:'Merge Sort',fn:mergeSort,complex:'O(n log n) · stable',author:'John von Neumann',year:'1945',
+  desc:'Stable divide & conquer merging; guarantees O(n log n) with O(n) extra space.',color:'#818cf8'},
+ {name:'Heap Sort',fn:heapSort,complex:'O(n log n) in-place',author:'J. W. J. Williams',year:'1964',
+  desc:'Binary-heap based; in-place with O(1) extra space, not stable.',color:'#60a5fa'},
+ {name:'Tim Sort',fn:timSort,complex:'O(n log n) · stable hybrid',author:'Tim Peters',year:'2002',
+  desc:'Insertion + merge hybrid on 32-element runs. Python’s sort(), Java object sort.',color:'#34d399'},
+ {name:'Intro Sort',fn:introSort,complex:'O(n log n) guaranteed',author:'David Musser',year:'1997',
+  desc:'Quicksort that degrades to heapsort beyond 2·log(n) depth and insertion-sorts tiny partitions. Typical C++ std::sort.',color:'#22d3ee'},
+ {name:'Spreadsort',fn:spreadSort,complex:'O(N√(log N)) avg',author:'Steven Ross',year:'Boost.Sort 2011',
+  desc:'Boost hybrid radix sort: distributes on significant bits, then finishes with comparisons — a kindred spirit to Postman Sort.',color:'#4ade80'},
+ {name:'Shell Sort',fn:shellSort,complex:'O(n³/²)',author:'Donald Shell',year:'1959',
+  desc:'Insertion sort on shrinking gap sequences; simple and cache-friendly.',color:'#f472b6'},
+ {name:'Radix Sort (LSD)',fn:radixSortLSD,complex:'O(n·k) — k = digits',author:'Various',year:'bottom-up counterpart',
+  desc:'Least-significant-digit-first bucket passes — the mirror image of Postman Sort’s MSD approach.',color:'#2dd4bf'},
+ {name:'Counting Sort',fn:countingSort,complex:'O(n + k) — k = range',author:'Harold H. Seward',year:'1954',
+  desc:'Counts occurrences instead of comparing; blazing when value range is small.',color:'#fbbf24'},
+ {name:'Insertion Sort',fn:insertionSort,complex:'O(n²) · O(n) nearly-sorted',author:'Various',year:'ancient',
+  desc:'Build sorted region one element at a time; excellent on tiny or nearly-sorted data.',color:'#e879f9'},
+ {name:'Bubble Sort',fn:bubbleSort,complex:'O(n²)',author:'Various',year:'~1956',
+  desc:'Repeatedly swaps adjacent out-of-order pairs. Educational baseline.',color:'#f87171'},
+];
+
+function genData(size,type){
+  const a=[];
+  if(type==='random')for(let i=0;i<size;i++)a.push(Math.floor(Math.random()*size*10));
+  else if(type==='sorted')for(let i=0;i<size;i++)a.push(i);
+  else if(type==='reversed')for(let i=size;i>0;i--)a.push(i);
+  else if(type==='nearly'){for(let i=0;i<size;i++)a.push(i);
+    for(let k=0;k<Math.max(1,Math.floor(size*0.05));k++){const x=ri(0,size-1),y=ri(0,size-1);[a[x],a[y]]=[a[y],a[x]];}}
+  else for(let i=0;i<size;i++)a.push(ri(1,10));
+  return a;
+}
+
+/* ---------- canvas chart helpers ---------- */
+function setupCanvas(cv,h){
+  const dpr=window.devicePixelRatio||1;
+  const cs=getComputedStyle(cv.parentElement);
+  const w=Math.max(100,cv.parentElement.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-2);
+  cv.width=w*dpr;cv.height=h*dpr;
+  cv.style.width=w+'px';cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {ctx,w,h};
+}
+function drawBars(cid,rows,unitLbl){
+  const cv=$(cid);if(!cv)return;
+  const {ctx,w,h}=setupCanvas(cv,280);
+  ctx.clearRect(0,0,w,h);
+  const padL=8,padB=64,padT=24,padR=8;
+  const cw=w-padL-padR,ch=h-padB-padT;
+  const max=Math.max(...rows.map(r=>r.value),1e-9);
+  const bw=cw/rows.length;
+  ctx.font='9px ui-monospace,monospace';
+  // gridlines
+  for(let g=0;g<=4;g++){
+    const y=padT+ch-ch*g/4;
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+  }
+  rows.forEach((r,i)=>{
+    const bh=ch*(r.value/max);
+    const x=padL+i*bw+bw*0.12,y=padT+ch-bh;
+    ctx.fillStyle=r.color;
+    ctx.globalAlpha=r.dim?0.35:1;
+    if(bh>0){ctx.beginPath();ctx.roundRect(x,y,bw*0.76,Math.max(2,bh),[3,3,0,0]);ctx.fill();}
+    ctx.globalAlpha=1;
+    // value
+    ctx.fillStyle='#c2c2d8';ctx.textAlign='center';
+    const v=r.value>=1000?fmt(Math.round(r.value)):r.value.toFixed(2);
+    ctx.fillText(v,padL+i*bw+bw/2,y-4);
+    // label rotated
+    ctx.save();ctx.translate(padL+i*bw+bw/2,padT+ch+8);
+    ctx.rotate(-Math.PI/4.5);ctx.fillStyle=r.hl?'#fde047':'#9a9ab0';ctx.textAlign='right';
+    ctx.fillText(r.label,0,0);ctx.restore();
+  });
+  ctx.fillStyle='#6a6a85';ctx.textAlign='left';ctx.fillText(unitLbl,padL,14);
+}
+function drawLines(cid,series,xVals){
+  const cv=$(cid);if(!cv)return;
+  const {ctx,w,h}=setupCanvas(cv,300);
+  ctx.clearRect(0,0,w,h);
+  const padL=44,padB=30,padT=26,padR=8;
+  const cw=w-padL-padR,ch=h-padB-padT;
+  const allY=series.flatMap(s=>s.points);
+  const maxY=Math.max(...allY,1e-9),minY=0;
+  const maxX=Math.max(...xVals),minX=Math.min(...xVals);
+  const pxx=v=>padL+cw*(v-minX)/Math.max(1,maxX-minX);
+  const pyy=v=>padT+ch-ch*(v-minY)/Math.max(1e-9,maxY-minY);
+  ctx.font='9px ui-monospace,monospace';
+  for(let g=0;g<=4;g++){
+    const y=padT+ch-ch*g/4;const val=maxY*g/4;
+    ctx.strokeStyle='rgba(255,255,255,.06)';ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+    ctx.fillStyle='#6a6a85';ctx.textAlign='right';ctx.fillText(val>=1000?(val/1000).toFixed(1)+'k':val.toFixed(1),padL-5,y+3);
+  }
+  xVals.forEach(x=>{ctx.fillStyle='#6a6a85';ctx.textAlign='center';ctx.fillText(x>=1000?(x/1000)+'k':x,pxx(x),h-16);});
+  ctx.fillStyle='#6a6a85';ctx.textAlign='left';ctx.fillText('ms',4,14);
+  series.forEach(s=>{
+    ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.beginPath();
+    s.points.forEach((p,i)=>{const X=pxx(xVals[i]),Y=pyy(p);i===0?ctx.moveTo(X,Y):ctx.lineTo(X,Y);});
+    ctx.stroke();
+    s.points.forEach((p,i)=>{ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(pxx(xVals[i]),pyy(p),2.5,0,7);ctx.fill();});
+  });
+  // legend
+  let lx=padL+4;const ly=14;
+  series.forEach(s=>{ctx.fillStyle=s.color;ctx.fillRect(lx,ly-6,8,8);ctx.fillStyle='#9a9ab0';ctx.textAlign='left';ctx.fillText(s.name,lx+11,ly+2);lx+=ctx.measureText(s.name).width+24;});
+}
+
+/* ============================================================
+   SORTING BENCHMARK VIEW
+   ============================================================ */
+const BS={
+  size:1000,dtype:'random',
+  selected:new Set(SORT_ALGOS.map(a=>a.name)),
+  results:[],running:false,progress:0,
+  expanded:null,scaled:null,scaling:false,
+};
+const dtypeLabels={random:'🎲 Random',sorted:'📈 Sorted',reversed:'📉 Reversed',nearly:'📊 Nearly',few:'🎯 Few Uniq'};
+
+function renderBench(){
+  $('view-sbench').innerHTML=`
+  <div>
+    <div class="hero hero-purple">
+      <h2>⚡ Sorting Algorithms Benchmark Suite</h2>
+      <p style="color:#c4b5fd">Featuring <b style="color:var(--yellow)">Postman Sort</b> by <b style="color:var(--yellow)">Robert Ramey</b>
+      (C Users Journal, 1992) — Sort Benchmark Penny Sort winner <b>1998</b> &amp; <b>2005</b>.
+      12 algorithms with real timing, comparison and swap counting, side-by-side scaling analysis.</p>
+    </div>
+    <div class="cgrid g3">
+      <div class="panel"><label class="lbl">📏 Array Size</label>
+        <div class="chiprow" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+          ${[100,500,1000,2500,5000,10000].map(s=>`<button class="chip${BS.size===s?' on-purple':''}" style="text-align:center" onclick="B.size(${s})">${s>=1000?s/1000+'k':s}</button>`).join('')}
+        </div></div>
+      <div class="panel"><label class="lbl">📊 Data Distribution</label>
+        <div class="chiprow" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+          ${Object.keys(dtypeLabels).map(k=>`<button class="chip${BS.dtype===k?' on-purple':''}" style="text-align:center" onclick="B.dtype('${k}')">${dtypeLabels[k]}</button>`).join('')}
+        </div></div>
+      <div class="panel"><label class="lbl">🚀 Execute</label>
+        <button class="btn btn-purple" style="width:100%" id="btnBench" onclick="B.run()">▶ Run Benchmark</button>
+        <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px" id="btnScale" onclick="B.scaleRun()">📈 Run Scaling Test</button>
+      </div>
+    </div>
+    <div id="benchProg"></div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label class="lbl" style="margin:0">🔧 Algorithms</label>
+        <button class="btn btn-ghost btn-xs" onclick="B.toggleAll()">Toggle All</button>
+      </div>
+      <div class="chiprow" id="algoChips"></div>
+    </div>
+    <div id="benchResults"></div>
+    <div class="hero hero-yellow">
+      <h2 style="font-size:16px">📬 Postman Sort — Robert Ramey</h2>
+      <div class="cgrid g2" style="margin-top:8px">
+        <div>
+          <b style="font-size:12px;color:#fde68a">Algorithm</b>
+          <p style="margin-top:4px">A highly engineered <b>MSD radix sort</b> (top-down). Records are distributed into
+          buckets by the most significant part of the key first, with recursion into each bucket —
+          the exact workflow of postal letter-sorting machines (country → state → city → route → address).
+          Ramey (MS Operations Research, UC Berkeley 1971) also authored the <b>Boost Serialization Library</b> and
+          founded a data-processing company in Ecuador before returning to Santa Barbara in 1986.</p>
+        </div>
+        <div>
+          <b style="font-size:12px;color:#fde68a">Records</b>
+          <div style="margin-top:6px;display:flex;flex-direction:column;gap:6px">
+            <div class="mini">🏆 <b>1998</b> — PostmanSort/NT · 1.3 GB · Penny Sort Winner (Robert Ramey Software)</div>
+            <div class="mini">🏆 <b>2005</b> — PostManSort · 15 GB in 979 s on a $951 Wintel with 2 SATA drives</div>
+            <div class="mini">⚡ O(cn) where c = key size — non-comparative; can chew 2 bytes/pass on alpha keys using only 703 buckets (1 + 26 × 27)</div>
+          </div>
+        </div>
+      </div>
+      <div class="cgrid g3" style="margin-top:10px">
+        <div class="mini"><b style="color:#fde047;font-size:10px">vs. LSD Radix Sort</b><p style="margin-top:4px">Postman works top-down (MSD) and can short-circuit already-sorted prefixes; LSD radix walks bottom-up.</p></div>
+        <div class="mini"><b style="color:#fde047;font-size:10px">vs. Quick Sort</b><p style="margin-top:4px">Non-comparative — escapes the O(n log n) comparison bound. Ideal for fixed-format keys (post codes, SSNs).</p></div>
+        <div class="mini"><b style="color:#fde047;font-size:10px">vs. Spreadsort</b><p style="margin-top:4px">Boost’s Spreadsort is a cousin hybrid radix — Postman Sort predates it by nearly two decades.</p></div>
+      </div>
+    </div>
+  </div>`;
+  renderAlgoChips();renderBenchResults();
+}
+function renderAlgoChips(){
+  $('algoChips').innerHTML=SORT_ALGOS.map(a=>{
+    const on=BS.selected.has(a.name);
+    return `<button class="chip ${on?(a.hl?' on-yellow':' on-purple'):'off'}" onclick="B.toggle('${a.name}')">${on?'✓ ':''}${a.name}${a.hl?' ⭐':''}</button>`;
+  }).join('');
+}
+async function benchRun(){
+  if(BS.running)return;
+  BS.running=true;BS.results=[];BS.progress=0;renderBenchResults();
+  const data=genData(BS.size,BS.dtype);
+  const list=SORT_ALGOS.filter(a=>BS.selected.has(a.name));
+  for(let i=0;i<list.length;i++){
+    await sleep(30);
+    let r;
+    try{r=bench(list[i].name,(arr,C,S)=>list[i].fn(arr,C,S),data,{});}
+    catch(e){r={name:list[i].name,time:NaN,cmp:0,swp:0,err:String(e)};}
+    BS.results.push({...r,meta:list[i]});
+    BS.progress=Math.round((i+1)/list.length*100);
+    renderBenchResults();
+  }
+  BS.running=false;BS.progress=0;renderBenchResults(true);
+}
+async function scaleRun(){
+  if(BS.scaling)return;
+  BS.scaling=true;BS.scaled=null;renderBenchResults();
+  const sizes=[100,250,500,1000,2000,5000];
+  const list=SORT_ALGOS.filter(a=>BS.selected.has(a.name));
+  const rows=[];
+  for(const sz of sizes){
+    const d=genData(sz,BS.dtype);const row=[];
+    for(const a of list){
+      let r=bench(a.name,(arr,C,S)=>a.fn(arr,C,S),d,{});
+      row.push({name:a.name,t:r.time||0});
+      await sleep(5);
+    }
+    rows.push({sz,row});BS.scaled={rows};renderBenchResults();
+  }
+  BS.scaling=false;renderBenchResults();
+}
+function renderBenchResults(final){
+  const el=$('benchResults');if(!el)return;
+  const prog=$('benchProg');if(prog)prog.innerHTML=(BS.running||BS.scaling)?`<div class="pbar pbar-purple"><div style="width:${BS.running?BS.progress:50}%"></div></div>`:'';
+  const bb=$('btnBench'),bs=$('btnScale');
+  if(bb){bb.disabled=BS.running||BS.scaling;bb.textContent=BS.running?'⏳ Running…':'▶ Run Benchmark';}
+  if(bs){bs.disabled=BS.running||BS.scaling;bs.textContent=BS.scaling?'⏳ Scaling…':'📈 Run Scaling Test';}
+  if(!BS.results.length&&!BS.scaled){el.innerHTML='';return;}
+  const done=[...BS.results].sort((a,b)=>a.time-b.time);
+  el.innerHTML=`
+    ${BS.results.length?`<div class="view" id="rankBlock">
+      <div class="panel"><div class="ph" style="font-size:14px">🏆 Performance Ranking — ${fmt(BS.size)} elements · ${dtypeLabels[BS.dtype]}</div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="rankList"></div>
+      </div>
+      <div class="cgrid g3" id="chartRow">
+        <div class="panel"><label class="lbl">⏱ Execution Time (ms)</label><canvas id="cTime" class="chart"></canvas></div>
+        <div class="panel"><label class="lbl">🔄 Comparisons</label><canvas id="cCmp" class="chart"></canvas></div>
+        <div class="panel"><label class="lbl">🔀 Swaps / Movements</label><canvas id="cSwp" class="chart"></canvas></div>
+      </div></div>`:''}
+    <div class="panel">
+      <label class="lbl">📈 Scaling Analysis (time vs input size)</label>
+      ${BS.scaled?`<canvas id="cScale" class="chart"></canvas>`:`<p style="font-size:11px;color:var(--dim2)">Run “📈 Run Scaling Test” to plot growth curves across sizes 100 → 5000.</p>`}
+    </div>`;
+  $('rankList').innerHTML=done.map((r,i)=>{
+    const m=r.meta||SORT_ALGOS.find(x=>x.name===r.name)||{};
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    const open=BS.expanded===r.name;
+    return `<div class="tcard" style="${m.hl?'border-color:rgba(250,204,21,.35);background:rgba(113,63,18,.14)':''}">
+      <div class="head" style="align-items:center" onclick="B.expand('${esc(r.name)}')">
+        <span style="width:28px;text-align:center;font-size:14px">${medal}</span>
+        <div class="dot" style="background:${m.color||'#666'};margin-top:6px"></div>
+        <div style="flex:1;min-width:0">
+          <b style="font-size:12px">${esc(r.name)}${m.hl?' <span class="badge risk-high" style="color:#fde047;border-color:rgba(250,204,21,.4);background:rgba(250,204,21,.1)">⭐ RAMEY</span>':''}</b>
+          <div style="font-size:9px;color:var(--dim2)">${esc(m.complex||'')}${m.author?' · '+esc(m.author):''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="mono" style="font-weight:800;font-size:13px">${isNaN(r.time)?'err':r.time.toFixed(2)+'<span style="color:var(--dim2);font-size:9px">ms</span>'}</div>
+          <div style="font-size:9px;color:var(--dim2)">${fmt(r.cmp)} cmp · ${fmt(r.swp)} sw</div>
+        </div>
+      </div>
+      ${open?`<div class="body" style="padding-top:10px">
+        <p style="font-size:11px;color:var(--dim);line-height:1.6">${esc(m.desc||'')}</p>
+        <div class="cgrid" style="grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;text-align:center">
+          <div class="mini"><h5>Time</h5><p style="color:var(--purple);font-weight:800">${r.time.toFixed(3)}ms</p></div>
+          <div class="mini"><h5>Comparisons</h5><p style="color:var(--indigo);font-weight:800">${fmt(r.cmp)}</p></div>
+          <div class="mini"><h5>Swaps</h5><p style="color:var(--fuchsia);font-weight:800">${fmt(r.swp)}</p></div>
+        </div>
+        ${m.year?`<div style="font-size:9px;color:var(--dim2);margin-top:8px">${esc(m.author||'')} · ${esc(m.year||'')}</div>`:''}
+      </div>`:''}
+    </div>`;
+  }).join('');
+  // charts
+  const rows=done.map(r=>({label:r.name.replace(' Sort','').replace(' (LSD)',''),value:r.time||0,color:(r.meta&&r.meta.color)||'#888',hl:!!(r.meta&&r.meta.hl)}));
+  const rowsCmp=done.map(r=>({label:r.name.replace(' Sort','').replace(' (LSD)',''),value:r.cmp,color:(r.meta&&r.meta.color)||'#888',hl:!!(r.meta&&r.meta.hl)}));
+  const rowsSwp=done.map(r=>({label:r.name.replace(' Sort','').replace(' (LSD)',''),value:r.swp,color:(r.meta&&r.meta.color)||'#888',hl:!!(r.meta&&r.meta.hl)}));
+  requestAnimationFrame(()=>{
+    if(BS.results.length){drawBars('cTime',rows,'milliseconds');drawBars('cCmp',rowsCmp,'count');drawBars('cSwp',rowsSwp,'count');}
+    if(BS.scaled){
+      const series=SORT_ALGOS.filter(a=>BS.selected.has(a.name)).map(a=>({
+        name:a.name.replace(' Sort',''),color:a.color,
+        points:BS.scaled.rows.map(rr=>{const f=rr.row.find(x=>x.name===a.name);return f?f.t:0;})
+      })).filter(s=>s.points.every(p=>p!==undefined));
+      drawLines('cScale',series,BS.scaled.rows.map(r=>r.sz));
+    }
+  });
+}
+const B={
+  size(s){BS.size=s;renderBench();},
+  dtype(d){BS.dtype=d;renderBench();},
+  toggle(n){BS.selected.has(n)?BS.selected.delete(n):BS.selected.add(n);renderAlgoChips();},
+  toggleAll(){BS.selected.size===SORT_ALGOS.length?BS.selected.clear():BS.selected=new Set(SORT_ALGOS.map(a=>a.name));renderAlgoChips();},
+  expand(n){BS.expanded=BS.expanded===n?null:n;renderBenchResults();},
+  run(){benchRun();},
+  scaleRun(){scaleRun();},
+};
+
+/* ============================================================
+   LIVE SORTING VISUALIZER — generator-driven animation
+   ============================================================ */
+function st(arr,cmp,swp,info,extra){return {arr:[...arr],cmp,swp,info,...extra};}
+function* vPostman(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const done=new Set();
+  const max=Math.max(...a);let base=1;while(Math.floor(max/(base*10))>0)base*=10;
+  yield st(a,cmp,swp,`📬 Postman Sort: MSD distribution · max digit place 10^${Math.floor(Math.log10(max))}`);
+  function* dist(lo,hi,b){
+    if(hi-lo<=1||b<1){for(let i=lo;i<hi;i++)done.add(i);return;}
+    const bk=Array.from({length:10},()=>[]);
+    for(let i=lo;i<hi;i++){const d=Math.floor(a[i]/b)%10;bk[d].push(a[i]);cmp++;
+      yield st(a,cmp,swp,`Distribute index ${i} (value ${a[i]}) → bucket ${d}`,{range:[lo,hi],hot:[i]});}
+    let idx=lo;
+    for(let bi=0;bi<10;bi++)for(const v of bk[bi]){a[idx]=v;swp++;
+      yield st(a,cmp,swp,`Collect bucket ${bi} → position ${idx}`,{range:[lo,hi],hot:[idx],done:[...done]});idx++;}
+    idx=lo;
+    for(let bi=0;bi<10;bi++){const sz=bk[bi].length;
+      if(sz>1)yield* dist(idx,idx+sz,b/10);
+      if(sz===1){done.add(idx);yield st(a,cmp,swp,`Singleton bucket ${bi} at position ${idx} is terminal`,{done:[...done]});}
+      idx+=sz;}
+  }
+  yield* dist(0,a.length,base);
+  for(let i=0;i<a.length;i++)done.add(i);
+  yield st(a,cmp,swp,`✅ Postman Sort complete — sorted without a single key-vs-key comparison!`,{done:[...done]});
+}
+function* vQuick(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const done=new Set();
+  yield st(a,cmp,swp,'⚡ Quick Sort: choose pivot, partition around it, recurse',{done:[]});
+  function* go(lo,hi){
+    if(lo>=hi){if(lo===hi)done.add(lo);return;}
+    const piv=a[hi];let i=lo-1;
+    yield st(a,cmp,swp,`Partition [${lo}..${hi}], pivot = ${piv}`,{pivot:hi,done:[...done]});
+    for(let j=lo;j<hi;j++){cmp++;
+      yield st(a,cmp,swp,`Compare ${a[j]} vs pivot ${piv}`,{compare:[j,hi],pivot:hi,done:[...done]});
+      if(a[j]<piv){i++;if(i!==j){[a[i],a[j]]=[a[j],a[i]];swp++;
+        yield st(a,cmp,swp,`Swap ${i} ↔ ${j}`,{swap:[i,j],pivot:hi,done:[...done]});}}}
+    [a[i+1],a[hi]]=[a[hi],a[i+1]];swp++;done.add(i+1);
+    yield st(a,cmp,swp,`Pivot placed at ${i+1} — now sorted`,{swap:[i+1,hi],done:[...done]});
+    yield* go(lo,i);yield* go(i+2,hi);
+  }
+  yield* go(0,a.length-1);
+  for(let i=0;i<a.length;i++)done.add(i);
+  yield st(a,cmp,swp,'✅ Quick Sort complete!',{done:[...done]});
+}
+function* vMerge(arr0){
+  const a=[...arr0];let cmp=0,swp=0;
+  yield st(a,cmp,swp,'🔀 Merge Sort: split in half recursively, merge sorted runs');
+  function* merge(lo,mid,hi){
+    const L=a.slice(lo,mid+1),R=a.slice(mid+1,hi+1);let i=0,j=0,k=lo;
+    while(i<L.length&&j<R.length){cmp++;
+      yield st(a,cmp,swp,`Merge: compare ${L[i]} vs ${R[j]}`,{compare:[lo+i,mid+1+j],range:[lo,hi+1]});
+      if(L[i]<=R[j])a[k]=L[i++];else a[k]=R[j++];swp++;
+      yield st(a,cmp,swp,`→ place ${a[k]} at position ${k}`,{swap:[k,k],range:[lo,hi+1]});k++;}
+    while(i<L.length){a[k]=L[i++];swp++;yield st(a,cmp,swp,`→ leftover left ${a[k]} at ${k}`,{swap:[k,k],range:[lo,hi+1]});k++;}
+    while(j<R.length){a[k]=R[j++];swp++;yield st(a,cmp,swp,`→ leftover right ${a[k]} at ${k}`,{swap:[k,k],range:[lo,hi+1]});k++;}
+  }
+  function* go(lo,hi){if(lo<hi){const m=Math.floor((lo+hi)/2);yield* go(lo,m);yield* go(m+1,hi);yield* merge(lo,m,hi);}}
+  yield* go(0,a.length-1);
+  yield st(a,cmp,swp,'✅ Merge Sort complete!',{done:a.map((_,i)=>i)});
+}
+function* vHeap(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const n=a.length;const done=new Set();
+  yield st(a,cmp,swp,'🌳 Heap Sort: build max-heap, then repeatedly extract the max',{done:[]});
+  function* hp(size,i){
+    let lg=i;const l=2*i+1,r=2*i+2;
+    if(l<size){cmp++;yield st(a,cmp,swp,`Heapify: compare left child ${l} (${a[l]}) with ${lg}`,{compare:[l,lg],done:[...done]});if(a[l]>a[lg])lg=l;}
+    if(r<size){cmp++;yield st(a,cmp,swp,`Heapify: compare right child ${r} (${a[r]}) with ${lg}`,{compare:[r,lg],done:[...done]});if(a[r]>a[lg])lg=r;}
+    if(lg!==i){[a[i],a[lg]]=[a[lg],a[i]];swp++;
+      yield st(a,cmp,swp,`Swap ${i} ↔ ${lg} to restore heap property`,{swap:[i,lg],done:[...done]});yield* hp(size,lg);}
+  }
+  for(let i=Math.floor(n/2)-1;i>=0;i--)yield* hp(n,i);
+  for(let i=n-1;i>0;i--){[a[0],a[i]]=[a[i],a[0]];swp++;done.add(i);
+    yield st(a,cmp,swp,`Extract max → position ${i}`,{swap:[0,i],done:[...done]});yield* hp(i,0);}
+  done.add(0);
+  yield st(a,cmp,swp,'✅ Heap Sort complete!',{done:[...done]});
+}
+function* vRadix(arr0){
+  const a=[...arr0];let cmp=0,swp=0;
+  if(a.length<2){yield st(a,cmp,swp,'Nothing to sort',{done:[0]});return;}
+  const max=Math.max(...a);let exp=1;
+  yield st(a,cmp,swp,`📊 Radix Sort (LSD): stable bucket passes from the least significant digit up`);
+  while(Math.floor(max/exp)>0){
+    const bk=Array.from({length:10},()=>[]);
+    for(let i=0;i<a.length;i++){const d=Math.floor(a[i]/exp)%10;bk[d].push(a[i]);cmp++;
+      yield st(a,cmp,swp,`${a[i]} → bucket ${d} (digit place ${exp})`,{hot:[i]});}
+    let idx=0;
+    for(let b=0;b<10;b++)for(const v of bk[b]){a[idx]=v;swp++;
+      yield st(a,cmp,swp,`Collect ${v} → position ${idx}`,{swap:[idx,idx]});idx++;}
+    exp*=10;}
+  yield st(a,cmp,swp,'✅ Radix Sort complete!',{done:a.map((_,i)=>i)});
+}
+function* vInsertion(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const done=[0];
+  yield st(a,cmp,swp,'📝 Insertion Sort: grow a sorted region one element at a time',{done:[...done]});
+  for(let i=1;i<a.length;i++){const key=a[i];let j=i-1;
+    while(j>=0&&a[j]>key){cmp++;
+      yield st(a,cmp,swp,`Compare key ${key} vs ${a[j]} — shift right`,{compare:[j,i],done:[...done]});
+      a[j+1]=a[j];swp++;j--;
+      yield st(a,cmp,swp,`Shift ${a[j+1]} to ${j+1}`,{swap:[j,j+1],done:[...done]});}
+    if(j>=0)cmp++;
+    a[j+1]=key;done.push(i);
+    yield st(a,cmp,swp,`Insert ${key} at position ${j+1}`,{swap:[j+1,i],done:[...done]});}
+  yield st(a,cmp,swp,'✅ Insertion Sort complete!',{done:a.map((_,i)=>i)});
+}
+function* vSelection(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const done=[];
+  yield st(a,cmp,swp,'🔎 Selection Sort: find the minimum, swap to the front, repeat');
+  for(let i=0;i<a.length-1;i++){let mn=i;
+    for(let j=i+1;j<a.length;j++){cmp++;
+      yield st(a,cmp,swp,`Scan: min at ${mn} (${a[mn]}), checking index ${j} (${a[j]})`,{compare:[mn,j],done:[...done]});
+      if(a[j]<a[mn])mn=j;}
+    if(mn!==i){[a[i],a[mn]]=[a[mn],a[i]];swp++;
+      yield st(a,cmp,swp,`Swap min from ${mn} into slot ${i}`,{swap:[i,mn],done:[...done]});}
+    done.push(i);}
+  done.push(a.length-1);
+  yield st(a,cmp,swp,'✅ Selection Sort complete!',{done});
+}
+function* vBubble(arr0){
+  const a=[...arr0];let cmp=0,swp=0;const n=a.length;const done=[];
+  yield st(a,cmp,swp,'🫧 Bubble Sort: compare adjacent pairs; the largest bubbles to the end');
+  for(let i=0;i<n-1;i++){let any=false;
+    for(let j=0;j<n-i-1;j++){cmp++;
+      yield st(a,cmp,swp,`Compare ${a[j]} vs ${a[j+1]}`,{compare:[j,j+1],done:[...done]});
+      if(a[j]>a[j+1]){[a[j],a[j+1]]=[a[j+1],a[j]];swp++;any=true;
+        yield st(a,cmp,swp,`Swap positions ${j} and ${j+1}`,{swap:[j,j+1],done:[...done]});}}
+    done.push(n-i-1);
+    if(!any)break;}
+  for(let i=0;i<n;i++)if(!done.includes(i))done.push(i);
+  yield st(a,cmp,swp,'✅ Bubble Sort complete!',{done});
+}
+const VIS_ALGOS=[
+ {name:'Postman Sort ⭐',fn:vPostman,base:'#8b5cf6'},
+ {name:'Quick Sort',fn:vQuick,base:'#7c3aed'},
+ {name:'Merge Sort',fn:vMerge,base:'#6366f1'},
+ {name:'Heap Sort',fn:vHeap,base:'#3b82f6'},
+ {name:'Radix Sort',fn:vRadix,base:'#06b6d4'},
+ {name:'Insertion Sort',fn:vInsertion,base:'#10b981'},
+ {name:'Selection Sort',fn:vSelection,base:'#ec4899'},
+ {name:'Bubble Sort',fn:vBubble,base:'#f43f5e'},
+];
+const VIS={
+  size:30,dist:'random',algo:0,speed:60,
+  arr:[],step:null,running:false,paused:false,finished:false,elapsed:0,t0:0,
+};
+function visGen(){
+  const a=[];
+  if(VIS.dist==='random')for(let i=0;i<VIS.size;i++)a.push(ri(5,105));
+  else if(VIS.dist==='reversed')for(let i=VIS.size;i>0;i--)a.push(i+5);
+  else if(VIS.dist==='nearly'){for(let i=0;i<VIS.size;i++)a.push(i+5);
+    for(let k=0;k<Math.max(1,Math.floor(VIS.size*0.1));k++){const x=ri(0,VIS.size-1),y=ri(0,VIS.size-1);[a[x],a[y]]=[a[y],a[x]];}}
+  else for(let i=0;i<VIS.size;i++)a.push([15,30,45,60,75,90][ri(0,5)]);
+  return a;
+}
+function drawVis(){
+  const cv=$('visCanvas');if(!cv)return;
+  const {ctx,w,h}=setupCanvas(cv,300);
+  ctx.clearRect(0,0,w,h);
+  const s=VIS.step;const arr=s?s.arr:VIS.arr;
+  if(!arr.length)return;
+  const max=Math.max(...arr,1);
+  const bw=w/arr.length;
+  const doneSet=new Set(s&&s.done?s.done:[]);
+  ctx.textAlign='center';
+  arr.forEach((v,i)=>{
+    let col=VIS_ALGOS[VIS.algo].base;
+    if(VIS.finished&&s)col='#22c55e';
+    else if(doneSet.has(i))col='#16a34a';
+    if(!VIS.finished){
+      if(s&&s.range&&i>=s.range[0]&&i<s.range[1])col='#a78bfa';
+      if(s&&s.hot&&s.hot.includes(i))col='#a78bfa';
+      if(s&&s.compare&&(i===s.compare[0]||i===s.compare[1]))col='#facc15';
+      if(s&&s.swap&&(i===s.swap[0]||i===s.swap[1]))col='#ef4444';
+      if(s&&s.pivot===i)col='#fb923c';
+    }
+    const bh=(v/max)*(h-26);
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.roundRect(i*bw+1,h-20-bh,Math.max(1,bw-2),bh,[2,2,0,0]);ctx.fill();
+    if(arr.length<=32){ctx.fillStyle='#6a6a85';ctx.font='8px ui-monospace,monospace';ctx.fillText(v,i*bw+bw/2,h-8);}
+  });
+}
+async function visRun(){
+  if(VIS.running)return;
+  VIS.running=true;VIS.paused=false;VIS.finished=false;VIS.elapsed=0;VIS.t0=performance.now();
+  visControls();
+  const gen=VIS_ALGOS[VIS.algo].fn([...VIS.arr]);
+  let n=0;
+  while(VIS.running){
+    while(VIS.paused&&VIS.running)await sleep(50);
+    if(!VIS.running)break;
+    const r=gen.next();
+    if(r.done){VIS.step=r.value;VIS.finished=true;VIS.running=false;VIS.elapsed=performance.now()-VIS.t0;break;}
+    VIS.step=r.value;n++;
+    if(n%2===0)visStats();
+    drawVis();
+    if(VIS.speed>0)await sleep(VIS.speed);
+    else if(n%60===0)await sleep(0);
+  }
+  VIS.elapsed=VIS.elapsed||performance.now()-VIS.t0;
+  drawVis();visControls();visStats();
+}
+function renderVis(){
+  VIS.arr=visGen();VIS.step=null;VIS.finished=false;VIS.running=false;VIS.paused=false;
+  $('view-svis').innerHTML=`
+  <div>
+    <div class="hero" style="background:linear-gradient(90deg,rgba(134,25,143,.35),rgba(76,29,149,.3));border-color:rgba(232,121,249,.2)">
+      <h2>🎬 Live Sorting Visualizer</h2>
+      <p style="color:#f5d0fe">Watch every comparison, swap and bucket distribution as it happens. See how
+      <b style="color:var(--yellow)">Postman Sort</b> pours elements into digit buckets, how Quick Sort partitions
+      around pivots, and why non-comparative sorts never compare keys. <b>Yellow</b> = comparing ·
+      <b>Red</b> = swapping · <b>Orange</b> = pivot · <b>Purple</b> = active range · <b>Green</b> = sorted.</p>
+    </div>
+    <div class="panel"><label class="lbl">Algorithm</label>
+      <div class="chiprow hscroll">${VIS_ALGOS.map((a,i)=>`<button class="chip${VIS.algo===i?' on-purple':''}" onclick="V.algo(${i})">${a.name}</button>`).join('')}</div>
+    </div>
+    <div class="cgrid g3">
+      <div class="panel"><label class="lbl">📏 Size: <b id="visSizeLbl" style="color:#fff">${VIS.size}</b></label>
+        <input type="range" class="range" min="5" max="100" value="${VIS.size}" oninput="V.size(this.value)"/></div>
+      <div class="panel"><label class="lbl">⚡ Speed: <b id="visSpeedLbl" style="color:#fff">${VIS.speed}ms/step</b></label>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">
+          ${[['🐌',200],['🚶',60],['🏃',20],['⚡',5],['🚀',0]].map(s=>`<button class="chip${VIS.speed===s[1]?' on-purple':''}" data-sp="${s[1]}" style="text-align:center" onclick="V.speed(${s[1]})">${s[0]}</button>`).join('')}
+        </div></div>
+      <div class="panel"><label class="lbl">📊 Distribution</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          ${[['random','🎲 Random'],['reversed','📉 Reversed'],['nearly','📊 Nearly'],['few','🎯 Few Uniq']].map(d=>`<button class="chip${VIS.dist===d[0]?' on-purple':''}" onclick="V.dist('${d[0]}')">${d[1]}</button>`).join('')}
+        </div></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-fuchsia" style="flex:1" id="visGo" onclick="V.go()">▶ Start ${VIS_ALGOS[VIS.algo].name}</button>
+      <button class="btn btn-ghost" id="visShuffle" onclick="V.shuffle()">🔀 Shuffle</button>
+      <button class="btn btn-warn hidden" id="visPause" onclick="V.pause()">⏸ Pause</button>
+      <button class="btn btn-danger hidden" id="visStop" onclick="V.stop()">⏹ Stop</button>
+    </div>
+    <div class="g4" style="display:grid;gap:8px">
+      <div class="stat"><div class="l">Comparisons</div><div class="v" style="color:var(--yellow)" id="visCmp">0</div></div>
+      <div class="stat"><div class="l">Swaps</div><div class="v" style="color:var(--red)" id="visSwp">0</div></div>
+      <div class="stat"><div class="l">Sorted</div><div class="v" style="color:var(--green)" id="visDone">0/${VIS.size}</div></div>
+      <div class="stat"><div class="l">Elapsed</div><div class="v" style="color:var(--cyan)" id="visTime">—</div></div>
+    </div>
+    <div class="panel"><canvas id="visCanvas" class="chart"></canvas></div>
+    <div class="outbox" id="visInfo" style="color:#f0abfc">Press ▶ Start to begin the walkthrough.</div>
+    <div class="panel"><div class="legend" style="font-size:11px">
+      <span><i style="background:#facc15"></i>Comparing</span>
+      <span><i style="background:#ef4444"></i>Swapping</span>
+      <span><i style="background:#fb923c"></i>Pivot</span>
+      <span><i style="background:#a78bfa"></i>Active Range</span>
+      <span><i style="background:#22c55e"></i>Sorted</span>
+      <span><i style="background:${VIS_ALGOS[VIS.algo].base}"></i>Unsorted</span>
+    </div></div>
+  </div>`;
+  requestAnimationFrame(drawVis);
+}
+function visControls(){
+  const go=$('visGo'),pau=$('visPause'),sto=$('visStop');
+  if(!go)return;
+  if(VIS.running){
+    go.classList.add('hidden');sto.classList.remove('hidden');
+    pau.classList.remove('hidden');pau.textContent=VIS.paused?'▶ Resume':'⏸ Pause';
+  }else{
+    go.classList.remove('hidden');pau.classList.add('hidden');sto.classList.add('hidden');
+    go.textContent=(VIS.finished?'↻ Restart ':'▶ Start ')+VIS_ALGOS[VIS.algo].name;
+  }
+}
+function visStats(){
+  if(!$('visCmp'))return;
+  const s=VIS.step;
+  $('visCmp').textContent=s?fmt(s.cmp):0;
+  $('visSwp').textContent=s?fmt(s.swp):0;
+  const dn=s&&s.done?s.done.length:0;
+  $('visDone').textContent=`${VIS.finished?(s?s.arr.length:VIS.size):dn}/${VIS.size}`;
+  $('visTime').textContent=VIS.finished?VIS.elapsed.toFixed(0)+'ms':(VIS.running?'…':'—');
+  $('visInfo').textContent=s&&s.info?s.info:'';
+}
+const V={
+  algo(i){if(VIS.running)return;VIS.algo=i;renderVis();},
+  size(v){if(VIS.running)return;VIS.size=parseInt(v);const l=$('visSizeLbl');if(l)l.textContent=VIS.size;
+    VIS.arr=visGen();VIS.step=null;VIS.finished=false;const dl=$('visDone');if(dl)dl.textContent=`0/${VIS.size}`;drawVis();},
+  speed(v){VIS.speed=v;const l=$('visSpeedLbl');if(l)l.textContent=VIS.speed?VIS.speed+'ms/step':'instant';
+    document.querySelectorAll('#view-svis [data-sp]').forEach(c=>{c.className='chip'+(+c.dataset.sp===v?' on-purple':'');c.style.textAlign='center';});},
+  dist(d){if(VIS.running)return;VIS.dist=d;renderVis();},
+  shuffle(){if(VIS.running)return;renderVis();},
+  go(){visRun();},
+  pause(){VIS.paused=!VIS.paused;visControls();},
+  stop(){VIS.running=false;VIS.paused=false;},
+};
+
+/* ============================================================
+   ABOUT PAGE
+   ============================================================ */
+function renderAbout(){
+  $('view-about').innerHTML=`
+  <div style="max-width:900px;margin:0 auto">
+    <div class="hero hero-blue">
+      <h2>📖 About CensorBench</h2>
+      <p style="color:#bfdbfe">A fully self-contained, portable single-file HTML5 application combining internet censorship
+      detection &amp; bypass tooling with a 12-algorithm sorting benchmark — featuring the Postman Sort.
+      Works from <b>file://</b>; works offline except the live DNS/URL probes, which intentionally hit the network.</p>
+    </div>
+    <div class="panel">
+      <div class="ph" style="color:var(--cyan)">✨ What’s packed in this file</div>
+      <div class="cgrid g2">
+        ${[['🧪','Test Suite','31 simulated censorship-detection tests across 7 categories'],
+          ['📡','Live DNS Probes','Real RFC 8484 DNS-over-HTTPS queries to Cloudflare, Google, Quad9, AdGuard, Mullvad'],
+          ['🔗','URL Reachability','OONI-style HTTPS reachability probes against 15 frequently-censored URLs'],
+          ['🕵️','Steganography Lab','Zero-width / whitespace / case / acrostic hiding with encode+decode round-trip'],
+          ['🌍','Country Profiles','9 country censorship profiles with freedom scores, techniques and tools'],
+          ['🧪','Bypass Lab','Base64, ROT13, homoglyphs, zero-width, reverse, leetspeak — interactive encoders'],
+          ['📊','Sorting Benchmark','12 algorithms with real timing, comparison & swap counters, canvas charts'],
+          ['📈','Scaling Analysis','Time-vs-size curves across 100→5000 elements, per algorithm'],
+          ['🎬','Live Visualizer','Step-by-step animated walkthroughs of 8 sorting algorithms']].map(f=>`
+          <div class="kcard"><div class="t">${f[0]} ${f[1]}</div><div class="d">${f[2]}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="hero hero-yellow">
+      <h2 style="font-size:16px">📬 The Postman’s Sort — Robert Ramey</h2>
+      <div style="font-size:12px;color:var(--dim);line-height:1.7;margin-top:6px">
+        First published in the <b style="color:#fde68a">C Users Journal, August 1992</b>. Robert Ramey
+        (MS Operations Research, UC Berkeley, 1971) spent his early career in Ecuador founding a data-processing
+        company, and later became known for the <b style="color:#fde68a">Boost Serialization Library</b> alongside PostmanSort.
+        The algorithm distributes records by the most significant key part first — like postal machines sorting by
+        state, then route — avoiding comparisons entirely: <b>O(cn)</b> where c is key size.
+      </div>
+      <div class="cgrid g2" style="margin-top:10px">
+        <div class="mini"><h5>How it works</h5>
+          <ol style="padding-left:16px;font-size:11px;line-height:1.7;color:var(--dim)">
+            <li>Analyze key structure (fields, types, character sets)</li>
+            <li>Allocate buckets tuned to each field’s alphabet</li>
+            <li>Distribute by most significant key part</li>
+            <li>Recurse into every non-empty bucket</li>
+            <li>Emit singletons / exhausted keys in order</li></ol></div>
+        <div class="mini"><h5>Key traits</h5>
+          <ul style="padding-left:14px;font-size:11px;line-height:1.7;color:var(--dim)">
+            <li>Non-comparative — beats the Ω(n log n) bound</li>
+            <li>MSD top-down: short-circuits sorted prefixes</li>
+            <li>Adaptive buckets: 2 bytes/pass on alpha keys (703 buckets)</li>
+            <li>Native multi-field + variable-length key support</li>
+            <li>External-sort proven: 15 GB on a $951 machine (2005)</li></ul></div>
+      </div>
+      <div class="panel-soft" style="margin-top:10px">
+        <h5 style="font-size:11px;color:#fde68a;margin-bottom:6px">🏅 Penny Sort Hall of Fame (sortbenchmark.org)</h5>
+        <div style="max-height:280px;overflow-y:auto">
+        <table class="dt">
+          <thead><tr><th>Year</th><th>Algorithm</th><th>Result</th><th>Team</th></tr></thead>
+          <tbody>
+            <tr class="hl-row"><td>2005</td><td><b style="color:var(--yellow)">PostManSort ⭐</b></td><td>15 GB, 979 s</td><td>Robert Ramey</td></tr>
+            <tr><td>2004</td><td>THsort</td><td>10 GB, 1098 s</td><td>Tsinghua Univ.</td></tr>
+            <tr><td>2000</td><td>HMsort</td><td>4.5 GB</td><td>Helmkamp &amp; McCready</td></tr>
+            <tr><td>1999</td><td>HMsort</td><td>2.6 GB</td><td>Helmkamp &amp; McCready</td></tr>
+            <tr class="hl-row"><td>1998</td><td><b style="color:var(--yellow)">PostmanSort/NT ⭐</b></td><td>1.3 GB</td><td>Robert Ramey Software</td></tr>
+            <tr class="hl-row"><td>1997</td><td><b style="color:var(--yellow)">PostmanSort</b></td><td>1.28 GB, $733 (Daytona)</td><td>Robert Ramey Software</td></tr>
+            <tr><td>2006</td><td>BSIS</td><td>34 GB</td><td>Tsinghua Univ.</td></tr>
+            <tr><td>2007</td><td>TokuMergeSort</td><td>39 GB</td><td>B. Kuszmaul, MIT</td></tr>
+            <tr><td>2009</td><td>psort</td><td>248 GB</td><td>Univ. Padova</td></tr>
+            <tr><td>2010</td><td>OzSort 2.0</td><td>252 GB</td><td>Univ. Melbourne</td></tr>
+            <tr><td>2011</td><td>psort</td><td>334 GB</td><td>Univ. Padova</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="cgrid g2" style="margin-top:10px">
+        ${[['Spreadsort (Boost)','Steven Ross','Hybrid radix, O(N√(log N)); exploits key structure like Postman Sort — two decades later.'],
+          ['pdqsort','Orson Peters','Pattern-defeating quicksort; used in Boost and Rust’s sort_unstable.'],
+          ['Introsort','David Musser, 1997','quick → heap → insertion hybrid inside most std::sort builds.'],
+          ['Spinsort (Boost)','Francisco Tapia','Stable sort, fast on random & nearly-sorted input, N/2 memory.'],
+          ['American Flag Sort','McIlroy, Bostic, McIlroy','In-place MSD radix for ASCII strings — same postal intuition.'],
+          ['Burstsort','Sinha & Zobel, 2004','Cache-efficient string sort with burst tries; MSD lineage.']].map(a=>`
+          <div class="kcard"><div class="t">${a[0]}</div><div class="s">${a[1]}</div><div class="d">${a[2]}</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ph" style="font-size:14px">📚 Censorship Research References</div>
+      <div class="cgrid g2">
+        ${[['OONI Probe','Crowdsourced censorship measurement; ECH & encrypted-DNS experiments.'],
+          ['Censored Planet','Univ. of Michigan global observatory — 70B+ measurement points.'],
+          ['GFW Report','Documented GFW active probing, TLS protocol blocking, fingerprinting.'],
+          ['GFWeb (2024)','1.02B FQDNs probed; 943K pay-level domains censored; asymmetric filtering.'],
+          ['Iran (2025)','ISP-level decentralized censorship, protocol allowlisting, mid-connection drops.'],
+          ['Henan, China (2025)','Provincial HTTP/TLS middleware blocking 5× more domains than national GFW.'],
+          ['VoIP censorship (2025)','Saudi Arabia & UAE STUN-header fingerprinting on audio/video calls.'],
+          ['ECH blocking (2024)','Roskomnadzor blocked ECH on Cloudflare; Iran blocks encrypted DNS since 2020.']].map(r=>`
+          <div class="kcard"><div class="t">${r[0]}</div><div class="d">${r[1]}</div></div>`).join('')}
+      </div>
+      <p style="font-size:10px;color:var(--dim2);margin-top:10px">
+        References: Robert Ramey, “The Postman’s Sort,” C Users Journal, Aug 1992 · NIST DADS ·
+        sortbenchmark.org · boost.org/people/robert_ramey.htm · Gray et al., Datamation 1985 ·
+        “AlphaSort,” VLDB 1995 · Boost.Sort documentation.</p>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   QUINE — this application prints its own source code
+   ------------------------------------------------------------
+   A quine is a program whose output is the program itself.
+   CensorBench is a natural quine: a single self-contained
+   HTML5 file. Primary extraction fetches the verbatim served
+   bytes; fallback serializes the live DOM (including the
+   currently rendered UI state).
+   ============================================================ */
+function fnv1a(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return h.toString(16).padStart(8,'0');}
+const Quine={
+  src:'',via:'',
+  async ownSource(){
+    try{
+      const r=await fetch(location.href,{cache:'no-store'});
+      if(r.ok){const t=await r.text();
+        if(t&&t.length>1000)return {src:t,via:'verbatim bytes of the served file'};}
+    }catch(e){}
+    return {src:'<!doctype html>\n'+document.documentElement.outerHTML,
+            via:'live DOM serialization (includes currently rendered UI state)'};
+  },
+  async open(){
+    let ov=$('quineOverlay');
+    if(!ov){
+      ov=document.createElement('div');
+      ov.id='quineOverlay';ov.className='quine-overlay';
+      ov.innerHTML=
+`<div class="quine-modal" role="dialog" aria-label="Quine source viewer">
+  <div class="quine-head">
+    <div style="min-width:0">
+      <div style="font-weight:800;font-size:14px">⊿ Quine — Self-Reproducing Source</div>
+      <div style="font-size:10px;color:var(--dim2);margin-top:2px" id="quineVia">Extracting own source…</div>
+    </div>
+    <button class="btn btn-ghost btn-xs" onclick="Quine.close()">✕ Close</button>
+  </div>
+  <pre class="quine-src" id="quineSrc">… thinking about myself …</pre>
+  <div class="quine-foot">
+    <button class="btn btn-emerald btn-xs" id="quineCopy" onclick="Quine.copy()">📋 Copy source</button>
+    <button class="btn btn-purple btn-xs" onclick="Quine.download()">⬇ Download censorbench.html</button>
+    <span class="qbadge" id="quineMeta"></span>
+  </div>
+</div>`;
+      ov.addEventListener('click',e=>{if(e.target===ov)Quine.close();});
+      document.body.appendChild(ov);
+      document.body.style.overflow='hidden';
+    }
+    const {src,via}=await this.ownSource();
+    this.src=src;this.via=via;
+    const pre=$('quineSrc'),meta=$('quineMeta'),viaEl=$('quineVia');
+    if(!pre)return; // closed while fetching
+    pre.textContent=src; // raw — no escaping needed with textContent
+    viaEl.textContent='Source obtained via '+via+'.';
+    meta.textContent=`${fmt(src.length)} chars · ${new Blob([src]).size} bytes · fnv1a: ${fnv1a(src)}`;
+    // recursion complete: this Quine section is itself visible inside the Quine viewer
+  },
+  copy(){
+    const b=$('quineCopy');const done=()=>{b.textContent='✓ Copied!';setTimeout(()=>{const bb=$('quineCopy');if(bb)bb.textContent='📋 Copy source';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(this.src).then(done).catch(()=>Quine._legacyCopy(done));
+    }else Quine._legacyCopy(done);
+  },
+  _legacyCopy(done){
+    const ta=document.createElement('textarea');ta.value=this.src;
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);done();
+  },
+  download(){
+    const blob=new Blob([this.src],{type:'text/html'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='censorbench.html';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},400);
+  },
+  close(){
+    const ov=$('quineOverlay');
+    if(ov)ov.remove();
+    document.body.style.overflow='';
+  },
+};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('quineOverlay'))Quine.close();
+});
+
+/* ============================================================
+   ROUTER / INIT
+   ============================================================ */
+const UI={
+  state:{tab:'censorship',csub:'tests',ssub:'benchmark'},
+  setTab(t){
+    UI.state.tab=t;
+    ['censorship','sorting','about'].forEach(k=>{
+      $('tab-'+k).className='tab'+(t===k?' on-'+(k==='censorship'?'red':k==='sorting'?'purple':'blue'):'');
+      $('mtab-'+k).className=(t===k?'on-'+(k==='censorship'?'red':k==='sorting'?'purple':'blue'):'');
+      $('btab-'+k).className=(t===k?'on-'+(k==='censorship'?'red':k==='sorting'?'purple':'blue'):'');
+    });
+    $('mmenu').className='mmenu hidden wrap';
+    $('sub-censorship').className=t==='censorship'?'subtabs':'subtabs hidden';
+    $('sub-sorting').className=t==='sorting'?'subtabs':'subtabs hidden';
+    ['view-ctests','view-clive','view-csteg','view-ccountries','view-sbench','view-svis','view-about']
+      .forEach(v=>$(v).className='view hidden');
+    if(t==='censorship'){
+      document.querySelectorAll('[data-csub]').forEach(b=>b.className='subtab'+(UI.state.csub===b.dataset.csub?' on-red':''));
+      const map={tests:'view-ctests',live:'view-clive',steg:'view-csteg',countries:'view-ccountries'};
+      const el=$(map[UI.state.csub]);el.className='view';
+      if(!el.dataset.init){
+        ({tests:renderCensorshipSuite,live:renderLive,steg:renderSteg,countries:renderCountries})[UI.state.csub]();
+        el.dataset.init='1';
+      }
+    }else if(t==='sorting'){
+      document.querySelectorAll('[data-ssub]').forEach(b=>b.className='subtab'+(UI.state.ssub===b.dataset.ssub?' on-purple':''));
+      const el=$(UI.state.ssub==='visualizer'?'view-svis':'view-sbench');el.className='view';
+      if(!el.dataset.init){(UI.state.ssub==='visualizer'?renderVis:renderBench)();el.dataset.init='1';}
+    }else{
+      const el=$('view-about');el.className='view';
+      if(!el.dataset.init){renderAbout();el.dataset.init='1';}
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  },
+  setCSub(s){UI.state.csub=s;UI.setTab('censorship');},
+  setSSub(s){UI.state.ssub=s;UI.setTab('sorting');},
+};
+$('burger').addEventListener('click',()=>{
+  $('mmenu').className=$('mmenu').className.includes('hidden')?'mmenu wrap':'mmenu hidden wrap';
+});
+window.addEventListener('resize',()=>{
+  clearTimeout(window.__rz);
+  window.__rz=setTimeout(()=>{
+    if(!$('view-sbench').className.includes('hidden'))renderBenchResults();
+    if(!$('view-svis').className.includes('hidden'))drawVis();
+  },200);
+});
+UI.setTab('censorship');
+</script>
+</body>
+</html>
