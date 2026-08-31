@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTML5 Offline ZIP Audit & Repair Viewer</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121935;
+      --panel-2: #1a2347;
+      --text: #e8ecff;
+      --muted: #a9b3d9;
+      --accent: #77a8ff;
+      --accent-2: #9bffb0;
+      --warn: #ffcf70;
+      --danger: #ff8f8f;
+      --border: #2d3a72;
+      --code-bg: #0a0f1f;
+      --sidebar-width: 320px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); }
+    body { display: grid; grid-template-rows: auto 1fr auto; }
+    header, footer { padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+    footer { border-top: 1px solid var(--border); border-bottom: 0; color: var(--muted); font-size: 13px; }
+    .wrap { display: grid; grid-template-columns: var(--sidebar-width) 1fr; min-height: 0; }
+    .sidebar, .main { min-height: 0; }
+    .sidebar { background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; transition: width .2s ease, min-width .2s ease, opacity .2s ease; min-width: var(--sidebar-width); }
+    .sidebar.collapsed { width: 0; min-width: 0; overflow: hidden; opacity: .15; border-right: 0; }
+    .main { display: grid; grid-template-rows: auto auto 1fr; min-width: 0; }
+    .toolbar, .statusbar { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--panel); }
+    .statusbar { background: var(--panel-2); color: var(--muted); font-size: 13px; }
+    .content { display: grid; grid-template-columns: 1fr; min-height: 0; }
+    .pane { min-height: 0; overflow: auto; padding: 16px; }
+    h1 { margin: 0; font-size: 20px; }
+    h2, h3 { margin: 0 0 10px; }
+    p, li { line-height: 1.45; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button, .btn, input[type="search"], select {
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit;
+    }
+    button:hover, .btn:hover { filter: brightness(1.08); cursor: pointer; }
+    input[type="search"] { min-width: 220px; }
+    .dropzone {
+      margin: 12px 16px; border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; color: var(--muted); background: rgba(119,168,255,.05);
+    }
+    .dropzone.drag { border-color: var(--accent); color: var(--text); background: rgba(119,168,255,.12); }
+    .file-list { overflow: auto; padding: 8px; }
+    .file-item {
+      width: 100%; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; color: var(--text); display: block;
+    }
+    .file-item:hover, .file-item.active { background: rgba(119,168,255,.12); border-color: var(--border); }
+    .muted { color: var(--muted); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(155,255,176,.12); border: 1px solid rgba(155,255,176,.35); color: var(--accent-2); font-size: 12px; }
+    .warn { color: var(--warn); }
+    .danger { color: var(--danger); }
+    .ok { color: var(--accent-2); }
+    pre, code, textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    pre {
+      margin: 0; padding: 14px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    iframe.preview {
+      width: 100%; min-height: 70vh; border: 1px solid var(--border); border-radius: 12px; background: white;
+    }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+    .summary { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 14px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .small { font-size: 13px; }
+    .tagrow { display: flex; gap: 8px; flex-wrap: wrap; }
+    .section { margin-top: 16px; }
+    .pill { display: inline-block; border: 1px solid var(--border); background: rgba(119,168,255,.08); border-radius: 999px; padding: 4px 9px; margin: 3px 6px 3px 0; font-size: 12px; }
+    .audit-good { border-left: 4px solid #46d27a; }
+    .audit-warn { border-left: 4px solid #ffcf70; }
+    .audit-bad { border-left: 4px solid #ff8f8f; }
+    @media (max-width: 900px) {
+      .wrap { grid-template-columns: 1fr; }
+      .sidebar { max-height: 42vh; min-width: 100%; }
+      .sidebar.collapsed { max-height: 0; min-width: 100%; opacity: .7; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="controls" style="justify-content:space-between;">
+      <h1>HTML5 Offline ZIP Audit & Repair Viewer</h1>
+      <button id="toggleSidebarBtn" type="button">Collapse sidebar</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <aside id="sidebar" class="sidebar">
+      <div class="toolbar">
+        <div class="controls">
+          <label class="btn">
+            Open ZIP(s)
+            <input id="fileInput" type="file" accept=".zip,application/zip" multiple hidden>
+          </label>
+          <input id="searchBox" type="search" placeholder="Filter files..." />
+        </div>
+      </div>
+      <div id="dropzone" class="dropzone">
+        Drag & drop ZIP files here<br>
+        <span class="small">Works offline after this page loads.</span>
+      </div>
+      <div id="zipSummary" class="pane small muted">No ZIP loaded yet.</div>
+      <div id="fileList" class="file-list"></div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <div class="controls">
+          <span id="selectedPath" class="badge">No file selected</span>
+          <button id="showDiagnosticsBtn" type="button">Offline diagnostics</button>
+          <button id="showStructureBtn" type="button">Project structure</button>
+          <button id="showLinkedPreviewBtn" type="button">Preview detected entry</button>
+          <button id="showExportBtn" type="button">Download repaired HTML</button>
+          <button id="showAuditBtn" type="button">HTML5 audit</button>
+        </div>
+      </div>
+      <div id="statusbar" class="statusbar">Load a workspace/project ZIP to inspect contents, run an HTML5 audit, preview web files offline, and download repaired standalone HTML.</div>
+      <div class="content">
+        <div id="viewer" class="pane">
+          <div class="summary">
+            <div class="card"><strong>Purpose</strong><p class="small muted">Browse ZIP contents locally, detect workspace/project structure, audit HTML5 compatibility, preview likely entries, and download repaired offline HTML.</p></div>
+            <div class="card"><strong>Audit support</strong><p class="small muted">Checks for HTML5 doctype, charset, viewport, title, external dependencies, inline asset repair potential, and likely offline blockers.</p></div>
+            <div class="card"><strong>Export support</strong><p class="small muted">Choose a detected HTML entry point and download a repaired standalone HTML file with internal assets inlined as data URLs.</p></div>
+          </div>
+          <p>Select a file from the left after loading a ZIP.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    Single-file HTML5 application with ZIP reading, project structure detection, audit, linked preview, repaired standalone export, and collapsible sidebar.
+  </footer>
+
+  <script>
+  const U8 = Uint8Array;
+  const td = new TextDecoder();
+  function strFromU8(u8) { try { return td.decode(u8); } catch { let s=''; for (let i=0;i<u8.length;i++) s += String.fromCharCode(u8[i]); return s; } }
+  function readU16(a, i){ return a[i] | (a[i+1] << 8); }
+  function readU32(a, i){ return (a[i] | (a[i+1]<<8) | (a[i+2]<<16) | (a[i+3]<<24)) >>> 0; }
+
+  async function unzipEntries(arrayBuffer) {
+    const data = new U8(arrayBuffer);
+    const entries = [];
+    let eocd = -1;
+    for (let i = data.length - 22; i >= Math.max(0, data.length - 0xFFFF - 22); i--) {
+      if (data[i] === 0x50 && data[i+1] === 0x4b && data[i+2] === 0x05 && data[i+3] === 0x06) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error('End of central directory not found. Not a valid ZIP or unsupported ZIP variant.');
+    const cdCount = readU16(data, eocd + 10);
+    const cdOffset = readU32(data, eocd + 16);
+    let ptr = cdOffset;
+    for (let n = 0; n < cdCount; n++) {
+      if (!(data[ptr] === 0x50 && data[ptr+1] === 0x4b && data[ptr+2] === 0x01 && data[ptr+3] === 0x02)) throw new Error('Invalid central directory record.');
+      const method = readU16(data, ptr + 10);
+      const compressedSize = readU32(data, ptr + 20);
+      const uncompressedSize = readU32(data, ptr + 24);
+      const nameLen = readU16(data, ptr + 28);
+      const extraLen = readU16(data, ptr + 30);
+      const commentLen = readU16(data, ptr + 32);
+      const localOffset = readU32(data, ptr + 42);
+      const name = strFromU8(data.slice(ptr + 46, ptr + 46 + nameLen));
+      entries.push({ name, method, compressedSize, uncompressedSize, localOffset, directory: name.endsWith('/') });
+      ptr += 46 + nameLen + extraLen + commentLen;
+    }
+    for (const e of entries) {
+      if (e.directory) continue;
+      const lp = e.localOffset;
+      if (!(data[lp] === 0x50 && data[lp+1] === 0x4b && data[lp+2] === 0x03 && data[lp+3] === 0x04)) throw new Error('Invalid local file header for ' + e.name);
+      const nameLen = readU16(data, lp + 26);
+      const extraLen = readU16(data, lp + 28);
+      const start = lp + 30 + nameLen + extraLen;
+      const comp = data.slice(start, start + e.compressedSize);
+      if (e.method === 0) e.bytes = comp;
+      else if (e.method === 8) e.bytes = await inflateRawViaStream(comp);
+      else e.error = 'Unsupported compression method ' + e.method + ' for offline preview';
+    }
+    return entries;
+  }
+
+  async function inflateRawViaStream(comp) {
+    const wrapped = zlibWrapDeflate(comp);
+    if (!('DecompressionStream' in window)) throw new Error('This browser lacks DecompressionStream needed for deflate entries. Try Chrome/Edge/modern browsers.');
+    const ds = new DecompressionStream('deflate');
+    const stream = new Blob([wrapped]).stream().pipeThrough(ds);
+    const ab = await new Response(stream).arrayBuffer();
+    return new U8(ab);
+  }
+
+  function adler32(data) {
+    let a = 1, b = 0;
+    for (let i = 0; i < data.length; i++) { a = (a + data[i]) % 65521; b = (b + a) % 65521; }
+    return ((b << 16) | a) >>> 0;
+  }
+  function zlibWrapDeflate(raw) {
+    const header = new U8([0x78, 0x9C]);
+    const fake = new U8(0);
+    const ad = adler32(fake);
+    const out = new U8(header.length + raw.length + 4);
+    out.set(header, 0); out.set(raw, 2);
+    out[out.length-4] = (ad >>> 24) & 255;
+    out[out.length-3] = (ad >>> 16) & 255;
+    out[out.length-2] = (ad >>> 8) & 255;
+    out[out.length-1] = ad & 255;
+    return out;
+  }
+
+  const state = { zips: [], files: [], current: null, structures: [], sidebarCollapsed: false };
+  const fileInput = document.getElementById('fileInput');
+  const dropzone = document.getElementById('dropzone');
+  const fileList = document.getElementById('fileList');
+  const viewer = document.getElementById('viewer');
+  const statusbar = document.getElementById('statusbar');
+  const zipSummary = document.getElementById('zipSummary');
+  const selectedPath = document.getElementById('selectedPath');
+  const searchBox = document.getElementById('searchBox');
+  const sidebar = document.getElementById('sidebar');
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  const showDiagnosticsBtn = document.getElementById('showDiagnosticsBtn');
+  const showStructureBtn = document.getElementById('showStructureBtn');
+  const showLinkedPreviewBtn = document.getElementById('showLinkedPreviewBtn');
+  const showExportBtn = document.getElementById('showExportBtn');
+  const showAuditBtn = document.getElementById('showAuditBtn');
+
+  fileInput.addEventListener('change', async (e) => loadFiles([...e.target.files]));
+  ['dragenter','dragover'].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(type => dropzone.addEventListener(type, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+  dropzone.addEventListener('drop', async (e) => loadFiles([...e.dataTransfer.files].filter(f => f.name.toLowerCase().endsWith('.zip'))));
+  searchBox.addEventListener('input', renderFileList);
+  toggleSidebarBtn.addEventListener('click', toggleSidebar);
+  showDiagnosticsBtn.addEventListener('click', () => renderDiagnostics());
+  showStructureBtn.addEventListener('click', () => renderProjectStructure());
+  showLinkedPreviewBtn.addEventListener('click', () => previewDetectedEntry());
+  showExportBtn.addEventListener('click', () => renderExportChooser());
+  showAuditBtn.addEventListener('click', () => renderHtml5Audit());
+
+  function toggleSidebar() {
+    state.sidebarCollapsed = !state.sidebarCollapsed;
+    sidebar.classList.toggle('collapsed', state.sidebarCollapsed);
+    toggleSidebarBtn.textContent = state.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+  }
+
+  async function loadFiles(files) {
+    if (!files.length) return;
+    statusbar.textContent = 'Loading ZIP file(s)...';
+    state.zips = [];
+    state.files = [];
+    state.structures = [];
+    for (const file of files) {
+      try {
+        const ab = await file.arrayBuffer();
+        const entries = await unzipEntries(ab);
+        const zipObj = { fileName: file.name, entries };
+        state.zips.push(zipObj);
+        for (const entry of entries) state.files.push({ zipName: file.name, ...entry });
+        state.structures.push(analyzeZipStructure(zipObj));
+      } catch (err) {
+        state.zips.push({ fileName: file.name, error: String(err) });
+        state.structures.push({ fileName: file.name, error: String(err) });
+      }
+    }
+    renderSummary();
+    renderFileList();
+    renderHtml5Audit();
+    statusbar.textContent = 'Loaded ' + state.zips.length + ' ZIP file(s).';
+  }
+
+  function renderSummary() {
+    const ok = state.zips.filter(z => !z.error);
+    const totalFiles = ok.reduce((a,z) => a + z.entries.filter(e => !e.directory).length, 0);
+    zipSummary.innerHTML = `
+      <div><strong>ZIP files:</strong> ${state.zips.length}</div>
+      <div><strong>Readable files:</strong> ${totalFiles}</div>
+      <div><strong>Problems:</strong> ${state.zips.filter(z => z.error).length}</div>
+      <hr style="border-color: var(--border); opacity:.4">
+      ${state.zips.map(z => `<div><strong>${escapeHtml(z.fileName)}</strong>${z.error ? ` <span class="danger">${escapeHtml(z.error)}</span>` : ` <span class="muted">(${z.entries.length} entries)</span>`}</div>`).join('')}
+    `;
+  }
+
+  function renderFileList() {
+    const q = searchBox.value.trim().toLowerCase();
+    const items = state.files.filter(f => !f.directory && (!q || (f.zipName + ' / ' + f.name).toLowerCase().includes(q)));
+    if (!items.length) {
+      fileList.innerHTML = '<div class="muted" style="padding:12px">No matching files.</div>';
+      return;
+    }
+    fileList.innerHTML = items.map((f, i) => `
+      <button class="file-item ${state.current===i?'active':''}" data-idx="${i}">
+        <div><strong>${escapeHtml(baseName(f.name))}</strong></div>
+        <div class="small muted">${escapeHtml(f.zipName)} / ${escapeHtml(f.name)}</div>
+      </button>
+    `).join('');
+    [...fileList.querySelectorAll('.file-item')].forEach(btn => btn.addEventListener('click', () => openFilteredIndex(items[Number(btn.dataset.idx)])));
+  }
+
+  function openFilteredIndex(fileObj) {
+    const idx = state.files.indexOf(fileObj);
+    state.current = idx;
+    renderFileList();
+    openFile(fileObj);
+  }
+
+  function openFile(f) {
+    selectedPath.textContent = f.zipName + ' / ' + f.name;
+    if (f.error) {
+      viewer.innerHTML = `<p class="danger">${escapeHtml(f.error)}</p>`;
+      return;
+    }
+    const ext = extName(f.name);
+    const mime = mimeType(ext);
+    if (mime.startsWith('text/') || ['json','md','js','css','html','xml','svg'].includes(ext)) {
+      const text = strFromU8(f.bytes || new U8());
+      if (ext === 'html' || ext === 'htm') renderHtmlPreview(f, text);
+      else if (ext === 'md') viewer.innerHTML = `<h3>Markdown source</h3><pre>${escapeHtml(text)}</pre>`;
+      else if (ext === 'json') viewer.innerHTML = `<h3>JSON preview</h3><pre>${escapeHtml(formatJson(text))}</pre>`;
+      else viewer.innerHTML = `<h3>Source preview</h3><pre>${escapeHtml(text)}</pre>`;
+    } else if (mime.startsWith('image/')) {
+      const url = URL.createObjectURL(new Blob([f.bytes], {type: mime}));
+      viewer.innerHTML = `<h3>Image preview</h3><p class="small muted">${escapeHtml(mime)}</p><img src="${url}" style="max-width:100%; border:1px solid var(--border); border-radius:12px; background:white">`;
+    } else {
+      renderBinaryIdentification(f);
+    }
+  }
+
+  function renderHtmlPreview(file, htmlText) {
+    const report = analyzeHtml(htmlText);
+    const audit = auditHtml5(file, htmlText);
+    const linked = buildZipHtmlDocument(file, htmlText, false);
+    viewer.innerHTML = `
+      <h3>HTML5 preview + audit</h3>
+      <div class="summary">
+        <div class="card"><strong>Audit score</strong><div class="small ${audit.score >= 80 ? 'ok' : audit.score >= 50 ? 'warn' : 'danger'}">${audit.score}/100</div></div>
+        <div class="card"><strong>External resources</strong><div class="small ${report.external.length ? 'warn' : 'muted'}">${report.external.length}</div></div>
+        <div class="card"><strong>Assets mapped</strong><div class="small muted">${linked.mappedCount}</div></div>
+      </div>
+      <iframe class="preview" sandbox="allow-scripts" srcdoc="${escapeAttr(linked.html)}"></iframe>
+      <div class="section">${renderAuditDetails(audit)}</div>
+      <div class="section"><h3>Source</h3><pre>${escapeHtml(htmlText)}</pre></div>
+    `;
+  }
+
+  function renderHtml5Audit() {
+    const htmlFiles = state.files.filter(f => /\.(html?|xhtml)$/i.test(f.name));
+    const audits = htmlFiles.map(f => ({ file: f, audit: auditHtml5(f, strFromU8(f.bytes || new U8())) }));
+    const avg = audits.length ? Math.round(audits.reduce((a,b) => a + b.audit.score, 0) / audits.length) : 0;
+    viewer.innerHTML = `
+      <h2>HTML5 audit</h2>
+      <div class="summary">
+        <div class="card"><strong>HTML files audited</strong><div class="small muted">${audits.length}</div></div>
+        <div class="card"><strong>Average score</strong><div class="small ${avg >= 80 ? 'ok' : avg >= 50 ? 'warn' : 'danger'}">${avg}/100</div></div>
+        <div class="card"><strong>Repairable entries</strong><div class="small muted">${getExportableEntries().length}</div></div>
+      </div>
+      <p class="small muted">Audit checks HTML5 basics and offline-readiness for detected entry pages.</p>
+      ${audits.length ? audits.map(({file, audit}) => `
+        <div class="card ${audit.score >= 80 ? 'audit-good' : audit.score >= 50 ? 'audit-warn' : 'audit-bad'}" style="margin-bottom:12px">
+          <div class="tagrow" style="justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong>${escapeHtml(file.zipName)} / ${escapeHtml(file.name)}</strong>
+            <span class="badge">Score ${audit.score}/100</span>
+          </div>
+          <div class="small muted" style="margin-bottom:8px;">${escapeHtml(audit.summary)}</div>
+          <div>${audit.flags.map(f => `<span class="pill">${escapeHtml(f)}</span>`).join('')}</div>
+          <div class="section tagrow">
+            <button type="button" onclick="openAuditFile('${escapeJs(file.zipName)}','${escapeJs(file.name)}')">View</button>
+            <button type="button" onclick="downloadAuditFile('${escapeJs(file.zipName)}','${escapeJs(file.name)}')">Download repaired HTML</button>
+          </div>
+        </div>
+      `).join('') : '<p class="warn">No HTML files found to audit.</p>'}
+    `;
+    selectedPath.textContent = 'HTML5 audit';
+  }
+
+  function renderAuditDetails(audit) {
+    return `
+      <h3>Audit details</h3>
+      <table>
+        <tr><th>Summary</th><td>${escapeHtml(audit.summary)}</td></tr>
+        <tr><th>Flags</th><td>${audit.flags.length ? audit.flags.map(escapeHtml).join('<br>') : '<span class="muted">No flags</span>'}</td></tr>
+        <tr><th>Warnings</th><td>${audit.warnings.length ? audit.warnings.map(escapeHtml).join('<br>') : '<span class="muted">No warnings</span>'}</td></tr>
+        <tr><th>Fix suggestions</th><td>${audit.suggestions.length ? audit.suggestions.map(escapeHtml).join('<br>') : '<span class="muted">No suggestions</span>'}</td></tr>
+      </table>
+    `;
+  }
+
+  function auditHtml5(file, htmlText) {
+    const report = analyzeHtml(htmlText);
+    const flags = [];
+    const warnings = [];
+    const suggestions = [];
+    let score = 100;
+    if (!/^<!doctype html>/i.test(htmlText.trim())) { score -= 15; flags.push('Missing HTML5 doctype'); suggestions.push('Add <!DOCTYPE html> at the top of the document.'); }
+    else flags.push('HTML5 doctype present');
+    if (!/<meta[^>]+charset=/i.test(htmlText)) { score -= 8; warnings.push('Missing charset declaration'); suggestions.push('Add <meta charset="UTF-8">.'); }
+    else flags.push('Charset found');
+    if (!/<meta[^>]+name=["']viewport["']/i.test(htmlText)) { score -= 8; warnings.push('Missing viewport meta'); suggestions.push('Add a responsive viewport meta tag.'); }
+    else flags.push('Viewport found');
+    if (!/<title>[^<]+<\/title>/i.test(htmlText)) { score -= 6; warnings.push('Missing or empty title'); suggestions.push('Add a descriptive <title>.'); }
+    else flags.push('Title found');
+    if (report.external.length) { score -= Math.min(25, report.external.length * 5); warnings.push(report.external.length + ' external resource reference(s)'); suggestions.push('Bundle CDN resources locally for offline use.'); }
+    if (report.absolute.length) { score -= Math.min(15, report.absolute.length * 3); warnings.push(report.absolute.length + ' absolute/root path reference(s)'); suggestions.push('Convert root paths to relative paths.'); }
+    if (report.moduleScripts) { score -= 6; warnings.push(report.moduleScripts + ' module script(s) may be restricted under file://'); suggestions.push('Serve via local HTTP or bundle scripts for offline preview.'); }
+    const inlineable = countInlineableAssets(file, htmlText);
+    flags.push(inlineable + ' internal asset(s) can likely be inlined');
+    if (!inlineable) warnings.push('No internal linked assets were found to inline');
+    score = Math.max(0, score);
+    let summary = 'Strong HTML5/offline readiness.';
+    if (score < 80 && score >= 50) summary = 'Moderate issues detected for offline HTML5 preview.';
+    if (score < 50) summary = 'Significant issues detected; repaired export may still be partial.';
+    return { score, summary, flags, warnings, suggestions };
+  }
+
+  function countInlineableAssets(file, htmlText) {
+    const refs = [...htmlText.matchAll(/(?:src|href)=['"]([^'"]+)['"]/gi)].map(m => m[1]);
+    let count = 0;
+    for (const ref of refs) {
+      if (!ref || /^(https?:)?\/\//i.test(ref) || ref.startsWith('data:') || ref.startsWith('#')) continue;
+      const target = resolveZipPath(file.name, ref);
+      if (state.files.find(f => !f.directory && f.zipName === file.zipName && normalizePath(f.name) === target)) count++;
+    }
+    return count;
+  }
+
+  function renderDiagnostics() {
+    const htmlFiles = state.files.filter(f => /\.(html?|xhtml)$/i.test(f.name));
+    const findings = [];
+    for (const f of htmlFiles.slice(0, 50)) {
+      const text = strFromU8(f.bytes || new U8());
+      const rep = analyzeHtml(text);
+      if (rep.external.length || rep.absolute.length) findings.push({ f, rep });
+    }
+    viewer.innerHTML = `
+      <h2>Offline diagnostics</h2>
+      <p>Common offline blockers include external dependencies, absolute paths, file:// restrictions, and source-only projects that expect a dev/build server.</p>
+      ${findings.length ? findings.map(({f, rep}) => `
+        <div class="card audit-warn" style="margin-bottom:10px">
+          <div><strong>${escapeHtml(f.zipName)} / ${escapeHtml(f.name)}</strong></div>
+          <div class="small warn">External refs: ${rep.external.length}, absolute/root refs: ${rep.absolute.length}, module scripts: ${rep.moduleScripts}</div>
+        </div>
+      `).join('') : '<p class="muted">No obvious external or absolute-path issues found in scanned HTML files.</p>'}
+    `;
+    selectedPath.textContent = 'Offline diagnostics';
+  }
+
+  function renderProjectStructure() {
+    const groups = state.structures;
+    viewer.innerHTML = `
+      <h2>Project structure</h2>
+      <p class="small muted">Detects common project layouts, entry points, Arena-style metadata, and file-id style manifests from uploaded ZIP files.</p>
+      ${groups.length ? groups.map(renderStructureCard).join('') : '<p class="muted">Load one or more ZIP files to inspect structure.</p>'}
+    `;
+    selectedPath.textContent = 'Project structure';
+  }
+
+  function renderExportChooser() {
+    const choices = getExportableEntries();
+    viewer.innerHTML = `
+      <h2>Download repaired HTML</h2>
+      <p class="small muted">Choose a detected HTML entry. Internal ZIP assets will be inlined as data URLs when possible.</p>
+      ${choices.length ? `
+        <div class="card">
+          <label for="entrySelect"><strong>Detected entry file</strong></label>
+          <div class="section">
+            <select id="entrySelect" style="width:100%">
+              ${choices.map((c, i) => `<option value="${i}">${escapeHtml(c.zipName + ' / ' + c.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="section tagrow">
+            <button type="button" id="previewChosenExportBtn">Preview selected entry</button>
+            <button type="button" id="downloadChosenExportBtn">Download repaired HTML</button>
+            <button type="button" id="auditChosenExportBtn">Audit selected entry</button>
+          </div>
+        </div>
+      ` : '<p class="warn">No HTML entry points were detected for export.</p>'}
+    `;
+    selectedPath.textContent = 'Download repaired HTML';
+    const previewBtn = document.getElementById('previewChosenExportBtn');
+    const downloadBtn = document.getElementById('downloadChosenExportBtn');
+    const auditBtn = document.getElementById('auditChosenExportBtn');
+    if (previewBtn) previewBtn.addEventListener('click', () => {
+      const item = choices[Number(document.getElementById('entrySelect').value)];
+      if (item) openFile(item);
+    });
+    if (downloadBtn) downloadBtn.addEventListener('click', async () => {
+      const item = choices[Number(document.getElementById('entrySelect').value)];
+      if (item) await downloadRepairedExport(item);
+    });
+    if (auditBtn) auditBtn.addEventListener('click', () => {
+      const item = choices[Number(document.getElementById('entrySelect').value)];
+      if (item) openAuditFile(item.zipName, item.name);
+    });
+  }
+
+  async function downloadRepairedExport(file) {
+    const htmlText = strFromU8(file.bytes || new U8());
+    const repaired = buildZipHtmlDocument(file, htmlText, true);
+    const audit = auditHtml5(file, htmlText);
+    const blob = new Blob([repaired.html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = makeExportName(file.name);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    viewer.innerHTML = `
+      <h2>Repaired HTML downloaded</h2>
+      <div class="summary">
+        <div class="card"><strong>Exported file</strong><div class="small muted">${escapeHtml(makeExportName(file.name))}</div></div>
+        <div class="card"><strong>Audit score</strong><div class="small ${audit.score >= 80 ? 'ok' : audit.score >= 50 ? 'warn' : 'danger'}">${audit.score}/100</div></div>
+        <div class="card"><strong>Internal assets inlined</strong><div class="small muted">${repaired.mappedCount}</div></div>
+      </div>
+      <p class="small muted">Downloaded repaired standalone HTML. ZIP-internal assets were inlined when possible. External URLs, dynamic fetch() calls, and runtime framework assumptions may still limit true offline behavior.</p>
+      ${renderAuditDetails(audit)}
+      <div class="section"><h3>Preview of exported HTML</h3><iframe class="preview" sandbox="allow-scripts" srcdoc="${escapeAttr(repaired.html)}"></iframe></div>
+    `;
+    selectedPath.textContent = 'Downloaded repaired HTML';
+  }
+
+  function getExportableEntries() {
+    const seen = new Set();
+    const out = [];
+    for (const structure of state.structures) {
+      if (structure.error) continue;
+      for (const entry of (structure.entryPoints || [])) {
+        const found = state.files.find(f => f.zipName === structure.fileName && f.name === entry && /\.(html?|xhtml)$/i.test(f.name));
+        if (found) {
+          const key = found.zipName + '//' + found.name;
+          if (!seen.has(key)) { seen.add(key); out.push(found); }
+        }
+      }
+    }
+    for (const f of state.files.filter(f => /\.(html?|xhtml)$/i.test(f.name))) {
+      const key = f.zipName + '//' + f.name;
+      if (!seen.has(key)) { seen.add(key); out.push(f); }
+    }
+    return out;
+  }
+
+  function analyzeZipStructure(zip) {
+    if (zip.error) return { fileName: zip.fileName, error: zip.error };
+    const names = zip.entries.map(e => e.name);
+    const files = zip.entries.filter(e => !e.directory);
+    const lowerNames = names.map(n => n.toLowerCase());
+    const has = (name) => lowerNames.includes(name.toLowerCase());
+    const hasAny = (arr) => arr.some(v => has(v));
+    const findAll = (regex) => files.filter(f => regex.test(f.name));
+    const packageJson = files.find(f => /(^|\/)package\.json$/i.test(f.name));
+    const pyProject = files.find(f => /(^|\/)pyproject\.toml$/i.test(f.name));
+    const requirements = files.find(f => /(^|\/)requirements(\.txt)?$/i.test(f.name));
+    const htmlFiles = findAll(/\.(html?|xhtml)$/i);
+    const jsFiles = findAll(/\.(m?js|cjs|ts|tsx|jsx)$/i);
+    const cssFiles = findAll(/\.css$/i);
+    const imageFiles = findAll(/\.(png|jpg|jpeg|gif|svg|webp|bmp)$/i);
+    const jsonFiles = findAll(/\.json$/i);
+    const agentHints = [];
+    if (hasAny(['agents.json','agent.json','workflow.json','workspace.json','project.json'])) agentHints.push('agent/workflow metadata file');
+    if (hasAny(['fileid.json','file-id.json','ids.json','manifest.json'])) agentHints.push('file-id/manifest metadata file');
+    if (lowerNames.some(n => n.includes('prompt') || n.includes('memory') || n.includes('tools'))) agentHints.push('prompt/memory/tools artifacts');
+    if (lowerNames.some(n => n.includes('.arena') || n.includes('arena'))) agentHints.push('Arena-related naming detected');
+
+    let ecosystem = 'Generic static/web workspace';
+    const frameworks = [];
+    let entryPoints = [];
+    if (packageJson) {
+      ecosystem = 'Node/JavaScript project';
+      const pkgText = safeText(packageJson);
+      if (/"next"\s*:/i.test(pkgText)) frameworks.push('Next.js');
+      if (/"react"\s*:/i.test(pkgText)) frameworks.push('React');
+      if (/"vue"\s*:/i.test(pkgText)) frameworks.push('Vue');
+      if (/"@angular\//i.test(pkgText)) frameworks.push('Angular');
+      if (/"svelte"\s*:/i.test(pkgText)) frameworks.push('Svelte');
+      if (/"vite"\s*:/i.test(pkgText)) frameworks.push('Vite');
+      if (/"electron"\s*:/i.test(pkgText)) frameworks.push('Electron');
+      if (/"wails"\s*:/i.test(pkgText)) frameworks.push('Wails');
+    }
+    if (hasAny(['wails.json'])) frameworks.push('Wails');
+    if (lowerNames.some(n => n.endsWith('.go') || n === 'go.mod' || n.endsWith('/go.mod'))) {
+      ecosystem = ecosystem === 'Generic static/web workspace' ? 'Go project' : ecosystem + ' + Go';
+      if (!frameworks.includes('Go')) frameworks.push('Go');
+    }
+    if (pyProject || requirements) {
+      ecosystem = ecosystem === 'Generic static/web workspace' ? 'Python project' : ecosystem + ' + Python';
+      if (pyProject) {
+        const pyText = safeText(pyProject);
+        if (/streamlit/i.test(pyText)) frameworks.push('Streamlit');
+        if (/fastapi/i.test(pyText)) frameworks.push('FastAPI');
+        if (/django/i.test(pyText)) frameworks.push('Django');
+        if (/flask/i.test(pyText)) frameworks.push('Flask');
+      }
+    }
+    if (hasAny(['index.html','public/index.html','src/index.html','frontend/index.html'])) entryPoints.push(...names.filter(n => /(^|\/)(index\.html)$/i.test(n)).slice(0,10));
+    if (!entryPoints.length && htmlFiles.length) entryPoints = htmlFiles.slice(0,10).map(f => f.name);
+
+    return {
+      fileName: zip.fileName,
+      fileCount: files.length,
+      ecosystem,
+      frameworks: [...new Set(frameworks)],
+      classification: classifyProject(lowerNames, frameworks, htmlFiles, jsFiles),
+      entryPoints,
+      htmlCount: htmlFiles.length,
+      jsCount: jsFiles.length,
+      cssCount: cssFiles.length,
+      imageCount: imageFiles.length,
+      fileIds: detectFileIdArtifacts(jsonFiles),
+      agentHints,
+      folders: summarizeTopFolders(names),
+      notes: structureNotes(lowerNames, frameworks, htmlFiles, jsFiles)
+    };
+  }
+
+  function detectFileIdArtifacts(jsonFiles) {
+    const hints = [];
+    for (const f of jsonFiles.slice(0, 20)) {
+      const text = safeText(f);
+      if (/"id"\s*:/i.test(text) && (/"path"\s*:/i.test(text) || /"file"\s*:/i.test(text))) hints.push(f.name);
+      if (/arena/i.test(text) && /agent|workflow|project/i.test(text)) hints.push(f.name + ' (arena metadata)');
+    }
+    return [...new Set(hints)].slice(0, 10);
+  }
+
+  function classifyProject(lowerNames, frameworks, htmlFiles, jsFiles) {
+    if (frameworks.includes('Wails') && frameworks.includes('Go')) return 'Wails desktop app (Go + web frontend)';
+    if (frameworks.includes('Next.js')) return 'Full-stack React app / Next.js project';
+    if (frameworks.includes('Angular')) return 'Angular application';
+    if (frameworks.includes('Vue')) return 'Vue application';
+    if (frameworks.includes('React') && frameworks.includes('Vite')) return 'React + Vite application';
+    if (frameworks.includes('React')) return 'React application';
+    if (frameworks.includes('Svelte')) return 'Svelte application';
+    if (lowerNames.some(n => n.includes('package.json')) && htmlFiles.length && jsFiles.length) return 'JavaScript web project';
+    if (htmlFiles.length && !jsFiles.length) return 'Static HTML site';
+    if (lowerNames.some(n => /(^|\/)app\.py$/.test(n) || /(^|\/)main\.py$/.test(n))) return 'Python application';
+    return 'Generic workspace archive';
+  }
+
+  function structureNotes(lowerNames, frameworks, htmlFiles, jsFiles) {
+    const notes = [];
+    if (lowerNames.some(n => n.startsWith('src/'))) notes.push('Contains source folder');
+    if (lowerNames.some(n => n.startsWith('dist/') || n.startsWith('build/') || n.startsWith('out/'))) notes.push('Contains build/export output');
+    if (lowerNames.some(n => n.startsWith('public/') || n.startsWith('assets/') || n.startsWith('frontend/'))) notes.push('Contains static/frontend asset folder');
+    if (frameworks.length && !lowerNames.some(n => n.startsWith('dist/') || n.startsWith('build/') || n.startsWith('out/'))) notes.push('May be source-only project; offline opening may fail without building first');
+    if (htmlFiles.length && jsFiles.length) notes.push('HTML depends on JavaScript assets');
+    if (!htmlFiles.length && jsFiles.length) notes.push('No standalone HTML entry detected; may require dev/build tooling');
+    if (frameworks.includes('Wails')) notes.push('Desktop wrapper project; preview/export best effort focuses on embedded web frontend');
+    return notes;
+  }
+
+  function summarizeTopFolders(names) {
+    const counts = {};
+    for (const n of names) {
+      const first = n.split('/')[0] || '(root)';
+      counts[first] = (counts[first] || 0) + 1;
+    }
+    return Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0,10);
+  }
+
+  function renderStructureCard(info) {
+    if (info.error) return `<div class="card audit-bad" style="margin-bottom:12px"><strong>${escapeHtml(info.fileName)}</strong><div class="danger small">${escapeHtml(info.error)}</div></div>`;
+    return `
+      <div class="card" style="margin-bottom:12px">
+        <h3>${escapeHtml(info.fileName)}</h3>
+        <div class="tagrow" style="margin-bottom:10px">
+          <button type="button" onclick="previewStructureEntryByName('${escapeJs(info.fileName)}')">View likely entry</button>
+          <button type="button" onclick="exportStructureEntryByName('${escapeJs(info.fileName)}')">Download repaired HTML</button>
+          <button type="button" onclick="auditStructureEntryByName('${escapeJs(info.fileName)}')">Audit likely entry</button>
+        </div>
+        <table>
+          <tr><th>Classification</th><td>${escapeHtml(info.classification)}</td></tr>
+          <tr><th>Ecosystem</th><td>${escapeHtml(info.ecosystem)}</td></tr>
+          <tr><th>Frameworks</th><td>${info.frameworks.length ? info.frameworks.map(escapeHtml).join(', ') : '<span class="muted">None detected</span>'}</td></tr>
+          <tr><th>Likely entry points</th><td>${info.entryPoints.length ? info.entryPoints.map(escapeHtml).join('<br>') : '<span class="muted">None detected</span>'}</td></tr>
+          <tr><th>Arena/agent/file-id hints</th><td>${info.agentHints.length ? info.agentHints.map(escapeHtml).join('<br>') : '<span class="muted">No obvious metadata detected</span>'}</td></tr>
+          <tr><th>File-id matches</th><td>${info.fileIds.length ? info.fileIds.map(escapeHtml).join('<br>') : '<span class="muted">No file-id style manifests detected</span>'}</td></tr>
+          <tr><th>Counts</th><td>${info.fileCount} files; HTML ${info.htmlCount}, JS/TS ${info.jsCount}, CSS ${info.cssCount}, images ${info.imageCount}</td></tr>
+          <tr><th>Top folders</th><td>${info.folders.map(([name,count]) => `${escapeHtml(name)} (${count})`).join('<br>')}</td></tr>
+          <tr><th>Notes</th><td>${info.notes.length ? info.notes.map(escapeHtml).join('<br>') : '<span class="muted">No extra notes</span>'}</td></tr>
+        </table>
+      </div>
+    `;
+  }
+
+  function analyzeHtml(html) {
+    const refs = [...html.matchAll(/(?:src|href)=['"]([^'"]+)['"]/gi)].map(m => m[1]);
+    const external = refs.filter(r => /^(https?:)?\/\//i.test(r));
+    const absolute = refs.filter(r => /^\//.test(r));
+    const moduleScripts = (html.match(/<script[^>]*type=['"]module['"]/gi) || []).length;
+    return { external, absolute, moduleScripts };
+  }
+
+  function buildZipHtmlDocument(file, htmlText, inlineAssets) {
+    const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+    const candidates = [...doc.querySelectorAll('[src],[href]')];
+    let mappedCount = 0;
+    for (const el of candidates) {
+      for (const attr of ['src','href']) {
+        const val = el.getAttribute(attr);
+        if (!val || /^(https?:)?\/\//i.test(val) || val.startsWith('data:') || val.startsWith('javascript:') || val.startsWith('#') || val.startsWith('mailto:') || val.startsWith('tel:')) continue;
+        const target = resolveZipPath(file.name, val);
+        const found = state.files.find(f => !f.directory && f.zipName === file.zipName && normalizePath(f.name) === target);
+        if (found && found.bytes) {
+          const mime = mimeType(extName(found.name));
+          const replacement = inlineAssets ? bytesToDataUrl(found.bytes, mime) : URL.createObjectURL(new Blob([found.bytes], { type: mime }));
+          el.setAttribute(attr, replacement);
+          mappedCount++;
+        }
+      }
+    }
+    const finalHtml = '<!DOCTYPE html><html><head><meta charset="utf-8">' + (doc.head ? doc.head.innerHTML : '') + '</head><body>' + (doc.body ? doc.body.innerHTML : doc.documentElement.innerHTML) + '</body></html>';
+    return { html: finalHtml, mappedCount };
+  }
+
+  function bytesToDataUrl(bytes, mime) {
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+    return `data:${mime};base64,${btoa(binary)}`;
+  }
+
+  function resolveZipPath(fromPath, rel) {
+    const clean = rel.split('#')[0].split('?')[0];
+    if (clean.startsWith('/')) return normalizePath(clean.slice(1));
+    const baseParts = fromPath.split('/');
+    baseParts.pop();
+    for (const part of clean.split('/')) {
+      if (!part || part === '.') continue;
+      if (part === '..') baseParts.pop();
+      else baseParts.push(part);
+    }
+    return normalizePath(baseParts.join('/'));
+  }
+
+  function normalizePath(p) {
+    const out = [];
+    for (const part of String(p).replace(/^\/+/, '').split('/')) {
+      if (!part || part === '.') continue;
+      if (part === '..') out.pop(); else out.push(part);
+    }
+    return out.join('/');
+  }
+
+  function previewDetectedEntry() {
+    const structure = state.structures.find(s => !s.error && s.entryPoints && s.entryPoints.length) || state.structures.find(s => !s.error);
+    if (!structure) {
+      viewer.innerHTML = '<p class="muted">Load a ZIP first.</p>';
+      return;
+    }
+    previewStructureEntryByName(structure.fileName);
+  }
+
+  function previewStructureEntryByName(zipName) {
+    const structure = state.structures.find(s => s.fileName === zipName);
+    if (!structure) return;
+    const candidate = findBestPreviewEntry(structure);
+    if (!candidate) {
+      viewer.innerHTML = `<p class="warn">No previewable likely entry found for ${escapeHtml(zipName)}.</p>`;
+      selectedPath.textContent = 'Preview likely entry';
+      return;
+    }
+    openFile(candidate);
+  }
+
+  function exportStructureEntryByName(zipName) {
+    const structure = state.structures.find(s => s.fileName === zipName);
+    if (!structure) return;
+    const candidate = findBestPreviewEntry(structure);
+    if (!candidate) {
+      viewer.innerHTML = `<p class="warn">No exportable HTML entry found for ${escapeHtml(zipName)}.</p>`;
+      selectedPath.textContent = 'Download repaired HTML';
+      return;
+    }
+    downloadRepairedExport(candidate);
+  }
+
+  function auditStructureEntryByName(zipName) {
+    const structure = state.structures.find(s => s.fileName === zipName);
+    if (!structure) return;
+    const candidate = findBestPreviewEntry(structure);
+    if (!candidate) {
+      viewer.innerHTML = `<p class="warn">No auditable HTML entry found for ${escapeHtml(zipName)}.</p>`;
+      selectedPath.textContent = 'HTML5 audit';
+      return;
+    }
+    openAuditFile(candidate.zipName, candidate.name);
+  }
+
+  function openAuditFile(zipName, name) {
+    const file = state.files.find(f => f.zipName === zipName && f.name === name);
+    if (!file) return;
+    const htmlText = strFromU8(file.bytes || new U8());
+    const audit = auditHtml5(file, htmlText);
+    const linked = buildZipHtmlDocument(file, htmlText, false);
+    viewer.innerHTML = `
+      <h2>HTML5 audit result</h2>
+      <div class="summary">
+        <div class="card"><strong>File</strong><div class="small muted">${escapeHtml(zipName)} / ${escapeHtml(name)}</div></div>
+        <div class="card"><strong>Score</strong><div class="small ${audit.score >= 80 ? 'ok' : audit.score >= 50 ? 'warn' : 'danger'}">${audit.score}/100</div></div>
+        <div class="card"><strong>Inlineable assets</strong><div class="small muted">${countInlineableAssets(file, htmlText)}</div></div>
+      </div>
+      ${renderAuditDetails(audit)}
+      <div class="section tagrow">
+        <button type="button" onclick="downloadAuditFile('${escapeJs(zipName)}','${escapeJs(name)}')">Download repaired HTML</button>
+        <button type="button" onclick="openPreviewFile('${escapeJs(zipName)}','${escapeJs(name)}')">Preview file</button>
+      </div>
+      <div class="section"><iframe class="preview" sandbox="allow-scripts" srcdoc="${escapeAttr(linked.html)}"></iframe></div>
+    `;
+    selectedPath.textContent = 'HTML5 audit result';
+  }
+
+  function downloadAuditFile(zipName, name) {
+    const file = state.files.find(f => f.zipName === zipName && f.name === name);
+    if (file) downloadRepairedExport(file);
+  }
+
+  function openPreviewFile(zipName, name) {
+    const file = state.files.find(f => f.zipName === zipName && f.name === name);
+    if (file) openFile(file);
+  }
+
+  function findBestPreviewEntry(structure) {
+    return (structure.entryPoints || []).map(ep => state.files.find(f => f.zipName === structure.fileName && f.name === ep)).find(f => f && /\.(html?|xhtml)$/i.test(f.name))
+      || state.files.find(f => f.zipName === structure.fileName && /(^|\/)index\.html$/i.test(f.name))
+      || (structure.entryPoints || []).map(ep => state.files.find(f => f.zipName === structure.fileName && f.name === ep)).find(Boolean);
+  }
+
+  function renderBinaryIdentification(f) {
+    const info = identifyBinaryType(f);
+    viewer.innerHTML = `
+      <h3>Binary file identification</h3>
+      <p class="small muted">Local HTML5 inspection based on extension, path pattern, and magic bytes where possible.</p>
+      <table>
+        <tr><th>ZIP</th><td>${escapeHtml(f.zipName)}</td></tr>
+        <tr><th>Path</th><td>${escapeHtml(f.name)}</td></tr>
+        <tr><th>Detected type</th><td>${escapeHtml(info.type)}</td></tr>
+        <tr><th>Confidence</th><td>${escapeHtml(info.confidence)}</td></tr>
+        <tr><th>Reason</th><td>${escapeHtml(info.reason)}</td></tr>
+        <tr><th>Compression</th><td>${escapeHtml(String(f.method))}</td></tr>
+        <tr><th>Size</th><td>${escapeHtml(String(f.uncompressedSize || (f.bytes?.length ?? 0)))} bytes</td></tr>
+      </table>
+    `;
+  }
+
+  function identifyBinaryType(file) {
+    const ext = extName(file.name);
+    const bytes = file.bytes || new U8();
+    const sig = [...bytes.slice(0, 12)].map(b => b.toString(16).padStart(2,'0')).join(' ');
+    if (ext === 'png' || sig.startsWith('89 50 4e 47')) return { type: 'PNG image', confidence: 'high', reason: 'PNG signature/magic bytes' };
+    if (['jpg','jpeg'].includes(ext) || sig.startsWith('ff d8 ff')) return { type: 'JPEG image', confidence: 'high', reason: 'JPEG signature/magic bytes' };
+    if (ext === 'gif' || sig.startsWith('47 49 46 38')) return { type: 'GIF image', confidence: 'high', reason: 'GIF signature/magic bytes' };
+    if (ext === 'pdf' || sig.startsWith('25 50 44 46')) return { type: 'PDF document', confidence: 'high', reason: 'PDF signature/magic bytes' };
+    if (ext === 'wasm' || sig.startsWith('00 61 73 6d')) return { type: 'WebAssembly module', confidence: 'high', reason: 'WASM signature/magic bytes' };
+    if (ext === 'zip' || sig.startsWith('50 4b 03 04')) return { type: 'ZIP archive', confidence: 'high', reason: 'ZIP signature/magic bytes' };
+    if (ext === 'exe' || sig.startsWith('4d 5a')) return { type: 'Windows executable', confidence: 'high', reason: 'MZ executable signature' };
+    return { type: ext ? (ext.toUpperCase() + ' file') : 'Unknown binary file', confidence: 'low', reason: ext ? 'Extension-based guess' : 'No known extension or signature detected' };
+  }
+
+  function formatJson(text) { try { return JSON.stringify(JSON.parse(text), null, 2); } catch { return text; } }
+  function makeExportName(path) { return baseName(path).replace(/\.(html?|xhtml)$/i, '') + '.offline.repaired.html'; }
+  function safeText(file) { try { return strFromU8(file.bytes || new U8()); } catch { return ''; } }
+  function extName(path) { const i = path.lastIndexOf('.'); return i >= 0 ? path.slice(i+1).toLowerCase() : ''; }
+  function baseName(path) { return path.split('/').pop(); }
+  function mimeType(ext) {
+    return ({ txt:'text/plain', md:'text/markdown', html:'text/html', htm:'text/html', css:'text/css', js:'text/javascript', mjs:'text/javascript', json:'application/json', xml:'application/xml', svg:'image/svg+xml', png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', bmp:'image/bmp', pdf:'application/pdf', wasm:'application/wasm' })[ext] || 'application/octet-stream';
+  }
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function escapeAttr(s) { return escapeHtml(s).replace(/`/g, '&#96;'); }
+  function escapeJs(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  </script>
+</body>
+</html>
