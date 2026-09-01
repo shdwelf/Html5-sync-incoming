@@ -9,7 +9,9 @@
     --bg:#1c1c1e; --panel:#232326; --panel2:#2a2a2e; --line:#3a3a3f;
     --fg:#dcdcdc; --muted:#9a9a9e; --accent:#c39df3; --accent2:#7b5ea7;
     --green:#5ce4a0; --red:#ff6b6b; --inputbg:#17171a;
+    --hdr1:#2a1b46; --hdr2:#232326;
   }
+  #zen-chip{font-size:11px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;}
   body{
@@ -18,7 +20,7 @@
   }
   header{
     display:flex; align-items:center; gap:16px; padding:8px 14px;
-    background:linear-gradient(90deg,#2a1b46,#232326 40%);
+    background:linear-gradient(90deg,var(--hdr1),var(--hdr2) 40%);
     border-bottom:1px solid var(--line); flex-wrap:wrap;
   }
   header .brand{font-size:20px;font-weight:700;letter-spacing:1px;color:#fff;}
@@ -73,7 +75,7 @@
   #ioarea{flex:1;display:flex;flex-direction:column;min-height:0;}
   .io-wrap{flex:1;display:flex;flex-direction:column;min-height:0;}
   textarea{
-    flex:1;resize:none;background:var(--inputbg);color:#e8e8e8;border:none;outline:none;
+    flex:1;resize:none;background:var(--inputbg);color:var(--fg);border:none;outline:none;
     font-family:"Consolas","Menlo","Courier New",monospace;font-size:13px;padding:12px;
   }
   #out-error{display:none;background:#2a0f0f;color:var(--red);padding:8px 12px;font-family:monospace;font-size:13px;border-top:1px solid var(--red);white-space:pre-wrap;}
@@ -112,12 +114,12 @@
 
 <header>
   <button id="btn-hamburger" title="Toggle operations panel">☰</button><div class="brand">Cyber<span>Chef</span></div>
-  <div class="sub">HTML5 · 311 recipes · Covenant, HVD, broker buying &amp; more</div>
+  <div class="sub">HTML5 · 319 recipes · 1-needle, 2-needle, flags &amp; more</div>
   <div class="spacer"></div>
   <button class="btn" id="btn-clear">Clear Recipe</button>
   <button class="btn" id="btn-load-examples">Load Examples</button>
   <button class="btn" id="btn-reset-demo">Reset Input</button>
-  <button class="btn" id="btn-share-recipe" title="Share current recipe via WebXDC">Share Recipe</button><button class="btn" id="btn-quine" title="Download this page as a standalone HTML file">Download Self</button><button class="btn" id="btn-sfx" title="SFX installer: pick recipe packs to bake into a kitchen">SFX Installer</button><button id="bake">BAKE</button>
+  <button class="btn" id="btn-share-recipe" title="Share current recipe via WebXDC">Share Recipe</button><button class="btn" id="btn-quine" title="Download this page as a standalone HTML file">Download Self</button><button class="btn" id="btn-sfx" title="SFX installer: pick recipe packs to bake into a kitchen">SFX Installer</button><button class="btn" id="btn-zen" title="Roll one of 50 inlined CSS Zen Garden palettes (no external sheets)">Garden Dice</button><span id="zen-chip" title="Current Garden palette">Garden · kitchen default</span><button id="bake">BAKE</button>
 </header>
 
 <main>
@@ -2128,6 +2130,14 @@ const RECIPE_PACKS={
  'GCWizard Ice Codes / Intergalactic':[['gcwIceGalactic',{}],['gcwHexahue',{}]],
  'GCWizard Illuminati / KarTrak ACI':[['gcwIllumKartrak',{}],['gcwIceGalactic',{}]],
  'GCWizard Covenant / HVD':[['gcwCovHvd',{}],['gcwIllumKartrak',{}]],
+ 'GCWizard Mary Stuart / Babington':[['gcwMaryStuart',{}],['gcwCovHvd',{}]],
+ 'GCWizard Maze / Oak Island / Prussian Colorcode':[['gcwMazeOakPruss',{}],['gcwMaryStuart',{}]],
+ 'GCWizard Robots / San Luca / Scream':[['gcwRobotsLucaScream',{}],['gcwMazeOakPruss',{}]],
+ 'GCWizard Slash and Pipe / TLL':[['gcwSlashTll',{}],['gcwRobotsLucaScream',{}]],
+ 'GCWizard Blue Monday / 5-Needle':[['gcwBlueChainWheat',{}],['gcwSlashTll',{}]],
+ 'GCWizard Fiber / Solmization / Four triangles':[['gcwSolmFiber',{}],['gcwBlueChainWheat',{}]],
+ 'GCWizard Card code / Stippelcode':[['gcwCardStippel',{}],['gcwSolmFiber',{}]],
+ 'GCWizard 1-needle / 2-needle / Country flags':[['gcwNeedleFlags',{}],['gcwCardStippel',{}]],
  'Encrypt & MAC (ChaCha20-Poly1305 style)':[['sha3_256',{}],['poly1305',{}]],
  'Sign & Verify (Ed25519)':[['ed25519',{}]],
  'Hash a file (SHA-256)':[['sha256',{}]],
@@ -10684,7 +10694,7 @@ const SYM_PERIODIC={A:'Ac',B:'B',C:'C',D:'Dy',E:'Er',F:'F',G:'Ga',H:'H',I:'I',J:
 const SYM_HEXAHUE={A:'R',B:'G',C:'B',D:'C',E:'M',F:'Y',G:'r',H:'g',I:'b',J:'c',K:'m',L:'y',M:'K',N:'W',O:'RR',P:'GG',Q:'BB',R:'CC',S:'MM',T:'YY',U:'kk',V:'ww',W:'RG',X:'GB',Y:'BC',Z:'CM'};
 const SYM_CELESTIAL={A:'☉',B:'☽',C:'☿',D:'♀',E:'♁',F:'♂',G:'♃',H:'♄',I:'♅',J:'♆',K:'♇',L:'♈',M:'♉',N:'♊',O:'♋',P:'♌',Q:'♍',R:'♎',S:'♏',T:'♐',U:'♑',V:'♒',W:'♓',X:'☊',Y:'☋',Z:'⋆'};
 const SYM_FLAGS2={A:'🇦',B:'🇧',C:'🇨',D:'🇩',E:'🇪',F:'🇫',G:'🇬',H:'🇭',I:'🇮',J:'🇯',K:'🇰',L:'🇱',M:'🇲',N:'🇳',O:'🇴',P:'🇵',Q:'🇶',R:'🇷',S:'🇸',T:'🇹',U:'🇺',V:'🇻',W:'🇼',X:'🇽',Y:'🇾',Z:'🇿'};
-const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD.';
+const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD · Mary Stuart · Babington · Castelnau · Maze · Oak Island · Prussian Army Colorcode · Robots · San Luca · Scream Cipher · Slash and Pipe · TLL · Blue Monday · Chain of Death · Cooke-Wheatstone · Solmization · Four triangles · Fiber IEC 60304 · Card code · Stippelcode · Cooke-Wheatstone 1-needle · Cooke-Wheatstone 2-needle · Country flags.';
 
 function hashSearch(mask, targetHex, algo, ranges, maxN){
   maxN=Math.min(maxN||20000, 200000);
@@ -13169,7 +13179,357 @@ const ROBINSON_BOOK={
   SACRAMENT:'How much shall we buy?',
   SACRED:'Shall we buy more?',
   SACREDLY:'Name the highest price you will pay, and if we can do better will give you the benefit',
-  SADDLE:'Is your order to buy still in force?'
+  SADDLE:'Is your order to buy still in force?',
+  SALIVATE:'Sell immediately',
+  SALIVATED:'Sell as soon as possible',
+  SALMON:'Sell on opening of the market',
+  SALOON:'Sell at about ____',
+  SALUTARY:'Sell at not under ____',
+  SALUTATION:'Sell in store',
+  SALUTE:'Sell afloat',
+  SALUTING:'Sell aboard cars',
+  SALVAGE:"Sell buyer's option",
+  SALVATION:"Sell seller's option",
+  SALVER:'Sell at not under quotations in letter',
+  SANCTITY:'Sell out my long',
+  SANDAL:'Sell if no material change',
+  SANDWICH:'Sell if you cannot ship immediately',
+  SANDY:'Sell if you can without loss; otherwise, ship',
+  SANGUINE:'Sell at a clear profit of ____',
+  SANITARY:'Sell when a profit can be had over all charges',
+  SAPLING:'Sell when prices have advanced to ____',
+  SARCASM:'Sell subject to inspection',
+  SARCASTIC:'Sell at cost or a small loss',
+  SARDONIC:'Sell on the best terms',
+  SATAN:'Sell for immediate delivery',
+  SATANIC:'Sell at best offer',
+  SATELITE:'Sell to-day at the best price you can get',
+  SATIRE:'Sell according to your judgment',
+  SATISFIED:'Sell out when you can without loss including all charges',
+  SATISFY:'Sell on present excitement at best prices you can get',
+  SATURN:'Sell part if you cannot sell all',
+  SAUCE:'Sell for account of ____',
+  SAUSAGE:'Sell for my account',
+  SAVAGE:'Sell at ____  freights to fee equal to Chicago rates',
+  SAVAGELY:'Keep on selling',
+  SAVANT:'Keep on selling; how much have you sold?',
+  SAXON:'If you cannot sell all to-day, sell the balance to-morrow',
+  SCABBARD:'Sell ____  order in force to-day only',
+  SCAFFOLD:'Sell ____  order in force until countermanded',
+  SCALD:'Can you sell?',
+  SCALDED:'Can you sell afloat?',
+  SCALDING:'Can you sell to arrive?',
+  SCAMPER:'Can you sell freely?',
+  SCANTLING:'Can you sell for future delivery?',
+  SCARF:'Can you sell for immediate delivery?',
+  SCARLET:'Can you sell for future higher than for present delivery?',
+  SCEPTER:'Can you sell at a profit?',
+  SCHOLAR:'Can you sell without loss?',
+  SCHOLARLY:'Can you sell aboard cars?',
+  SCHOOL:'Can you sell at ____  freights being equal to Chicago rates?',
+  SCHOOLING:'At what price can you sell?',
+  SCRUPULOUS:"Don't sell at under ____",
+  SCULPTOR:"Don't sell to arrive",
+  SEASON:'Have sold',
+  SEASONED:'Have sold in store',
+  SEASONING:'Have sold afloat',
+  SECLUDE:'Have sold at your limits',
+  SECLUDING:'Have sold to arrive',
+  SECLUSION:'Have sold for your account',
+  SECTION:'Have sold for account of ____',
+  SECURE:'Have sold for immediate delivery',
+  SECURELY:"Have sold seller's option",
+  SEDATE:"Have sold buyer's option",
+  SEDATELY:'Have sold subject to inspection',
+  SEDATIVE:'Have sold at ____ freight to be equal to Chicago rates',
+  SEEDLING:'Have sold aboard cars',
+  SEEMLY:'We are selling slowly',
+  SEGMENT:'Had sold before your despatch reached us',
+  SELDOM:'Had sold before your letter reached us',
+  SELECT:'Can sell',
+  SELECTED:'Can sell afloat',
+  SELECTING:'Can sell to arrive',
+  SELFISH:'Can sell freely',
+  SELFISHLY:'Can sell for future delivery',
+  SEMINAL:'Can sell for immediate delivery',
+  SEMINARY:'Can sell at ____',
+  SEMITONE:'Can sell in store',
+  SENATE:'Can sell for future higher than for present delivery',
+  SENATOR:'Can sell at ____ freights being equal to Chicago rates',
+  SENSATION:'Can sell for future delivery with ____ dollars margin',
+  SENSELESS:'We are offered ____, subject to your immediate reply by telegraph',
+  SENSIBLE:'Cannot sell',
+  SENSUAL:'Cannot sell afloat',
+  SENSUALLY:'Cannot sell to arrive',
+  SENTENCE:'Cannot sell freely',
+  SENTIMENT:'Cannot sell for future delivery',
+  SENTINEL:'Cannot sell at prices you name',
+  SENTRY:'Cannot sell for future higher than for present delivery',
+  SEPARATE:'Cannot sell at your limits',
+  SEPARATION:'Cannot sell at over ____',
+  SEQUEL:'Cannot sell now, but consider order open',
+  SEQUENCE:'Cannot sell for cash',
+  SERENADE:'Cannot sell except at a loss',
+  SERMON:'The best offer is ____',
+  SERPENT:'Difficult to sell much except at a decline',
+  SERPENTINE:'Have not sold',
+  SESSION:'Shall we sell?',
+  SETTLER:'Shall we sell more?',
+  SEVERE:'Expect to sell at your limits soon',
+  SEVERELY:'Will probably be able to sell',
+  SEXTANT:'We are trying to sell',
+  SEXTON:'Think we can sell',
+  SEXUAL:'Think we can sell at about ____',
+  SHABBY:'Might possibly sell at ____',
+  SHABBILY:'Name lowest price you will sell at, and if we can get more will give you the benefit thereof',
+  SHACKLE:'How much shall we sell?',
+  SHACKLING:'Is your order to sell still in force?',
+  SHARP:'We advance limits ____',
+  SHARPEN:'We reduce limits ____',
+  SHARPENED:'Consider order open until countermanded',
+  SHAVING:'Consider order open until to-morrow',
+  SHAWL:'Consider order open ____ days',
+  SHEAF:'Consider order open this week',
+  SHEARS:'All previous orders are hereby countermanded',
+  SHEATH:'This order is on the way by mail; do not execute it twice',
+  SHELF:'Prefer not to execute discretionary orders',
+  SHELL:'Please give positive instructions',
+  SHELTER:'Have executed your order',
+  SHELTERED:'Have you executed our order?',
+  SHEPHERD:'Is your order still open?',
+  SHIELD:'Will advise by mail for whose account this order is sent',
+  SHIELDED:'Whatever you do will be satisfactory',
+  SHIELDING:'Do not act on order contained in letter dated ____',
+  SHIFTLESS:'We confirm what has been done',
+  SHINE:'Do the best you can',
+  SHINING:'Every advance of ____',
+  SHINGLE:'Every decline of ____',
+  SHINGLING:'If market rallies to ____',
+  SHOCKED:'If market breaks to ____',
+  SHOCKING:'If you do not hear from us to the contrary',
+  SHORTEN:'Please send account purchase and sales and account current',
+  SHORTLY:'Think more orders can be obtained provided those you have are executed satisfactorily',
+  SHOULDER:'At what difference can you change our ____ to ____',
+  SHOVELED:'Can change your ____ to ____ at ____ cents difference',
+  SHOWER:'It is satisfactory',
+  SHOWING:'It is not satisfactory',
+  SHRIMP:'Is it satisfactory?',
+  SHRINK:'Can get ____ cents difference for changing your ____ to ____',
+  SHROUD:'Will follow instructions',
+  SHRUG:'Prefer not to act upon your judgment',
+  SHRUGGING:'Have done as you requested',
+  SHUDDER:'Cannot make the suggested arrangement',
+  SHUFFLE:'Have not sufficient data to form an opinion',
+  SHUFFLING:'In accordance with your instructions',
+  SHUN:'The best that could be done',
+  SHUNNED:'Have we authority to ____',
+  SHY:'Offer is under consideration',
+  SHYLY:'We refer you to our letter of ____',
+  SHYNESS:'We refer you to our despatch of ____',
+  SICKLE:'We consider all orders open until countermanded',
+  SICKLY:'Particulars by mail',
+  SICKNESS:'Documents go forward by mail',
+  SIDEBOARD:'We send account purchase, account sales and account current this day',
+  SIGH:'Subject to winter storage of four cents',
+  SIGHING:'Subject to your immediate reply by telegraph',
+  SIGHTLESS:'Will leave here ____',
+  SIGNAL:'No session of the Board to-morrow',
+  SIGNALLY:'Subject to inspection',
+  SIGNIFIED:'Send full explanations',
+  SKEPTIC:'Ship immediately',
+  SKETCH:'Ship as soon as possible',
+  SKETCHED:'Ship by ____',
+  SKETCHING:'Ship via ____',
+  SKILLFUL:'Ship by sail',
+  SKINFLINT:'Ship by steam',
+  SKIRMISH:'Ship by steam and rail',
+  SKIRMISHED:'Ship by all rail',
+  SKITTISH:'Ship by rail in bulk',
+  SKULK:'Ship by steam if not much difference in rates',
+  SLANDER:'Ship by sail in preference to steam',
+  SLANDERED:'Ship by the quickest route',
+  SLANG:'Ship by the cheapest route',
+  SLAUGHTER:'Ship by the route you think best',
+  SLAVER:'Ship by vessel that does not lighter through the Welland Canal',
+  SLAVISH:'Ship when you can engage freight at ____',
+  SLEDGE:'Ship if good prospect shipment getting through promptly',
+  SLEEPER:'Ship before any more extra storage accrues',
+  SLEEPING:'Ship before close of navigation',
+  SLEIGH:'Ship rather than store',
+  SLEIGHING:'Ship as before',
+  SLIDE:'Ship, getting time freight contract',
+  SLIDING:'Ship, getting time freight contract, if possible',
+  SLIGHT:'Ship, getting through freight contract',
+  SLIGHTLY:'Ship, getting through freight contract, if possible',
+  SLIPPER:'Complete cargo and ship at once',
+  SLIVER:'Hurry forward shipments',
+  SLOBBER:'Have written you shipping instructions',
+  SLOBBERED:'Will send shipping instructions by mail',
+  SLOTHFUL:'If you have not shipped hold for further instructions',
+  SLUGGARD:'Hold for lower freights',
+  SLUGGISH:'Hold for shipment on opening of navigation',
+  SLUMBER:'Stop shipping',
+  SMOLDER:'Can you ship immediately?',
+  SMOOTH:'Can you ship by ____?',
+  SMOOTHLY:'Can you ship via ____?',
+  SMOTHER:'Can you ship by rail in bulk?',
+  SMUGGLE:'Can you ship before freights advance?',
+  SMUGGLING:'Can you ship less than a full cargo?',
+  SMUTTY:'Can you get a time freight contract?',
+  SNATCH:'Can you get a through freight contract?',
+  SODA:'Quote lowest freights steam and rail to ____',
+  SOFTEN:'Quote lowest freights all rail to ____',
+  SOFTENED:'Quote lowest freights via ____',
+  SOFTLY:'Quote lowest freights by ____',
+  SOFTNESS:'Quote freight per 100 lbs. on Dressed Hogs to ____',
+  SOJOURN:'Quote time freight per 100 lbs. on Dressed Hogs to ____',
+  SOJOURNED:'Quote lowest freight per 100 lbs. to ____',
+  SOLACE:'Quote freight on 4th class per 100 lbs. to ____',
+  SOLAR:'Quote freight per bushel on Wheat to ____',
+  SOLDIER:'Quote freight per bushel on Corn to ____',
+  SOLDIERLY:'Quote freight per bushel on Oats to ____',
+  SOLEMN:'What is the rate of freight?',
+  SOURNESS:'Have shipped, getting through freight contract',
+  SOUTH:'Shipped yesterday',
+  SOUTHERN:'Shipped to-day',
+  SPA:'Shipping to-day',
+  SPACE:'We are shipping',
+  SPANGLES:'Will ship immediately',
+  SPANIEL:'Will ship as soon as possible',
+  SPANISH:'Will ship as directed',
+  SPANKER:'Expect to ship to-morrow',
+  SPARKLE:'Expect to ship in a few days',
+  SPARKLING:'Expect to ship this week',
+  SPARTAN:'Have engaged freight',
+  SPASM:'Have chartered to arrive',
+  SPASMODIC:'Have been delayed in shipping by unfavorable weather',
+  SPAWN:'Have been delayed in shipping by scarcity of cars',
+  SPAWNED:'Will ship as soon as can engage freight',
+  SPAWNING:'Will ship as soon as can procure cars',
+  SPEAK:'Shall we ship exactly the quantity ordered, or as near it as we can?',
+  SPEAKER:'This is the nearest sized vessel we could get',
+  SPEAKING:'Please give shipping instructions',
+  SPECIAL:'Can ship immediately',
+  SPECIFIC:'Can ship by ____',
+  SPECIMEN:'Can ship via ____',
+  SPECTACLE:'Can ship by rail in bulk',
+  SPECTATOR:'Can ship before freights advance',
+  SPEECH:'Can ship less than a full cargo',
+  SPEECHLESS:'Can get a time freight contract',
+  SPEEDY:'Can get a through freight contract',
+  SPEEDILY:'Can ship before close of navigation',
+  SPEND:'Can ship by steam same rate as by sail',
+  SPENDING:'Can charter to arrive at ____',
+  SPHINX:'The difference between steam and sail rates is ____',
+  SPIDER:'Can engage freight',
+  SPIGOT:'Cannot ship immediately',
+  SPIKE:'Cannot ship at present, but will as soon as possible',
+  SPINAGE:'Cannot ship by ____',
+  SPINAL:'Cannot ship via ____',
+  SPINDLE:'Cannot ship by rail in bulk',
+  SPINDLING:'Cannot ship before freights advance',
+  SPINSTER:'Cannot ship less than a full cargo',
+  SPIRIT:'Cannot ship before close of navigation',
+  SPITEFUL:'Cannot ship by vessel that does not lighter through the Welland Canal',
+  SPITEFULLY:'Cannot ship as before',
+  SPITTLE:'Cannot get a time freight contract',
+  SPITTOON:'Cannot get a through freight contract',
+  SPLASH:'Time guaranteed',
+  SPLASHED:'The prospect for shipments getting through promptly is favorable',
+  SPLASHING:'The prospect for shipments getting through promptly is unfavorable',
+  SPLEEN:'No suitable vessels now offering',
+  SPLENDID:'Very few vessels now offering',
+  SPLENDOR:'No grain vessel in port unengaged',
+  SPLINT:'Vessels are scarce and firmly held',
+  SPLINTER:'Vessels are more plenty',
+  SPLUTTER:'Vessels are plenty',
+  SPOIL:'Quite a fleet expected with the next change of wind',
+  SPOKEN:'The recent difficulty in regard to shipping no longer exists',
+  SPONGE:'Freights tending upward',
+  SPONGING:'Freights steady and firm',
+  SPORTFUL:'Freights unchanged',
+  SPOTLESS:'Freights tending downward',
+  SPRAIN:'Freights dull',
+  SPRAINED:'Prospect of freights advancing soon',
+  SPRAWL:'Expect an advance in freights next week',
+  SPRAWLING:'Lake freights have advanced',
+  SPRAY:'Rail freights have advanced',
+  SPREAD:'Prospect of freights declining soon',
+  SPREADING:'Expect a decline in freights next week',
+  SPRIGHTLY:'Lake freights have declined',
+  SPRINKLE:'Rail freights have declined',
+  SQUALID:'We bid you.',
+  SQUALIDLY:'We bid you net track Chicago.',
+  SQUANDERED:'We bid you net track Chicago local rate freight.',
+  SQUASHING:'We bid you net your track.',
+  SQUATTER:'We bid you net track ____',
+  SQUAW:'We bid you Miss. River basis.',
+  SQUELCH:'We bid you ____ f. o. b. Miss. River basis.',
+  SQUELCHED:'We quote present market track Chicago.',
+  SQUELCHING:'Quote us present market track Chicago.',
+  SQUIRMED:'We accept your bid.',
+  SQUIRMING:'We accept your bid of ____ net track Chicago.',
+  STABBED:'We accept your bid of ____ net track Chicago, local rate freight.',
+  STAGGER:'We accept your bid of ____ net our track.',
+  STAGGERED:'We accept your bid of ____ net track.',
+  STAGING:'We accept your bid of ____ Miss. Rive basis.',
+  STAGNANTLY:'We accept your bid of ____ f. o. b. Miss. River basis.',
+  STAGNATION:'We accept your offer and confirm purchase subject to immediate acceptance by wire.',
+  STAKES:'We can net you ____',
+  STALK:'Purchases subject to market difference on day of arrival if other than grade purchased.',
+  STALKED:'Reply must reach us by 11 A. M. to-day.',
+  STAMMERED:'Reply must reach us by 9:30 A. M. to-morrow.',
+  STAMMERING:'Reply must reach us by 10 A. M. to-morrow.',
+  STAMP:'Reply must reach us by ____ to-day.',
+  STAMPED:'Reply must reach us by ____ to-morrow.',
+  STAMPING:'Reply must reach us by opening next business day.',
+  STARBOARD:'No bid obtainable to arrive.',
+  STATISTICS:'Cannot sell without sample.',
+  STATUETTE:'Prompt acceptance can sell to arrive.',
+  STATUTES:'Do utmost to get acceptance but if unworkable make lowest offer.',
+  STAUNCH:'Unable to execute limited order, market barely touched your price.',
+  STEMMED:'Does your last order cancel previous orders?',
+  STIMULANT:'Not much inquiry for ____',
+  STIMULATE:'There is a great scarcity of ____',
+  STIMULUS:'Please send necessary papers at once.',
+  STINTED:'Road says will furnish empty cars promptly.',
+  STINTING:'Road says cannot furnish empty cars promptly.',
+  STIPULATE:'Ship to our order New York care South Chicago via E. J. & E. Ry. shipment Lake and Rail for export.',
+  STIRRING:'Ship to our order New York, notify us Chicago to be inspected and weighed Chicago, shipment Rail and Lake for export.',
+  STIRRUP:'Bill to our order New York via West Chicago E. J. & E. Ry. and South Chicago Lake and Rail for export care ____',
+  STITCH:'Bill to our order New York via South Chicago Lake and Rail for export care ____',
+  STITCHED:'Bill to our order New York, notify us Chicago to be inspected and weighed at Chicago.',
+  STITCHING:'Bill to our order New York via E. J. & E. Ry. South Chicago care ____',
+  STOOPING:'Bill to our order New York via E. J. & E. Ry. South Chicago shipment Rail and Lake care ____',
+  STOOPED:'Will you extend time on our shipment ____ days?',
+  STOPPER:'We extend time on your shipment ____ days.',
+  STORM:'Shipment Lake and Rail.',
+  STORMED:'Shipment Lake and Rail for export.',
+  STORMING:'Shipment Lake and Canal.',
+  STORMLESS:'Ship to our order Chicago.',
+  STOUTNESS:'Bill to our order Chicago.',
+  STOWAGE:'Bill to our order ____',
+  STOWING:'Ship to our order ____',
+  STRADDLE:'Shipment ____ days from your station.',
+  STRADDLED:'To load during winter in vessels.',
+  STRADDLING:'Canal rates including Buffalo charges.',
+  STRAIGHT:'Not to be held for inspection.',
+  STRAIGHTEN:'Chicago weights and inspection.',
+  STRATAGEM:'New York weights and inspection.',
+  STRATIFIED:'Buffalo weights and inspection.',
+  STRATUM:'Illinois weights and inspection.',
+  STREAK:'____ weights and inspection.',
+  STREAKED:'Chicago certificate of weight and inspection to be final.',
+  STREAMLET:'C. I. F. Kingston.',
+  STRIKING:'C. I. F. Buffalo.',
+  STRIP:'C. I. F. Erie.',
+  STRIPPED:"C. I. F. Buffalo or Erie buyer's option.",
+  STRIPPING:'C. I. F. Fairport.',
+  STRUTTED:'Buyer paying tolls.',
+  STRUTTING:'Seller paying tolls.',
+  SWITCHING:'Chicago, Alton & St. Louis Railroad.',
+  SWOONED:'Chicago, Rock Island & Pacific Railroad.',
+  TEAMSTER:'State Line.'
 };
 
 const E3_OFFICIAL=[
@@ -13234,7 +13594,7 @@ addOp('gcwColorCodes','ColorAdd / Honey / Tokki','GCWizard',
   }
 );
 addOp('gutenbergRobinsonBook','Robinson Cipher Book (PG #48232)','Codebooks',
-  'Larger working extract from Stephen L. Robinson, The Robinson Telegraphic Cipher (PG #48232): ABOUT BUYING broker (RIDDANCE Have bought, RIPPLING buyer option, ROULETTE Cannot buy). Blank SADDLING–SALINE rows left empty. Still a sample, not every page of the book.',
+  'Larger working extract from Stephen L. Robinson, The Robinson Telegraphic Cipher (PG #48232): BIDS plus railroad remainder (SWITCHING Chicago Alton and St. Louis, SWOONED Rock Island, TEAMSTER State Line). Blank lake/ocean rows stay empty. Still a sample, not every page of the book.',
   [
     {key:'mode',label:'Mode',type:'select',default:'decode',options:[['decode','Decode codeword → phrase'],['encode','Encode phrase → codeword'],['list','List this extract']]}
   ],
@@ -17084,6 +17444,663 @@ addOp('gcwCovHvd','Covenant / HVD','GCWizard',
   }
 );
 
+/* v1.51 leftover: Mary Stuart Babington / Castelnau */
+
+const BABINGTON={A:'BAB-A',B:'BAB-B',C:'BAB-C',D:'BAB-D',E:'BAB-E',F:'BAB-F',G:'BAB-G',H:'BAB-H',I:'BAB-I',K:'BAB-K',L:'BAB-L',M:'BAB-M',N:'BAB-N',O:'BAB-O',P:'BAB-P',Q:'BAB-Q',R:'BAB-R',S:'BAB-S',T:'BAB-T',U:'BAB-U',X:'BAB-X',Y:'BAB-Y',Z:'BAB-Z'};
+const CASTELNAU={A:'CAST-A',B:'CAST-B',C:'CAST-C',D:'CAST-D',E:'CAST-E',F:'CAST-F',G:'CAST-G',H:'CAST-H',I:'CAST-I',J:'CAST-J',K:'CAST-K',L:'CAST-L',M:'CAST-M',N:'CAST-N',O:'CAST-O',P:'CAST-P',Q:'CAST-Q',R:'CAST-R',S:'CAST-S',T:'CAST-T',U:'CAST-U',V:'CAST-V',W:'CAST-W',X:'CAST-X',Y:'CAST-Y',Z:'CAST-Z'};
+
+function babEnc(s){
+  const out=[];
+  for(const ch of String(s||'').toUpperCase()){
+    if(ch==='W'){ out.push('BAB-I','BAB-I'); continue; }
+    const c=ch==='J'?'I':ch==='V'?'U':ch;
+    if(BABINGTON[c]) out.push(BABINGTON[c]);
+  }
+  return out.join(' ');
+}
+
+addOp('gcwMaryStuart','Mary Stuart / Babington','GCWizard',
+  'Babington Plot nomenclator (1586): 23 letter symbols, J→I, V→U, W→II. HELLO → BAB-H BAB-E BAB-L BAB-L BAB-O. MARY → BAB-M BAB-A BAB-R BAB-Y. QUEEN → BAB-Q BAB-U BAB-E BAB-E BAB-N. Historical codewords/nulls/doubleth are not invented — glyphs not embedded (dCode image table). Castelnau is a leftover GCWizard image table (named tokens).',
+  [
+    {key:'table',label:'Table',type:'select',default:'babington',options:[['babington','Babington Plot (1586)'],['castelnau','Castelnau']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='castelnau'){
+      if(a.mode==='list'){
+        const lines=Object.keys(CASTELNAU).map(function(k){return k+'  '+CASTELNAU[k];});
+        return kitCard('Castelnau','named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(CASTELNAU, t||'');
+        return kitCard('Castelnau decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(CASTELNAU, t||'HELLO');
+      return kitCard('Castelnau encode','named tokens',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=['Babington 1586  23 letters  J→I  V→U  W→II  (no invented codewords)'];
+      Object.keys(BABINGTON).forEach(function(k){ lines.push(k+'  '+BABINGTON[k]); });
+      lines.push('MARY → BAB-M BAB-A BAB-R BAB-Y');
+      lines.push('QUEEN → BAB-Q BAB-U BAB-E BAB-E BAB-N');
+      return kitCard('Babington Plot','23-letter nomenclator',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(BABINGTON, t||'');
+      return kitCard('Babington decode','J=I V=U W=II',kitMono(out),out);
+    }
+    const out=babEnc(t||'HELLO');
+    return kitCard('Babington encode','23-letter fold',kitMono(out),out);
+  }
+);
+
+/* v1.52 leftover: Maze / Oak Island / Prussian Army Colorcode */
+
+const MAZE={A:'MAZE-A',B:'MAZE-B',C:'MAZE-C',D:'MAZE-D',E:'MAZE-E',F:'MAZE-F',G:'MAZE-G',H:'MAZE-H',I:'MAZE-I',J:'MAZE-J',K:'MAZE-K',L:'MAZE-L',M:'MAZE-M',N:'MAZE-N',O:'MAZE-O',P:'MAZE-P',Q:'MAZE-Q',R:'MAZE-R',S:'MAZE-S',T:'MAZE-T',U:'MAZE-U',V:'MAZE-V',W:'MAZE-W',X:'MAZE-X',Y:'MAZE-Y',Z:'MAZE-Z','0':'MAZE-0','1':'MAZE-1','2':'MAZE-2','3':'MAZE-3','4':'MAZE-4','5':'MAZE-5','6':'MAZE-6','7':'MAZE-7','8':'MAZE-8','9':'MAZE-9'};
+const OAKISL={A:'OAK-A',B:'OAK-B',C:'OAK-C',D:'OAK-D',E:'OAK-E',F:'OAK-F',G:'OAK-G',H:'OAK-H',I:'OAK-I',J:'OAK-J',K:'OAK-K',L:'OAK-L',M:'OAK-M',N:'OAK-N',O:'OAK-O',P:'OAK-P',Q:'OAK-Q',R:'OAK-R',S:'OAK-S',T:'OAK-T',U:'OAK-U',V:'OAK-V',W:'OAK-W',X:'OAK-X',Y:'OAK-Y',Z:'OAK-Z'};
+const PRUSSCOL={A:'PRUSS-A',B:'PRUSS-B',C:'PRUSS-C',D:'PRUSS-D',E:'PRUSS-E',F:'PRUSS-F',G:'PRUSS-G',H:'PRUSS-H',I:'PRUSS-I',J:'PRUSS-J',K:'PRUSS-K',L:'PRUSS-L',M:'PRUSS-M',N:'PRUSS-N',O:'PRUSS-O',P:'PRUSS-P',Q:'PRUSS-Q',R:'PRUSS-R',S:'PRUSS-S',T:'PRUSS-T',U:'PRUSS-U',V:'PRUSS-V',W:'PRUSS-W',X:'PRUSS-X',Y:'PRUSS-Y',Z:'PRUSS-Z'};
+
+addOp('gcwMazeOakPruss','Maze / Oak Island / Prussian Colorcode','GCWizard',
+  'Maze code (geocachen.be / GCWizard): leftover 1:1 labyrinth-tile alphabet A–Z plus Betamaze digits 0–9. HELLO → MAZE-H MAZE-E MAZE-L MAZE-L MAZE-O. Tile bitmaps not embedded. Oak Island: leftover image table; Kempton 90-foot-stone reading “FORTY FEET BELOW TWO MILLION POUNDS ARE BURIED” is a one-message substitution, not a published full A–Z — named tokens only. Prussian Army Colorcode is a leftover GCWizard image table (named tokens).',
+  [
+    {key:'table',label:'Table',type:'select',default:'maze',options:[['maze','Maze / Betamaze'],['oak','Oak Island'],['pruss','Prussian Army Colorcode']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    const maps={maze:MAZE,oak:OAKISL,pruss:PRUSSCOL};
+    const titles={maze:'Maze code',oak:'Oak Island',pruss:'Prussian Army Colorcode'};
+    const map=maps[a.table]||MAZE;
+    const title=titles[a.table]||'Maze code';
+    if(a.mode==='list'){
+      const lines=Object.keys(map).map(function(k){return k+'  '+map[k];});
+      if(a.table==='oak') lines.push('Kempton note  FORTY FEET BELOW TWO MILLION POUNDS ARE BURIED  (one-message; full A-Z unpublished)');
+      return kitCard(title,'named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(map, t||'');
+      return kitCard(title+' decode','named tokens',kitMono(out),out);
+    }
+    const out=symEnc(map, t||'HELLO');
+    return kitCard(title+' encode','named tokens',kitMono(out),out);
+  }
+);
+
+/* v1.53 leftover: Robots / San Luca / Scream (xkcd 3054) */
+
+const ROBOTS={A:'ROBOT-A',B:'ROBOT-B',C:'ROBOT-C',D:'ROBOT-D',E:'ROBOT-E',F:'ROBOT-F',G:'ROBOT-G',H:'ROBOT-H',I:'ROBOT-I',J:'ROBOT-J',K:'ROBOT-K',L:'ROBOT-L',M:'ROBOT-M',N:'ROBOT-N',O:'ROBOT-O',P:'ROBOT-P',Q:'ROBOT-Q',R:'ROBOT-R',S:'ROBOT-S',T:'ROBOT-T',U:'ROBOT-U',V:'ROBOT-V',W:'ROBOT-W',X:'ROBOT-X',Y:'ROBOT-Y',Z:'ROBOT-Z'};
+const SANLUCA={A:'LUCA-A',B:'LUCA-B',C:'LUCA-C',D:'LUCA-D',E:'LUCA-E',F:'LUCA-F',G:'LUCA-G',H:'LUCA-H',I:'LUCA-I',J:'LUCA-J',K:'LUCA-K',L:'LUCA-L',M:'LUCA-M',N:'LUCA-N',O:'LUCA-O',P:'LUCA-P',Q:'LUCA-Q',R:'LUCA-R',S:'LUCA-S',T:'LUCA-T',U:'LUCA-U',V:'LUCA-V',W:'LUCA-W',X:'LUCA-X',Y:'LUCA-Y',Z:'LUCA-Z'};
+const SCREAM={
+  A:'A',B:'\u0226',C:'A\u0327',D:'A\u0331',E:'\u00C1',F:'A\u032E',G:'A\u030B',
+  H:'A\u0330',I:'\u1EA2',J:'A\u0313',K:'\u1EA0',L:'\u0102',M:'\u01CD',N:'\u00C2',O:'\u00C5',
+  P:'A\u032F',Q:'A\u0324',R:'\u0202',S:'\u00C3',T:'\u0100',U:'\u00C4',V:'\u00C0',W:'\u0200',
+  X:'A\u033D',Y:'A\u0326',Z:'\u023A'
+};
+const SCREAM_REV=(function(){const r={}; Object.keys(SCREAM).forEach(function(k){r[SCREAM[k]]=k;}); return r;})();
+
+function screamEnc(s){
+  let out='';
+  for(const ch of String(s||'').toUpperCase()){
+    if(SCREAM[ch]) out+=SCREAM[ch];
+    else if(ch===' ') out+=' ';
+  }
+  return out;
+}
+function screamDec(s){
+  const t=String(s||'');
+  let i=0,out='';
+  while(i<t.length){
+    const two=t.slice(i,i+2);
+    if(SCREAM_REV[two]){ out+=SCREAM_REV[two]; i+=2; continue; }
+    const one=t.charAt(i);
+    if(SCREAM_REV[one]){ out+=SCREAM_REV[one]; i++; continue; }
+    if(one===' '){ out+=' '; i++; continue; }
+    i++;
+  }
+  return out;
+}
+
+addOp('gcwRobotsLucaScream','Robots / San Luca / Scream','GCWizard',
+  'xkcd 3054 Scream Cipher (Verified): every Latin letter is a unique capital-A diacritic. HELLO → A̰ÁĂĂÅ. SCREAM → ÃA̧ȂÁAǍ. Robots and San Luca (Ndrangheta notebook, 2015) are leftover GCWizard image tables (named tokens). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'scream',options:[['scream','Scream Cipher (xkcd 3054)'],['robots','Robots'],['sanluca','San Luca']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='robots'||a.table==='sanluca'){
+      const map=a.table==='robots'?ROBOTS:SANLUCA;
+      const title=a.table==='robots'?'Robots':'San Luca';
+      if(a.mode==='list'){
+        const lines=Object.keys(map).map(function(k){return k+'  '+map[k];});
+        return kitCard(title,'named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(map, t||'');
+        return kitCard(title+' decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(map, t||'HELLO');
+      return kitCard(title+' encode','named tokens',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(SCREAM).map(function(k){return k+'  '+SCREAM[k];});
+      lines.push('HELLO → '+screamEnc('HELLO'));
+      lines.push('SCREAM → '+screamEnc('SCREAM'));
+      return kitCard('Scream Cipher','xkcd 3054',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=screamDec(t||'');
+      return kitCard('Scream decode','xkcd 3054',kitMono(out),out);
+    }
+    const out=screamEnc(t||'HELLO');
+    return kitCard('Scream encode','xkcd 3054',kitMono(out),out);
+  }
+);
+
+/* v1.54 leftover: Slash & Pipe (CacheSleuth / Code of Claw) / TLL */
+
+const SLASHPIPE={
+  A:'|',B:'|\\',C:'||',D:'|/',E:'\\',F:'||\\',G:'|||',H:'\\\\',
+  I:'/',J:'|\\\\',K:'//||',L:'|\\/',M:'|\\|',N:'|/|',O:'||/|',
+  P:'|\\|\\',Q:'/\\',R:'\\/',S:'/|',T:'|//',U:'//',V:'||\\\\',
+  W:'\\/||',X:'||/',Y:'|||\\',Z:'||||'
+};
+const SLASHPIPE_REV=(function(){const r={}; Object.keys(SLASHPIPE).forEach(function(k){r[SLASHPIPE[k]]=k;}); return r;})();
+const TLL={A:'TLL-A',B:'TLL-B',C:'TLL-C',D:'TLL-D',E:'TLL-E',F:'TLL-F',G:'TLL-G',H:'TLL-H',I:'TLL-I',J:'TLL-J',K:'TLL-K',L:'TLL-L',M:'TLL-M',N:'TLL-N',O:'TLL-O',P:'TLL-P',Q:'TLL-Q',R:'TLL-R',S:'TLL-S',T:'TLL-T',U:'TLL-U',V:'TLL-V',W:'TLL-W',X:'TLL-X',Y:'TLL-Y',Z:'TLL-Z','0':'TLL-0','1':'TLL-1','2':'TLL-2','3':'TLL-3','4':'TLL-4','5':'TLL-5','6':'TLL-6','7':'TLL-7','8':'TLL-8','9':'TLL-9'};
+const GORE_FIXED='GORE';
+
+function goreShift(ch){
+  if(GORE_FIXED.indexOf(ch)>=0) return ch;
+  let c=ch.charCodeAt(0)-64;
+  for(;;){
+    c=c===26?1:c+1;
+    const n=String.fromCharCode(64+c);
+    if(GORE_FIXED.indexOf(n)<0) return n;
+  }
+}
+function goreUnshift(ch){
+  if(GORE_FIXED.indexOf(ch)>=0) return ch;
+  let c=ch.charCodeAt(0)-64;
+  for(;;){
+    c=c===1?26:c-1;
+    const n=String.fromCharCode(64+c);
+    if(GORE_FIXED.indexOf(n)<0) return n;
+  }
+}
+function spEnc(s, claw){
+  const out=[];
+  for(const ch of String(s||'').toUpperCase()){
+    if(!SLASHPIPE[ch]) continue;
+    const c=claw?goreShift(ch):ch;
+    out.push(SLASHPIPE[c]);
+  }
+  return out.join(' ');
+}
+function spDec(s, claw){
+  const toks=String(s||'').trim().split(/\s+/).filter(Boolean);
+  const letters=[];
+  for(const tok of toks){
+    const L=SLASHPIPE_REV[tok];
+    if(!L) continue;
+    letters.push(claw?goreUnshift(L):L);
+  }
+  return letters.join('');
+}
+
+addOp('gcwSlashTll','Slash & Pipe / TLL','GCWizard',
+  'Slash & Pipe (CacheSleuth / Gregor Transmission Tree): letters as groups of / \\ |. HELLO → \\\\ \\ |\\/ |\\/ ||/|. Code of Claw (dCode): G,O,R,E stay, other letters +1 skipping those four; RAT → RBU → \\/ |\\ //. TLL (GC Rogier / Team Lage Landen) is a leftover image table (named tokens).',
+  [
+    {key:'table',label:'Table',type:'select',default:'slashpipe',options:[['slashpipe','Slash & Pipe (tree)'],['claw','Code of Claw (GORE + tree)'],['tll','TLL']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='tll'){
+      if(a.mode==='list'){
+        const lines=Object.keys(TLL).map(function(k){return k+'  '+TLL[k];});
+        return kitCard('TLL','named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(TLL, t||'');
+        return kitCard('TLL decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(TLL, t||'HELLO');
+      return kitCard('TLL encode','named tokens',kitMono(out),out);
+    }
+    const claw=a.table==='claw';
+    const title=claw?'Code of Claw':'Slash & Pipe';
+    if(a.mode==='list'){
+      const lines=Object.keys(SLASHPIPE).map(function(k){return k+'  '+SLASHPIPE[k];});
+      if(claw) lines.unshift('GORE stay; others +1 skipping G,O,R,E. RAT → RBU → \\/ |\\ //');
+      else lines.unshift('HELLO → \\\\ \\ |\\/ |\\/ ||/|');
+      return kitCard(title,'CacheSleuth / dCode',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=spDec(t||'', claw);
+      return kitCard(title+' decode','Verified',kitMono(out),out);
+    }
+    const src=t||(claw?'RAT':'HELLO');
+    const out=spEnc(src, claw);
+    return kitCard(title+' encode','Verified',kitMono(out),out);
+  }
+);
+
+/* v1.55 leftover: Blue Monday / Chain of Death / Cooke-Wheatstone 5-needle */
+
+const NEEDLE5={
+  A:'/|||\\',B:'/||\\|',D:'|/||\\',E:'/|\\||',F:'|/|\\|',
+  G:'||/|\\',H:'/\\|||',I:'|/\\||',K:'||/\\|',L:'|||/\\',
+  M:'\\/|||',N:'|\\/||',O:'||\\/|',P:'|||\\/',R:'\\|/||',
+  S:'|\\|/|',T:'||\\|/',U:'\\||/|',W:'|\\||/',Y:'\\|||/'
+};
+const NEEDLE5_REV=(function(){const r={}; Object.keys(NEEDLE5).forEach(function(k){r[NEEDLE5[k]]=k;}); return r;})();
+const BLUEMON={A:'BM-A',B:'BM-B',C:'BM-C',D:'BM-D',E:'BM-E',F:'BM-F',G:'BM-G',H:'BM-H',I:'BM-I',J:'BM-J',K:'BM-K',L:'BM-L',M:'BM-M',N:'BM-N',O:'BM-O',P:'BM-P',Q:'BM-Q',R:'BM-R',S:'BM-S',T:'BM-T',U:'BM-U',V:'BM-V',W:'BM-W',X:'BM-X',Y:'BM-Y',Z:'BM-Z','1':'BM-A','2':'BM-B','3':'BM-C','4':'BM-D','5':'BM-E','6':'BM-F','7':'BM-G','8':'BM-H','9':'BM-I','0':'BM-J'};
+const CHAINDIR={A:'CHAIN-A',B:'CHAIN-B',C:'CHAIN-C',D:'CHAIN-D',E:'CHAIN-E',F:'CHAIN-F',G:'CHAIN-G',H:'CHAIN-H',I:'CHAIN-I',J:'CHAIN-J',K:'CHAIN-K',L:'CHAIN-L',M:'CHAIN-M',N:'CHAIN-N',O:'CHAIN-O',P:'CHAIN-P',Q:'CHAIN-Q',R:'CHAIN-R',S:'CHAIN-S',T:'CHAIN-T',U:'CHAIN-U',V:'CHAIN-V',W:'CHAIN-W',X:'CHAIN-X',Y:'CHAIN-Y',Z:'CHAIN-Z'};
+
+function n5Enc(s){
+  const out=[];
+  for(const ch of String(s||'').toUpperCase()){
+    if(NEEDLE5[ch]) out.push(NEEDLE5[ch]);
+  }
+  return out.join(' ');
+}
+function n5Dec(s){
+  const toks=String(s||'').trim().split(/\s+/).filter(Boolean);
+  return toks.map(function(t){return NEEDLE5_REV[t]||'';}).join('');
+}
+
+addOp('gcwBlueChainWheat','Blue Monday / Chain of Death / 5-Needle','GCWizard',
+  'Cooke & Wheatstone 1837 five-needle telegraph (Verified, CacheSleuth): five needles as / | \\. C J Q V X Z omitted. HELLO → /\\||| /|\\|| |||/\\ |||/\\ ||\\/|. G = ||/|\\ (Wikipedia sample). Blue Monday (Peter Saville / FAC 73): leftover color-block alphabet; digits 1-9 share A-I, 0 shares J (named tokens; original CMYK plates not embedded). FACT75 / FAC73 are the published sleeve readings. Chain of Death (The Shadow): leftover image table plus rotation extras 1=upright 2=90°R 3=90°L 4=180°.',
+  [
+    {key:'table',label:'Table',type:'select',default:'wheatstone',options:[['wheatstone','Cooke-Wheatstone 5-needle'],['bluemonday','Blue Monday (Saville)'],['chain','Chain of Death']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='bluemonday'){
+      if(a.mode==='list'){
+        const lines=Object.keys(BLUEMON).filter(function(k){return k.length===1 && /[A-Z]/.test(k);}).map(function(k){return k+'  '+BLUEMON[k];});
+        lines.push('digits  1-9 share A-I; 0 shares J');
+        lines.push('published sleeves  FACT75  FAC73 BLUE MONDAY AND THE BEACH NEW ORDER');
+        return kitCard('Blue Monday','Saville FAC 73',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(BLUEMON, t||'');
+        return kitCard('Blue Monday decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(BLUEMON, t||'FAC73');
+      return kitCard('Blue Monday encode','named tokens',kitMono(out),out);
+    }
+    if(a.table==='chain'){
+      if(a.mode==='list'){
+        const lines=Object.keys(CHAINDIR).map(function(k){return k+'  '+CHAINDIR[k];});
+        lines.push('ROT1  sheet upright');
+        lines.push('ROT2  sheet 90 degrees right');
+        lines.push('ROT3  sheet 90 degrees left');
+        lines.push('ROT4  sheet 180 degrees');
+        return kitCard('Chain of Death','The Shadow',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(CHAINDIR, t||'');
+        return kitCard('Chain of Death decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(CHAINDIR, t||'HELLO');
+      return kitCard('Chain of Death encode','named tokens',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=['C J Q V X Z omitted  (CacheSleuth 20-letter board)'];
+      Object.keys(NEEDLE5).forEach(function(k){ lines.push(k+'  '+NEEDLE5[k]); });
+      lines.push('G  ||/|\\  (Wikipedia five-needle sample)');
+      return kitCard('Cooke-Wheatstone 5-needle','1837',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=n5Dec(t||'');
+      return kitCard('5-needle decode','Cooke-Wheatstone',kitMono(out),out);
+    }
+    const out=n5Enc(t||'HELLO');
+    return kitCard('5-needle encode','Cooke-Wheatstone',kitMono(out),out);
+  }
+);
+
+/* v1.56 leftover: Solmization / Four triangles / fiber IEC 60304 */
+
+const FO_IEC=['red','green','blue','yellow','white','grey','brown','violet','turquoise','black','orange','pink'];
+const FO_SWISS=['red','green','yellow','blue','white','violet','orange','black','grey','brown','pink','turquoise'];
+const FO_TIA=['blue','orange','green','brown','slate','white','red','black','yellow','violet','rose','aqua'];
+const FO_HEX={red:'#e11d2e',green:'#1aad1a',blue:'#1a3cff',yellow:'#f5d000',white:'#f2f2f2',grey:'#888888',gray:'#888888',brown:'#8b5a2b',violet:'#7b2cbf',turquoise:'#12c8c8',black:'#141414',orange:'#f68121',pink:'#f7adce',slate:'#6b7c8a',rose:'#e86aa0',aqua:'#12c8c8'};
+const SOLFA_NOTE={C:'Do',D:'Re',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
+const SOLFA_SYL={DO:'C',UT:'C',RE:'D',MI:'E',FA:'F',SOL:'G',SO:'G',LA:'A',SI:'B',TI:'B'};
+const TRI4={A:'TRI4-A',B:'TRI4-B',C:'TRI4-C',D:'TRI4-D',E:'TRI4-E',F:'TRI4-F',G:'TRI4-G',H:'TRI4-H',I:'TRI4-I',J:'TRI4-J',K:'TRI4-K',L:'TRI4-L',M:'TRI4-M',N:'TRI4-N',O:'TRI4-O',P:'TRI4-P',Q:'TRI4-Q',R:'TRI4-R',S:'TRI4-S',T:'TRI4-T',U:'TRI4-U',V:'TRI4-V',W:'TRI4-W',X:'TRI4-X',Y:'TRI4-Y',Z:'TRI4-Z'};
+
+function foTable(name){
+  if(name==='swiss') return FO_SWISS;
+  if(name==='tia') return FO_TIA;
+  return FO_IEC;
+}
+function foEnc(s, tbl){
+  const t=foTable(tbl);
+  const nums=String(s||'').match(/\d+/g)||[];
+  const cols=[];
+  nums.forEach(function(n){
+    const i=+n;
+    if(i>=1 && i<=12) cols.push(i+' '+t[i-1]);
+  });
+  if(!cols.length){
+    return t.map(function(c,i){return (i+1)+' '+c;}).join('\n');
+  }
+  return cols.join('\n');
+}
+function foDec(s, tbl){
+  const t=foTable(tbl);
+  const rev={};
+  t.forEach(function(c,i){ rev[c.toUpperCase()]=i+1; });
+  const out=[];
+  String(s||'').toLowerCase().split(/[\s,;|/]+/).filter(Boolean).forEach(function(tok){
+    if(rev[tok.toUpperCase()]) out.push(String(rev[tok.toUpperCase()]));
+    else if(FO_HEX[tok] && rev[tok.toUpperCase()]) out.push(String(rev[tok.toUpperCase()]));
+  });
+  return out.join(' ');
+}
+function foSwatch(name){
+  const hx=FO_HEX[String(name).toLowerCase()]||'#444';
+  return '<span style="display:inline-block;width:14px;height:14px;background:'+hx+';border:1px solid #333;margin:0 4px 0 0;vertical-align:middle;"></span>';
+}
+
+function solfaEnc(s){
+  const parts=[];
+  const up=String(s||'').toUpperCase();
+  const words=up.split(/[\s,;]+/).filter(Boolean);
+  const asSyl=words.some(function(w){return SOLFA_SYL[w];});
+  if(asSyl){
+    words.forEach(function(w){ if(SOLFA_SYL[w]) parts.push(SOLFA_SYL[w]); });
+    return parts.join(' ');
+  }
+  for(const ch of up){
+    if(SOLFA_NOTE[ch]) parts.push(SOLFA_NOTE[ch]);
+  }
+  return parts.join(' ');
+}
+
+addOp('gcwSolmFiber','Solmization / Four triangles / Fiber colors','GCWizard',
+  'IEC 60304 fiber colors (Verified): 1 red, 2 green, 3 blue, 4 yellow, 5 white, 6 grey, 7 brown, 8 violet, 9 turquoise, 10 black, 11 orange, 12 pink. Swisscom and TIA-598 also tabulated. Solmization (Verified): C=Do D=Re E=Mi F=Fa G=Sol A=La B=Si. CDEFGAB → Do Re Mi Fa Sol La Si. Four triangles is a leftover GCWizard image table (named tokens; no published 1:1). FOTAG is not invented.',
+  [
+    {key:'table',label:'Table',type:'select',default:'iec',options:[['iec','Fiber IEC 60304'],['swiss','Fiber Swisscom'],['tia','Fiber TIA-598'],['solfa','Solmization Do-Re-Mi'],['triangles','Four triangles']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='triangles'){
+      if(a.mode==='list'){
+        const lines=Object.keys(TRI4).map(function(k){return k+'  '+TRI4[k];});
+        return kitCard('Four triangles','named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(TRI4, t||'');
+        return kitCard('Four triangles decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(TRI4, t||'HELLO');
+      return kitCard('Four triangles encode','named tokens',kitMono(out),out);
+    }
+    if(a.table==='solfa'){
+      if(a.mode==='list'){
+        const lines=['Fixed-do  C=Do D=Re E=Mi F=Fa G=Sol A=La B=Si (Ti=B)'];
+        Object.keys(SOLFA_NOTE).forEach(function(k){ lines.push(k+'  '+SOLFA_NOTE[k]); });
+        lines.push('CDEFGAB → Do Re Mi Fa Sol La Si');
+        return kitCard('Solmization','fixed do',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      const src=(t||'CDEFGAB').trim();
+      if(a.mode==='decode' || /do|re|mi|fa|sol|la|si|ti/i.test(src)){
+        const out=solfaEnc(src);
+        return kitCard('Solmization','fixed do',kitMono(out),out);
+      }
+      const out=solfaEnc(src);
+      return kitCard('Solmization encode','fixed do',kitMono(out),out);
+    }
+    const title=a.table==='swiss'?'Swisscom fiber':a.table==='tia'?'TIA-598 fiber':'IEC 60304 fiber';
+    const tbl=a.table==='swiss'?'swiss':a.table==='tia'?'tia':'iec';
+    if(a.mode==='list'){
+      const rows=foTable(tbl);
+      const lines=rows.map(function(c,i){return (i+1)+'  '+c;});
+      const vis=rows.map(function(c,i){return '<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-family:monospace;">'+foSwatch(c)+kitEsc((i+1)+'  '+c)+'<'+'/div>';}).join('');
+      return kitCard(title,'Verified',vis,lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=foDec(t||'red green blue', tbl);
+      return kitCard(title+' decode','Verified',kitMono(out),out);
+    }
+    const src=t||'1 2 3 4 5 6 7 8 9 10 11 12';
+    const out=foEnc(src, tbl);
+    const vis=out.split('\n').map(function(line){
+      const p=line.split(' ');
+      return '<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-family:monospace;">'+foSwatch(p[1]||'')+kitEsc(line)+'<'+'/div>';
+    }).join('');
+    return kitCard(title+' encode','Verified',vis,out);
+  }
+);
+
+/* v1.57 leftover: Card code / Stippelcode (drabkikker 5-dot honeycomb) */
+
+const CARD_CODE={A:'CARD-A',B:'CARD-B',C:'CARD-C',D:'CARD-D',E:'CARD-E',F:'CARD-F',G:'CARD-G',H:'CARD-H',I:'CARD-I',J:'CARD-J',K:'CARD-K',L:'CARD-L',M:'CARD-M',N:'CARD-N',O:'CARD-O',P:'CARD-P',Q:'CARD-Q',R:'CARD-R',S:'CARD-S',T:'CARD-T',U:'CARD-U',V:'CARD-V',W:'CARD-W',X:'CARD-X',Y:'CARD-Y',Z:'CARD-Z'};
+/* Stippelcode 5-dot zigzag from drabkikker.com/talen-schriften/stippelcode/ alfabet1.png
+   positions 1..5:
+       1
+     2
+       3
+     4
+       5
+   bit string is top→bottom. Red=1, gray overview=0. All 32 patterns unique. */
+const STIP_BITS={A:'11101',B:'01100',C:'00011',D:'10111',E:'11111',F:'10100',G:'11100',H:'10011',I:'01101',J:'10001',K:'11010',L:'10110',M:'01110',N:'01111',O:'11001',P:'00110',Q:'00101',R:'11110',S:'01011',T:'11011',U:'10101',V:'00111',W:'01001',X:'01010',Y:'11000',Z:'10010'};
+const STIP_PUNCT={',':'01000','.':'00010',' ':'00100'};
+const STIP_REV={};
+Object.keys(STIP_BITS).forEach(function(k){ STIP_REV[STIP_BITS[k]]=k; });
+STIP_REV['01000']=','; STIP_REV['00010']='.'; STIP_REV['00100']=' ';
+
+function stipTok(ch){
+  const u=String(ch).toUpperCase();
+  if(STIP_BITS[u]) return u+'['+STIP_BITS[u]+']';
+  if(STIP_PUNCT[ch]) return (ch===' '?'SP':ch)+'['+STIP_PUNCT[ch]+']';
+  return '';
+}
+function stipEnc(s){
+  const out=[];
+  for(const ch of String(s||'')){
+    const t=stipTok(ch);
+    if(t) out.push(t);
+  }
+  return out.join(' ');
+}
+function stipDec(s){
+  const bits=String(s||'').toUpperCase().match(/[01]{5}/g)||[];
+  if(bits.length){
+    return bits.map(function(b){ return STIP_REV[b]||'?'; }).join('');
+  }
+  return String(s||'').toUpperCase().replace(/[^A-Z]/g,'');
+}
+function stipDot(on){
+  const bg=on?'#8b1a00':'#d5d5d5';
+  return '<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:'+bg+';border:1px solid #333;margin:1px;">'+'<'+'/span>';
+}
+function stipGlyph(bits, lab){
+  const align=['right','left','right','left','right'];
+  let rows='';
+  for(let i=0;i<5;i++){
+    rows+='<div style="text-align:'+align[i]+';line-height:13px;height:13px;">'+stipDot(bits[i]==='1')+'<'+'/div>';
+  }
+  return '<div style="display:inline-block;width:36px;margin:0 10px 10px 0;vertical-align:top;text-align:center;font-family:monospace;font-size:11px;">'+rows+'<div style="margin-top:2px;">'+kitEsc(lab||'')+'<'+'/div><'+'/div>';
+}
+function stipVisual(s){
+  const parts=[];
+  const up=String(s||'HELLO');
+  for(const ch of up){
+    const u=ch.toUpperCase();
+    if(STIP_BITS[u]) parts.push(stipGlyph(STIP_BITS[u], u));
+    else if(STIP_PUNCT[ch]) parts.push(stipGlyph(STIP_PUNCT[ch], ch===' '?'SP':ch));
+  }
+  if(!parts.length){
+    Object.keys(STIP_BITS).forEach(function(k){ parts.push(stipGlyph(STIP_BITS[k], k)); });
+  }
+  return parts.join('');
+}
+
+addOp('gcwCardStippel','Card code / Stippelcode','GCWizard',
+  'Stippelcode (Verified, drabkikker 2010): 5-dot zigzag honeycomb. HELLO → H[10011] E[11111] L[10110] L[10110] O[11001]. Author punctuation: comma=01000, period=00010, space=00100. Card code is a leftover GCWizard image table with no published 1:1 Latin map in the current 368 symbolKeys (named tokens only).',
+  [
+    {key:'table',label:'Table',type:'select',default:'stippel',options:[['stippel','Stippelcode (5-dot honeycomb)'],['card','Card code (named tokens)']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='card'){
+      if(a.mode==='list'){
+        const lines=Object.keys(CARD_CODE).map(function(k){return k+'  '+CARD_CODE[k];});
+        return kitCard('Card code','named tokens',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(CARD_CODE, t||'');
+        return kitCard('Card code decode','named tokens',kitMono(out),out);
+      }
+      const out=symEnc(CARD_CODE, t||'HELLO');
+      return kitCard('Card code encode','named tokens',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=['positions  1 / 2 / 3 / 4 / 5  (zigzag honeycomb)','author punct  comma=01000  period=00010  space=00100'];
+      Object.keys(STIP_BITS).forEach(function(k){ lines.push(k+'  '+STIP_BITS[k]); });
+      const vis=stipVisual('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+      return kitCard('Stippelcode','Verified 5-dot',vis+'<div style="margin-top:8px;font-family:monospace;white-space:pre-wrap;">'+kitEsc(lines.join('\n'))+'<'+'/div>',lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const src=(t||'H[10011] E[11111] L[10110] L[10110] O[11001]').trim();
+      const out=stipDec(src);
+      return kitCard('Stippelcode decode','Verified',kitMono(out),out);
+    }
+    const src=(t||'HELLO');
+    const out=stipEnc(src);
+    const vis=stipVisual(src);
+    return kitCard('Stippelcode encode','Verified',vis+'<div style="margin-top:8px;font-family:monospace;">'+kitEsc(out)+'<'+'/div>',out);
+  }
+);
+
+/* v1.58 leftover: Cooke-Wheatstone 1-needle / 2-needle / ISO country flags */
+
+/* One-needle strokes from the published C&W plate (Wikipedia / GCWizard PNGs).
+   L = needle left (\), R = needle right (/). Wikipedia caption reads E as LRL;
+   kitchen follows the plate/images: E=LLR. Later J/Q/Z codes included. */
+const CW1={A:'LL',B:'LLL',C:'LLLL',D:'LR',E:'LLR',F:'LLLR',G:'LRR',H:'LLRR',I:'LLLRR',J:'LLLLRR',K:'LLRLL',L:'LRLR',M:'R',N:'RR',O:'RRR',P:'RRRR',Q:'RLRL',R:'RL',S:'RLR',T:'RRRL',U:'RLL',V:'RLLR',W:'LRLL',X:'RLRR',Y:'LRLRL',Z:'LRRL'};
+const CW1N={7:'LL',8:'LLL',9:'LR',0:'LLR',1:'R',2:'RR',3:'RRR',4:'RRRR',5:'RL',6:'RLR'};
+/* Two-needle: n1/n2. Idle = -. Original omits J→G, Q→K, Z→S. */
+const CW2={A:'LL/-',B:'LLL/-',C:'LR/-',D:'RL/-',E:'R/-',F:'RR/-',G:'RRR/-',H:'-/L',I:'-/LL',K:'-/LLL',L:'-/LR',M:'-/RL',N:'-/R',O:'-/RR',P:'-/RRR',R:'L/L',S:'LL/LL',T:'LLL/LLL',U:'LR/LR',V:'RL/RL',W:'R/R',X:'RR/RR',Y:'RRR/RRR'};
+const CW2N={1:'LR/-',2:'RL/-',3:'R/-',4:'-/L',5:'-/LR',6:'-/RL',7:'-/R',8:'L/L',9:'LR/LR',0:'RL/RL'};
+
+const ISO3166={AD:'Andorra',AE:'United Arab Emirates',AF:'Afghanistan',AG:'Antigua and Barbuda',AL:'Albania',AM:'Armenia',AO:'Angola',AR:'Argentina',AT:'Austria',AU:'Australia',AZ:'Azerbaijan',BA:'Bosnia and Herzegovina',BB:'Barbados',BD:'Bangladesh',BE:'Belgium',BF:'Burkina Faso',BG:'Bulgaria',BH:'Bahrain',BI:'Burundi',BJ:'Benin',BN:'Brunei',BO:'Bolivia',BR:'Brazil',BS:'Bahamas',BT:'Bhutan',BW:'Botswana',BY:'Belarus',BZ:'Belize',CA:'Canada',CD:'Congo Kinshasa',CF:'Central African Republic',CG:'Congo Brazzaville',CH:'Switzerland',CI:'Cote dIvoire',CL:'Chile',CM:'Cameroon',CN:'China',CO:'Colombia',CR:'Costa Rica',CU:'Cuba',CV:'Cabo Verde',CY:'Cyprus',CZ:'Czechia',DE:'Germany',DJ:'Djibouti',DK:'Denmark',DM:'Dominica',DO:'Dominican Republic',DZ:'Algeria',EC:'Ecuador',EE:'Estonia',EG:'Egypt',ER:'Eritrea',ES:'Spain',ET:'Ethiopia',FI:'Finland',FJ:'Fiji',FR:'France',GA:'Gabon',GB:'United Kingdom',GD:'Grenada',GE:'Georgia',GH:'Ghana',GM:'Gambia',GN:'Guinea',GQ:'Equatorial Guinea',GR:'Greece',GT:'Guatemala',GW:'Guinea-Bissau',GY:'Guyana',HN:'Honduras',HR:'Croatia',HT:'Haiti',HU:'Hungary',ID:'Indonesia',IE:'Ireland',IL:'Israel',IN:'India',IQ:'Iraq',IR:'Iran',IS:'Iceland',IT:'Italy',JM:'Jamaica',JO:'Jordan',JP:'Japan',KE:'Kenya',KG:'Kyrgyzstan',KH:'Cambodia',KI:'Kiribati',KM:'Comoros',KN:'Saint Kitts and Nevis',KP:'North Korea',KR:'South Korea',KW:'Kuwait',KZ:'Kazakhstan',LA:'Laos',LB:'Lebanon',LC:'Saint Lucia',LI:'Liechtenstein',LK:'Sri Lanka',LR:'Liberia',LS:'Lesotho',LT:'Lithuania',LU:'Luxembourg',LV:'Latvia',LY:'Libya',MA:'Morocco',MC:'Monaco',MD:'Moldova',ME:'Montenegro',MG:'Madagascar',MH:'Marshall Islands',MK:'North Macedonia',ML:'Mali',MM:'Myanmar',MN:'Mongolia',MR:'Mauritania',MT:'Malta',MU:'Mauritius',MV:'Maldives',MW:'Malawi',MX:'Mexico',MY:'Malaysia',MZ:'Mozambique',NA:'Namibia',NE:'Niger',NG:'Nigeria',NI:'Nicaragua',NL:'Netherlands',NO:'Norway',NP:'Nepal',NR:'Nauru',NZ:'New Zealand',OM:'Oman',PA:'Panama',PE:'Peru',PG:'Papua New Guinea',PH:'Philippines',PK:'Pakistan',PL:'Poland',PT:'Portugal',PW:'Palau',PY:'Paraguay',QA:'Qatar',RO:'Romania',RS:'Serbia',RU:'Russia',RW:'Rwanda',SA:'Saudi Arabia',SB:'Solomon Islands',SC:'Seychelles',SD:'Sudan',SE:'Sweden',SG:'Singapore',SI:'Slovenia',SK:'Slovakia',SL:'Sierra Leone',SM:'San Marino',SN:'Senegal',SO:'Somalia',SR:'Suriname',SS:'South Sudan',ST:'Sao Tome and Principe',SV:'El Salvador',SY:'Syria',SZ:'Eswatini',TD:'Chad',TG:'Togo',TH:'Thailand',TJ:'Tajikistan',TL:'Timor-Leste',TM:'Turkmenistan',TN:'Tunisia',TO:'Tonga',TR:'Turkiye',TT:'Trinidad and Tobago',TV:'Tuvalu',TW:'Taiwan',TZ:'Tanzania',UA:'Ukraine',UG:'Uganda',US:'United States',UY:'Uruguay',UZ:'Uzbekistan',VA:'Holy See',VC:'Saint Vincent and the Grenadines',VE:'Venezuela',VN:'Vietnam',VU:'Vanuatu',WS:'Samoa',XK:'Kosovo',YE:'Yemen',ZA:'South Africa',ZM:'Zambia',ZW:'Zimbabwe'};
+
+function cw1Enc(s){
+  const out=[];
+  for(const ch of String(s||'').toUpperCase()){
+    if(CW1[ch]) out.push(ch+'['+CW1[ch]+']');
+    else if(CW1N[ch]!==undefined) out.push(ch+'['+CW1N[ch]+']');
+  }
+  return out.join(' ');
+}
+function cw2Enc(s){
+  const out=[];
+  for(const ch of String(s||'').toUpperCase()){
+    let c=ch;
+    if(c==='J') c='G';
+    if(c==='Q') c='K';
+    if(c==='Z') c='S';
+    if(CW2[c]) out.push(c+'['+CW2[c]+']');
+    else if(CW2N[c]!==undefined) out.push(c+'['+CW2N[c]+']');
+  }
+  return out.join(' ');
+}
+function cwDec(map,s){
+  const rev={};
+  Object.keys(map).forEach(function(k){ rev[map[k]]=k; });
+  const bits=[];
+  const re=/\[([LR\-\/]+)\]/g;
+  const up=String(s||'').toUpperCase();
+  let m;
+  while((m=re.exec(up))) bits.push(m[1]);
+  if(!bits.length){
+    up.split(/\s+/).filter(Boolean).forEach(function(tok){ if(rev[tok]) bits.push(tok); });
+  }
+  return bits.map(function(b){ return rev[b]||'?'; }).join('');
+}
+function flagEmoji(cc){
+  cc=String(cc||'').toUpperCase();
+  if(!/^[A-Z]{2}$/.test(cc)) return '';
+  return String.fromCodePoint(0x1F1E6+cc.charCodeAt(0)-65, 0x1F1E6+cc.charCodeAt(1)-65);
+}
+function flagFromEmoji(s){
+  const out=[];
+  const str=String(s||'');
+  for(const ch of str){
+    const cp=ch.codePointAt(0);
+    if(cp>=0x1F1E6 && cp<=0x1F1FF) out.push(String.fromCharCode(65+cp-0x1F1E6));
+  }
+  if(out.length>=2 && out.length%2===0){
+    const codes=[];
+    for(let i=0;i<out.length;i+=2) codes.push(out[i]+out[i+1]);
+    return codes;
+  }
+  return [];
+}
+function isoLookup(s){
+  const q=String(s||'').trim();
+  if(!q) return Object.keys(ISO3166).map(function(k){ return k+'  '+flagEmoji(k)+'  '+ISO3166[k]; }).join('\n');
+  const em=flagFromEmoji(q);
+  if(em.length){
+    return em.map(function(cc){ return cc+'  '+flagEmoji(cc)+'  '+(ISO3166[cc]||'?'); }).join('\n');
+  }
+  const up=q.toUpperCase().replace(/[^A-Z ]/g,' ').trim();
+  if(/^[A-Z]{2}$/.test(up) && ISO3166[up]){
+    return up+'  '+flagEmoji(up)+'  '+ISO3166[up];
+  }
+  const hits=[];
+  const needle=up;
+  Object.keys(ISO3166).forEach(function(k){
+    if(ISO3166[k].toUpperCase().indexOf(needle)>=0) hits.push(k+'  '+flagEmoji(k)+'  '+ISO3166[k]);
+  });
+  return hits.length?hits.join('\n'):'not in this ISO 3166-1 extract';
+}
+
+addOp('gcwNeedleFlags','Cooke-Wheatstone 1/2-needle / Country flags','GCWizard',
+  'Cooke-Wheatstone 1-needle and 2-needle (Verified): published C&W plate. HELLO 1-needle → H[LLRR] E[LLR] L[LRLR] L[LRLR] O[RRR]. 2-needle omits J→G, Q→K, Z→S: HELLO → H[-/L] E[R/-] L[-/LR] L[-/LR] O[-/RR]. 5-needle stays in the Blue Monday / 5-needle op. Country flags (Verified extract): ISO 3166-1 alpha-2 + regional-indicator emoji. CA → CA 🇨🇦 Canada. Not every ISO code.',
+  [
+    {key:'table',label:'Table',type:'select',default:'one',options:[['one','Cooke-Wheatstone 1-needle'],['two','Cooke-Wheatstone 2-needle'],['flags','ISO 3166-1 country flags']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode / Lookup'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='flags'){
+      if(a.mode==='list'){
+        const out=isoLookup('');
+        return kitCard('ISO 3166-1 flags','Verified extract',kitMono(out),out);
+      }
+      const src=(t||'CA').trim();
+      const out=isoLookup(src);
+      return kitCard('ISO 3166-1 lookup','Verified extract',kitMono(out),out);
+    }
+    if(a.table==='two'){
+      if(a.mode==='list'){
+        const lines=['2-needle n1/n2  idle=-  J→G Q→K Z→S'];
+        Object.keys(CW2).forEach(function(k){ lines.push(k+'  '+CW2[k]); });
+        return kitCard('Cooke-Wheatstone 2-needle','Verified plate',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=cwDec(CW2, t||'H[-/L] E[R/-] L[-/LR] L[-/LR] O[-/RR]');
+        return kitCard('2-needle decode','Verified',kitMono(out),out);
+      }
+      const out=cw2Enc(t||'HELLO');
+      return kitCard('2-needle encode','Verified',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=['1-needle L=left R=right  plate/images'];
+      Object.keys(CW1).forEach(function(k){ lines.push(k+'  '+CW1[k]); });
+      return kitCard('Cooke-Wheatstone 1-needle','Verified plate',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=cwDec(CW1, t||'H[LLRR] E[LLR] L[LRLR] L[LRLR] O[RRR]');
+      return kitCard('1-needle decode','Verified',kitMono(out),out);
+    }
+    const out=cw1Enc(t||'HELLO');
+    return kitCard('1-needle encode','Verified',kitMono(out),out);
+  }
+);
+
 /* ============================================================
    SCIENTIFIC CALCULATOR, CONVERSION TABLES, WORLD CLOCK
 ============================================================ */
@@ -17426,6 +18443,82 @@ function sfxInitUi(){
   }
 }
 
+/* v1.53 CSS Zen Garden dice — 50 inlined palettes named after published designs.
+   Original csszengarden.com sheets/images are NOT fetched (0 external loads). */
+
+const ZEN_THEMES=[
+{n:'Mid Century Modern',by:'Andrew Lohman',v:{bg:'#b78960',panel:'#c19975',panel2:'#c7a383',line:'#d1b398',fg:'#eae5e0',muted:'#b3a498',accent:'#cfe15a',accent2:'#abbd37',green:'#58ce80',red:'#e05d51',inputbg:'#b17e52',hdr1:'#cd925f',hdr2:'#b78960'}},
+{n:'Garments',by:'Dan Mall',v:{bg:'#2e3842',panel:'#3a4754',panel2:'#425160',line:'#4f6072',fg:'#e0e5ea',muted:'#98a5b3',accent:'#705ae1',accent2:'#4d37bd',green:'#58ce80',red:'#e05d51',inputbg:'#252d36',hdr1:'#2c4258',hdr2:'#2e3842'}},
+{n:'Steel',by:'Steffen Knoeller',v:{bg:'#41474d',panel:'#4f565d',panel2:'#596068',line:'#677079',fg:'#e0e5ea',muted:'#98a5b3',accent:'#705ae1',accent2:'#4d37bd',green:'#58ce80',red:'#e05d51',inputbg:'#383d42',hdr1:'#3e5164',hdr2:'#41474d'}},
+{n:'Apothecary',by:'Trent Walton',v:{bg:'#e7e0d9',panel:'#dbd1c7',panel2:'#d3c7ba',line:'#c3b3a1',fg:'#281f14',muted:'#6c5a45',accent:'#1da492',accent2:'#22766b',green:'#287a44',red:'#ad2a1e',inputbg:'#dfd6cd',hdr1:'#d7ccc0',hdr2:'#e7e0d9'}},
+{n:'Screen Filler',by:'Elliot Jay Stocks',v:{bg:'#141414',panel:'#232323',panel2:'#2d2d2d',line:'#3d3d3d',fg:'#eae0e0',muted:'#b39898',accent:'#e1b45a',accent2:'#bd9037',green:'#58ce80',red:'#e05d51',inputbg:'#0f0f0f',hdr1:'#231a1a',hdr2:'#141414'}},
+{n:'Fountain Kiss',by:'Jeremy Carlson',v:{bg:'#b13372',panel:'#c63d82',panel2:'#cb4d8c',line:'#d2649b',fg:'#eae0e5',muted:'#b398a5',accent:'#e1705a',accent2:'#bd4d37',green:'#58ce80',red:'#e05d51',inputbg:'#a22f68',hdr1:'#d4257c',hdr2:'#b13372'}},
+{n:'A Robot Named Jimmy',by:'meltmedia',v:{bg:'#0d434e',panel:'#125968',panel2:'#156879',line:'#1a7f93',fg:'#e0e8ea',muted:'#98aeb3',accent:'#5a70e1',accent2:'#374dbd',green:'#58ce80',red:'#e05d51',inputbg:'#0a343c',hdr1:'#0b5664',hdr2:'#0d434e'}},
+{n:'Verde Moderna',by:'Dave Shea',v:{bg:'#214e30',panel:'#2a633d',panel2:'#307246',line:'#3a8753',fg:'#e0eae3',muted:'#98b3a1',accent:'#5ae1e1',accent2:'#37bdbd',green:'#58ce80',red:'#e05d51',inputbg:'#1b4027',hdr1:'#1d6636',hdr2:'#214e30'}},
+{n:'Under the Sea',by:'Eric Stoltz',v:{bg:'#0d3a4e',panel:'#124e68',panel2:'#155b79',line:'#1a6e93',fg:'#e0e7ea',muted:'#98abb3',accent:'#5a5ee1',accent2:'#373bbd',green:'#58ce80',red:'#e05d51',inputbg:'#0a2d3c',hdr1:'#0b4a64',hdr2:'#0d3a4e'}},
+{n:'Make em Proud',by:'McAghon and Reifsnyder',v:{bg:'#e5b219',panel:'#e8bb35',panel2:'#eac147',line:'#edca62',fg:'#eae8e0',muted:'#b3ac98',accent:'#a9e15a',accent2:'#85bd37',green:'#58ce80',red:'#e05d51',inputbg:'#d3a417',hdr1:'#e7b82b',hdr2:'#e5b219'}},
+{n:'Orchid Beauty',by:'Kevin Addison',v:{bg:'#672767',panel:'#7d2f7d',panel2:'#8c358c',line:'#a23da2',fg:'#eae0ea',muted:'#b398b3',accent:'#e15a87',accent2:'#bd3763',green:'#58ce80',red:'#e05d51',inputbg:'#582158',hdr1:'#822082',hdr2:'#672767'}},
+{n:'Oceanscape',by:'Justin Gray',v:{bg:'#16374f',panel:'#1d4866',panel2:'#225376',line:'#29648e',fg:'#e0e6ea',muted:'#98a7b3',accent:'#655ae1',accent2:'#4237bd',green:'#58ce80',red:'#e05d51',inputbg:'#122c3f',hdr1:'#124468',hdr2:'#16374f'}},
+{n:'CSS Co Ltd',by:'Benjamin Klemm',v:{bg:'#e7e9ed',panel:'#d5d9e0',panel2:'#caced7',line:'#b2b9c6',fg:'#161c26',muted:'#4b5466',accent:'#a41d1d',accent2:'#762222',green:'#287a44',red:'#ad2a1e',inputbg:'#dbdee4',hdr1:'#d0d4dc',hdr2:'#e7e9ed'}},
+{n:'Sakura',by:'Tatsuya Uchida',v:{bg:'#eed2db',panel:'#e5bcca',panel2:'#e0adbe',line:'#d490a7',fg:'#2f0d18',muted:'#81314b',accent:'#1da41d',accent2:'#227622',green:'#287a44',red:'#ad2a1e',inputbg:'#e8c3d0',hdr1:'#e2b5c4',hdr2:'#eed2db'}},
+{n:'Kyoto Forest',by:'John Politowski',v:{bg:'#1a371f',panel:'#244b2b',panel2:'#2b5932',line:'#356e3e',fg:'#e0eae2',muted:'#98b39c',accent:'#5ae1cb',accent2:'#37bda7',green:'#58ce80',red:'#e05d51',inputbg:'#132917',hdr1:'#194c21',hdr2:'#1a371f'}},
+{n:'A Walk in the Garden',by:'Simon Van Hauwermeiren',v:{bg:'#476b2d',panel:'#558037',panel2:'#5f8e3d',line:'#6da446',fg:'#e4eae0',muted:'#a3b398',accent:'#5ae17c',accent2:'#37bd58',green:'#58ce80',red:'#e05d51',inputbg:'#3d5c27',hdr1:'#4e8627',hdr2:'#476b2d'}},
+{n:'spring360',by:'Rene Hornig',v:{bg:'#539e2d',panel:'#5fb534',panel2:'#68c539',line:'#7acc51',fg:'#e3eae0',muted:'#a1b398',accent:'#5ae187',accent2:'#37bd63',green:'#58ce80',red:'#e05d51',inputbg:'#4a8e29',hdr1:'#56be21',hdr2:'#539e2d'}},
+{n:'Withering Beauty',by:'William Duffy',v:{bg:'#392a22',panel:'#4c382d',panel2:'#594135',line:'#6c4f41',fg:'#eae3e0',muted:'#b3a198',accent:'#e1e15a',accent2:'#bdbd37',green:'#58ce80',red:'#e05d51',inputbg:'#2c201a',hdr1:'#4e3021',hdr2:'#392a22'}},
+{n:'Tiny Blue',by:'Timo Virtanen',v:{bg:'#dae7fa',panel:'#bed6f7',panel2:'#accaf5',line:'#87b3f1',fg:'#031a3a',muted:'#114da0',accent:'#a41d28',accent2:'#762229',green:'#287a44',red:'#ad2a1e',inputbg:'#c7dcf8',hdr1:'#b5d0f6',hdr2:'#dae7fa'}},
+{n:'Retro Theater',by:'Eric Roge',v:{bg:'#4e0d0d',panel:'#681212',panel2:'#791515',line:'#931a1a',fg:'#eae0e0',muted:'#b39898',accent:'#e1b45a',accent2:'#bd9037',green:'#58ce80',red:'#e05d51',inputbg:'#3c0a0a',hdr1:'#640b0b',hdr2:'#4e0d0d'}},
+{n:'Lily Pond',by:'Rose Thorogood',v:{bg:'#2a6350',panel:'#347962',panel2:'#3a876d',line:'#439d7f',fg:'#e0eae7',muted:'#98b3aa',accent:'#5ab4e1',accent2:'#3790bd',green:'#58ce80',red:'#e05d51',inputbg:'#245545',hdr1:'#247e60',hdr2:'#2a6350'}},
+{n:'Icicle Outback',by:'Timo Virtanen',v:{bg:'#e0e8ea',panel:'#cedade',panel2:'#c1d1d6',line:'#a9bec5',fg:'#152327',muted:'#47626b',accent:'#a41d55',accent2:'#762245',green:'#287a44',red:'#ad2a1e',inputbg:'#d4dee2',hdr1:'#c7d5da',hdr2:'#e0e8ea'}},
+{n:'CSS ZEN ARMY',by:'Carl Desmond',v:{bg:'#384e0d',panel:'#4b6812',panel2:'#587915',line:'#6a931a',fg:'#e7eae0',muted:'#aab398',accent:'#5ae15a',accent2:'#37bd37',green:'#58ce80',red:'#e05d51',inputbg:'#2c3c0a',hdr1:'#47640b',hdr2:'#384e0d'}},
+{n:'The Original',by:'Joachim Shotter',v:{bg:'#f3f4f5',panel:'#e2e5e8',panel2:'#d7dbde',line:'#c1c6cc',fg:'#181e24',muted:'#505962',accent:'#a41d33',accent2:'#762230',green:'#287a44',red:'#ad2a1e',inputbg:'#e8eaec',hdr1:'#dde0e3',hdr2:'#f3f4f5'}},
+{n:'Floral Touch',by:'Jadas Jimmy',v:{bg:'#ebc5df',panel:'#e4aed2',panel2:'#df9fc9',line:'#d480b8',fg:'#300c24',muted:'#852c68',accent:'#4aa41d',accent2:'#3e7622',green:'#287a44',red:'#ad2a1e',inputbg:'#e6b6d6',hdr1:'#e1a7ce',hdr2:'#ebc5df'}},
+{n:'Elegance in Simplicity',by:'Mani Sheriar',v:{bg:'#f4f4f4',panel:'#e5e5e5',panel2:'#dbdbdb',line:'#c6c6c6',fg:'#211b1b',muted:'#595959',accent:'#1da44a',accent2:'#22763e',green:'#287a44',red:'#ad2a1e',inputbg:'#eaeaea',hdr1:'#e0e0e0',hdr2:'#f4f4f4'}},
+{n:'Dazzling Beauty',by:'Deny Sri Supriyono',v:{bg:'#ebc013',panel:'#eec82f',panel2:'#efcd42',line:'#f1d45e',fg:'#eae8e0',muted:'#b3ad98',accent:'#a2e15a',accent2:'#7ebd37',green:'#58ce80',red:'#e05d51',inputbg:'#d9b111',hdr1:'#e7c22b',hdr2:'#ebc013'}},
+{n:'Dark Rose',by:'Rose Fu',v:{bg:'#39181d',panel:'#4e2129',panel2:'#5c2730',line:'#72303b',fg:'#eae0e2',muted:'#b3989c',accent:'#e19e5a',accent2:'#bd7a37',green:'#58ce80',red:'#e05d51',inputbg:'#2a1216',hdr1:'#4f1620',hdr2:'#39181d'}},
+{n:'Leggo My Ego',by:'Jon Tan',v:{bg:'#512d14',panel:'#6a3b1a',panel2:'#7a441e',line:'#925224',fg:'#eae4e0',muted:'#b3a398',accent:'#d6e15a',accent2:'#b2bd37',green:'#58ce80',red:'#e05d51',inputbg:'#412410',hdr1:'#6b350f',hdr2:'#512d14'}},
+{n:'LuGoZee',by:'Viallon Pierre-Antoine',v:{bg:'#34214e',panel:'#422a63',panel2:'#4c3072',line:'#5a3a87',fg:'#e4e0ea',muted:'#a398b3',accent:'#e15ad6',accent2:'#bd37b2',green:'#58ce80',red:'#e05d51',inputbg:'#2a1b40',hdr1:'#3c1d66',hdr2:'#34214e'}},
+{n:'The Diary',by:'Alexander Shabuniewicz',v:{bg:'#eeebe6',panel:'#e2ddd4',panel2:'#dad4c7',line:'#c9c1af',fg:'#272115',muted:'#6b5f47',accent:'#1da4a4',accent2:'#227676',green:'#287a44',red:'#ad2a1e',inputbg:'#e6e2da',hdr1:'#ded8ce',hdr2:'#eeebe6'}},
+{n:'Lonely Flower',by:'Mitja Ribic',v:{bg:'#e9d7e0',panel:'#dec3d1',panel2:'#d7b6c6',line:'#c99bb2',fg:'#2a121e',muted:'#743e59',accent:'#33a41d',accent2:'#307622',green:'#287a44',red:'#ad2a1e',inputbg:'#e2c9d6',hdr1:'#dbbccc',hdr2:'#e9d7e0'}},
+{n:'Mozart',by:'Andrew Brundle',v:{bg:'#343127',panel:'#464134',panel2:'#524c3c',line:'#635d49',fg:'#eae8e0',muted:'#b3ac98',accent:'#a9e15a',accent2:'#85bd37',green:'#58ce80',red:'#e05d51',inputbg:'#29261e',hdr1:'#484027',hdr2:'#343127'}},
+{n:'Organica Creativa',by:'Eduardo Cesario',v:{bg:'#3c511e',panel:'#4c6727',panel2:'#57762c',line:'#688c35',fg:'#e6eae0',muted:'#a7b398',accent:'#5ae165',accent2:'#37bd42',green:'#58ce80',red:'#e05d51',inputbg:'#314219',hdr1:'#486a1a',hdr2:'#3c511e'}},
+{n:'Wilderness',by:'Aadesh Mistry',v:{bg:'#243b20',panel:'#304f2a',panel2:'#395c31',line:'#45703c',fg:'#e2eae0',muted:'#9cb398',accent:'#5ae19e',accent2:'#37bd7a',green:'#58ce80',red:'#e05d51',inputbg:'#1c2e18',hdr1:'#27511e',hdr2:'#243b20'}},
+{n:'Faded Flowers',by:'Mani Sheriar',v:{bg:'#e0d1db',panel:'#d4becd',panel2:'#cbb2c3',line:'#bb9ab0',fg:'#271521',muted:'#6b475f',accent:'#4aa41d',accent2:'#3e7622',green:'#287a44',red:'#ad2a1e',inputbg:'#d8c4d1',hdr1:'#d0b8c8',hdr2:'#e0d1db'}},
+{n:'Dead or Alive',by:'Douglas Bowman',v:{bg:'#191919',panel:'#282828',panel2:'#333333',line:'#424242',fg:'#eae0e0',muted:'#b39898',accent:'#e1b45a',accent2:'#bd9037',green:'#58ce80',red:'#e05d51',inputbg:'#0f0f0f',hdr1:'#291e1e',hdr2:'#191919'}},
+{n:'Tranquille',by:'Dave Shea',v:{bg:'#d8e8e8',panel:'#c5dcdc',panel2:'#b8d4d4',line:'#9fc5c5',fg:'#132929',muted:'#426f6f',accent:'#a41d77',accent2:'#76225a',green:'#287a44',red:'#ad2a1e',inputbg:'#cbe0e0',hdr1:'#bfd8d8',hdr2:'#d8e8e8'}},
+{n:'Japanese Garden',by:'Minz Meyer',v:{bg:'#1c2a23',panel:'#283d33',panel2:'#30493d',line:'#3d5b4c',fg:'#e0eae5',muted:'#98b3a5',accent:'#5acbe1',accent2:'#37a7bd',green:'#58ce80',red:'#e05d51',inputbg:'#141e19',hdr1:'#1d3d2d',hdr2:'#1c2a23'}},
+{n:'Coastal Breeze',by:'Dave Shea',v:{bg:'#cde2e9',panel:'#b7d6e0',panel2:'#a9ceda',line:'#8cbdce',fg:'#0f262d',muted:'#356b7c',accent:'#a41d55',accent2:'#762245',green:'#287a44',red:'#ad2a1e',inputbg:'#bedae3',hdr1:'#b0d2dd',hdr2:'#cde2e9'}},
+{n:'Blood Lust',by:'Dave Shea',v:{bg:'#4e0d13',panel:'#681219',panel2:'#79151d',line:'#931a24',fg:'#eae0e1',muted:'#b3989a',accent:'#e1a95a',accent2:'#bd8537',green:'#58ce80',red:'#e05d51',inputbg:'#3c0a0e',hdr1:'#640b12',hdr2:'#4e0d13'}},
+{n:'Entomology',by:'Dave Shea',v:{bg:'#3d4416',panel:'#515b1e',panel2:'#5f6b23',line:'#73822b',fg:'#e8eae0',muted:'#aeb398',accent:'#70e15a',accent2:'#4dbd37',green:'#58ce80',red:'#e05d51',inputbg:'#2f3511',hdr1:'#505c13',hdr2:'#3d4416'}},
+{n:'White Lily',by:'Dave Shea',v:{bg:'#f7f7f7',panel:'#e8e8e8',panel2:'#dddddd',line:'#c9c9c9',fg:'#211b1b',muted:'#595959',accent:'#1da44a',accent2:'#22763e',green:'#287a44',red:'#ad2a1e',inputbg:'#ededed',hdr1:'#e2e2e2',hdr2:'#f7f7f7'}},
+{n:'Pret-a-porter',by:'Dave Shea',v:{bg:'#1e1e1e',panel:'#2d2d2d',panel2:'#383838',line:'#474747',fg:'#eae0e0',muted:'#b39898',accent:'#e1b45a',accent2:'#bd9037',green:'#58ce80',red:'#e05d51',inputbg:'#141414',hdr1:'#2e2222',hdr2:'#1e1e1e'}},
+{n:'CS(S) Monk',by:'Dave Shea',v:{bg:'#2c2825',panel:'#3c3833',panel2:'#47423c',line:'#58514b',fg:'#eae5e0',muted:'#b3a598',accent:'#cbe15a',accent2:'#a7bd37',green:'#58ce80',red:'#e05d51',inputbg:'#211e1c',hdr1:'#3e3327',hdr2:'#2c2825'}},
+{n:'Not So Minimal',by:'Dave Shea',v:{bg:'#eeeff0',panel:'#dee0e1',panel2:'#d4d6d8',line:'#bec1c4',fg:'#1a1e23',muted:'#54595d',accent:'#a41d33',accent2:'#762230',green:'#287a44',red:'#ad2a1e',inputbg:'#e4e5e6',hdr1:'#d9dbdd',hdr2:'#eeeff0'}},
+{n:'Golden Mean',by:'Douglas Bowman',v:{bg:'#c39222',panel:'#d9a52a',panel2:'#dcac3b',line:'#e1b755',fg:'#eae7e0',muted:'#b3ab98',accent:'#b0e15a',accent2:'#8cbd37',green:'#58ce80',red:'#e05d51',inputbg:'#b1851f',hdr1:'#e0a418',hdr2:'#c39222'}},
+{n:'The Garden Beneath',by:'Minz Meyer',v:{bg:'#214424',panel:'#2b592e',panel2:'#316736',line:'#3b7b41',fg:'#e0eae1',muted:'#98b39a',accent:'#5ae1c0',accent2:'#37bd9c',green:'#58ce80',red:'#e05d51',inputbg:'#1a371c',hdr1:'#1e5b23',hdr2:'#214424'}},
+{n:'Boddhidarma',by:'Michael Angeles',v:{bg:'#2c231a',panel:'#3f3326',panel2:'#4c3d2d',line:'#5f4c39',fg:'#eae5e0',muted:'#b3a598',accent:'#cbe15a',accent2:'#a7bd37',green:'#58ce80',red:'#e05d51',inputbg:'#1f1913',hdr1:'#402d1b',hdr2:'#2c231a'}},
+{n:'Samuraai',by:'Minz Meyer',v:{bg:'#141414',panel:'#232323',panel2:'#2d2d2d',line:'#3d3d3d',fg:'#eae0e0',muted:'#b39898',accent:'#e1b45a',accent2:'#bd9037',green:'#58ce80',red:'#e05d51',inputbg:'#0f0f0f',hdr1:'#231a1a',hdr2:'#141414'}}
+];
+
+function applyZen(i){
+  const t=ZEN_THEMES[((i%ZEN_THEMES.length)+ZEN_THEMES.length)%ZEN_THEMES.length];
+  const r=document.documentElement;
+  Object.keys(t.v).forEach(function(k){ r.style.setProperty('--'+k, t.v[k]); });
+  r.setAttribute('data-zen', String(((i%ZEN_THEMES.length)+ZEN_THEMES.length)%ZEN_THEMES.length));
+  const chip=document.getElementById('zen-chip');
+  if(chip) chip.textContent='Garden · '+t.n+' · '+t.by;
+  return t.n;
+}
+function zenRoll(){
+  const cur=parseInt(document.documentElement.getAttribute('data-zen')||'-1',10);
+  let i=Math.floor(Math.random()*ZEN_THEMES.length);
+  if(ZEN_THEMES.length>1 && i===cur) i=(i+1)%ZEN_THEMES.length;
+  return applyZen(i);
+}
+function zenInit(){
+  const b=document.getElementById('btn-zen');
+  if(b) b.onclick=zenRoll;
+}
+zenInit();
 sfxInitUi();
 renderOpsList();renderRecipe();
 </script>
