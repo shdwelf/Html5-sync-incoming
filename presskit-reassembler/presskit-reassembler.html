@@ -51,9 +51,27 @@
   .foot{color:var(--mut);font-size:10.5px;padding:16px 26px;border-top:1px solid var(--line);max-width:1280px;margin:0 auto;line-height:1.6}
   h3.panel-sub{margin:16px 0 6px;font-size:11px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
   ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#1f2a44;border-radius:6px}
+
+  /* ---- boot splash ---- */
+  #splash{position:fixed;inset:0;z-index:999;cursor:pointer;
+     background:radial-gradient(900px 500px at 50% 30%,#0e2a42 0%,#060a12 70%);
+     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+     overflow:hidden;user-select:none}
+  #splashpre{margin:0;font:bold 12px/1.15 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+     white-space:pre;text-align:center;letter-spacing:.02em;text-shadow:0 0 8px rgba(0,255,255,.4)}
+  #splashline{color:var(--gold);font-size:11px;letter-spacing:.1em;height:16px}
+  #splashhint{color:var(--mut);font-size:10px;letter-spacing:.14em;animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #splash.hidden{display:none}
 </style>
 </head>
 <body>
+<!-- boot splash overlay (animated ASCII intro; click/tap or wait to skip) -->
+<div id="splash" class="hidden" aria-label="intro">
+  <pre id="splashpre"></pre>
+  <div id="splashline"></div>
+  <div id="splashhint">[ click anywhere to skip ]</div>
+</div>
 <header>
   <h1>PRESS KIT REASSEMBLER</h1>
   <span class="sub">HTML5 form &middot; WASM cipher engine &middot; classic 16-bit DOS output</span>
@@ -387,11 +405,65 @@ function fillCipherLab(r){
 $("go").addEventListener("click", onReassemble);
 document.addEventListener("keydown", e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter") onReassemble(); });
 
+/* ---------------- boot splash (animated ASCII intro) ---------------- */
+const BOOT_FRAMES = [
+`'########::'########::'########::'######:::'######::
+ ##.... ##: ##.... ##: ##.....::'##... ##:'##... ##:
+ ##:::: ##: ##:::: ##: ##::::::: ##:::..:: ##:::..::
+ ########:: ########:: ######:::. ######::. ######::
+ ##.....::: ##.. ##::: ##...:::::..... ##::..... ##:
+ ##:::::::: ##::. ##:: ##:::::::'##::: ##:'##::: ##:
+ ##:::::::: ##:::. ##: ########:. ######::. ######::
+..:::::::::..:::::..::........:::......::::......:::`,
+`'########::'########::::'###:::::'######:::'######::'########:'##::::'##:
+ ##.... ##: ##.....::::'## ##:::'##... ##:'##... ##: ##.....:: ###::'###:
+ ##:::: ##: ##::::::::'##:. ##:: ##:::..:: ##:::..:: ##::::::: ####'####:
+ ########:: ######:::'##:::. ##:. ######::. ######:: ######::: ## ### ##:
+ ##.. ##::: ##...:::: #########::..... ##::..... ##: ##...:::: ##. #: ##:
+ ##::. ##:: ##::::::: ##.... ##:'##::: ##:'##::: ##: ##::::::: ##:.:: ##:
+ ##:::. ##: ########: ##:::: ##:. ######::. ######:: ########: ##:::: ##:
+..:::::..::........::..:::::..:::......::::......:::........::..:::::..::`,
+`   W A S M   C I P H E R   E N G I N E
+   +-----------------------------------------+
+   |   [  PRESS KIT REASSEMBLER   ]          |
+   |   [  variables  ->  dos .com/.dat ]      |
+   +-----------------------------------------+`
+];
+const BOOT_COLORS = ["#22d3ee", "#ff00cc", "#fbbf24"];
+
+function showSplash(){
+  const splash = $("splash"), pre = $("splashpre"), line = $("splashline");
+  if(!splash) return;
+  splash.classList.remove("hidden");
+  let stage = 0, li = 0, done = false;
+  function render(){
+    if(done) return;
+    if(stage >= BOOT_FRAMES.length){ finish(); return; }
+    const frames  = BOOT_FRAMES[stage].split("\n");
+    const above   = BOOT_FRAMES.slice(0, stage).join("\n");
+    pre.textContent = (above? above+"\n":"") + frames.slice(0, li+1).join("\n");
+    pre.style.color = BOOT_COLORS[stage % BOOT_COLORS.length];
+    line.textContent = "LOADING ASSETS ... " + "█".repeat((stage*8+li)%16);
+    if(li < frames.length-1){ li++; setTimeout(render, 34); }
+    else { stage++; li = 0; setTimeout(render, 260); }
+  }
+  function finish(){
+    if(done) return; done = true;
+    splash.classList.add("hidden");
+    pre.textContent = ""; line.textContent = "";
+  }
+  render();
+  splash.addEventListener("click", finish, {once:true});
+  window.addEventListener("keydown", finish, {once:true});
+  setTimeout(finish, 11000);   // hard safety skip
+}
+
 (async function boot(){
-  await initWasm();
+  showSplash();                       // animated intro first
+  try { await initWasm(); }
+  catch(e){ console.warn("wasm init failed", e); }
   $("welcome").innerHTML = `<span class="pill ok">WebAssembly engine ready ✓</span>
     <span class="pill">${ex? "exports: encode, crc16, memory":"missing"}</span>`;
-  // convenience: prefill a log of the RCB layout in the terminal area? keep minimal
 })();
 </script>
 </body>
