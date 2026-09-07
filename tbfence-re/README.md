@@ -8,6 +8,21 @@ obtain those yourself (see *Get the files*), drop them in this folder, and run
 the included analyzer. It will then drive Ghidra headlessly if you want the
 full disassembly + pseudo-C.
 
+## One-command pipeline
+```bash
+cd tbfence-re
+./run.sh                 # analyzes every .exe/.com in this folder
+./run.sh TBFENCE.EXE GATEWAY.EXE   # or specific files
+GHIDRA_HOME=/opt/ghidra ./run.sh   # enable the Ghidra decompile stage
+```
+`run.sh`:
+1. runs `analyze_dos.py` on each binary → `analysis/<file>.survey.txt`, then
+2. if Ghidra is found, imports each binary at **`x86:LE:16:RealMode`** and runs
+   the headless post-script → decompiled pseudo-C under `analysis/ghidra/<file>/`.
+
+It degrades gracefully — no binaries prints the exact URLs to fetch them (exit 0);
+no Ghidra runs the survey only with a hint to set `GHIDRA_HOME`.
+
 ## What TbFence is (ground truth from the real files)
 
 From `FILE_ID.DIZ` (fetched from the archive):
@@ -113,6 +128,7 @@ For a faithful re-check of bytecode you'd instead decompile with CFR/Fernflower
 — but that's for Java; for DOS x86, Ghidra's own decompiler is the right tool.
 
 ## Files in this kit
+- `run.sh` — the whole analyze + Ghidra pipeline in one command (see above).
 - `analyze_dos.py` — MZ/.COM header + string survey tool (run on the fetched EXEs).
 - `ghidra_decompile_all.py` — Ghidra headless post-script that decompiles all functions to C.
 - `README.md` — this dossier.
