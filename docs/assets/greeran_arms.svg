@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="420" viewBox="0 0 360 420">
+  <defs>
+    <linearGradient id="shd" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#1f5fbf"/>
+      <stop offset="1" stop-color="#123a7a"/>
+    </linearGradient>
+    <clipPath id="shieldClip">
+      <path d="M180 20
+               L300 45 L305 170 Q306 300 180 395 Q54 300 55 170 L60 45 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- shield outline (heater shape) -->
+  <path d="M180 20
+           L300 45 L305 170 Q306 300 180 395 Q54 300 55 170 L60 45 Z"
+        fill="url(#shd)" stroke="#0a2347" stroke-width="6" stroke-linejoin="round"/>
+
+  <g clip-path="url(#shieldClip)">
+    <!-- fess wavy Argent (silver wave across the middle) -->
+    <path d="M30 200
+             q 38 -28 75 0  q 37 28 75 0  q 38 -28 75 0
+             L330 272
+             q -38 28 -75 0 q -37 -28 -75 0 q -38 28 -75 0 Z"
+          fill="#e8eef7" stroke="#c7d3e3" stroke-width="1.5"/>
+
+    <!-- three mullets (five-point stars) in chief, Argent -->
+    <g fill="#e8eef7" stroke="#9db4d0" stroke-width="1">
+      <path transform="translate(100 105)" d="M0 -18 L5.3 -5.5 L18 -5.5 L8 3 L11.7 16 L0 8.5 L-11.7 16 L-8 3 L-18 -5.5 L-5.3 -5.5 Z"/>
+      <path transform="translate(180 78)"  d="M0 -18 L5.3 -5.5 L18 -5.5 L8 3 L11.7 16 L0 8.5 L-11.7 16 L-8 3 L-18 -5.5 L-5.3 -5.5 Z"/>
+      <path transform="translate(260 105)" d="M0 -18 L5.3 -5.5 L18 -5.5 L8 3 L11.7 16 L0 8.5 L-11.7 16 L-8 3 L-18 -5.5 L-5.3 -5.5 Z"/>
+    </g>
+
+    <!-- garb (sheaf of wheat), Or, in base -->
+    <g transform="translate(180 330)">
+      <rect x="-6" y="-38" width="12" height="46" rx="3" fill="#caa63c"/>
+      <!-- binding bands -->
+      <rect x="-14" y="-18" width="28" height="4" fill="#8a6f1f"/>
+      <rect x="-13" y="-8"  width="26" height="4" fill="#8a6f1f"/>
+      <!-- stalks fanning out -->
+      <g fill="none" stroke="#e6c555" stroke-width="3" stroke-linecap="round">
+        <path d="M-4 -34 Q-22 -70 -40 -86"/>
+        <path d="M-4 -34 Q-12 -74 -18 -96"/>
+        <path d="M-2 -36 Q0 -80 2 -104"/>
+        <path d="M4 -34 Q14 -74 22 -96"/>
+        <path d="M4 -34 Q26 -70 42 -84"/>
+      </g>
+      <!-- grain heads -->
+      <g fill="#f2d98a">
+        <ellipse cx="-40" cy="-90" rx="5" ry="3" transform="rotate(-20 -40 -90)"/>
+        <ellipse cx="-18" cy="-100" rx="5" ry="3"/>
+        <ellipse cx="2" cy="-108" rx="5" ry="3"/>
+        <ellipse cx="22" cy="-100" rx="5" ry="3"/>
+        <ellipse cx="42" cy="-88" rx="5" ry="3" transform="rotate(20 42 -88)"/>
+      </g>
+    </g>
+  </g>
+</svg>
