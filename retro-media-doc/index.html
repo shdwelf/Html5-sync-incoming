@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Secrets of the Screen — an original media-history documentary</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="top"></div>
+
+<div class="hero">
+  <canvas id="hero"></canvas>
+  <div class="hcap"><b>SECRETS OF THE SCREEN</b>
+    the arcade, the scene, the hidden messages, and the electronic press kit — how games &amp; movies hid their inner workings in plain sight.</div>
+</div>
+
+<main>
+  <p class="lead">Four original web chapters about <b>things hidden in software and media</b>: the coin-op arcade's
+  history, the crack-intro &amp; demoscene, software <b>easter eggs</b>, and the forgotten <b>multimedia press kits</b>
+  that studios shipped on CD-ROM in the 1990s. Every animation and note on this site is generated live in your
+  browser — no media files are reproduced.</p>
+
+  <div class="grid" id="chapters"></div>
+
+  <div class="callout">
+    <b>How to read this site.</b> Use the top menu to move between chapters (they are separate pages), press
+    <b>♪ music</b> for a synthesised soundtrack, and open each canvas preview to appreciate the live effects.
+    Content is original, written from general public-history research; sources are listed at the foot of each
+    chapter and point onward to the great public archives (Museum of the Game, the Easter Egg Archive, the
+    Internet Archive) where the originals live.
+  </div>
+
+  <div class="callout red">
+    <b>A note on the scene chapter.</b> The crack-intro &amp; demoscene are celebrated here strictly as a
+    historical art form. This site distributes <b>no</b> cracked software, keygens, or copied artwork — the
+    genuine originals are preserved by scene archives and the Internet Archive, and links point there rather than
+    reproducing their files.
+  </div>
+
+  <footer>
+    <b>SECRETS OF THE SCREEN</b> — an original educational documentary · single-page chapters, Canvas + WebAudio
+    generated in-browser, works offline · not affiliated with any studio, crew, or museum.
+  </footer>
+</main>
+
+<script src="js/chip.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/nav.js"></script>
+<script>
+  const chapters = [
+    {name:"arcade", label:"01 · THE COIN-OP ARCADE",
+     desc:"From cabinet woodgrain to the golden age: how the Museum of the Game documents coin-operated history, and what made the arcade a cultural forge.",
+     art:"raster"},
+    {name:"scene", label:"02 · CRACKTRO / DEMOSCENE",
+     desc:"Raster bars, scrollers, plasma and loader digits — the self-taught art movement born on home computers, presented as history and craft.",
+     art:"plasma"},
+    {name:"eggs", label:"03 · EASTER EGGS",
+     desc:"Hidden messages in software and film — from MS-DOS's buried jokes to the behind-the-scenes trivia of Hollywood blockbusters.",
+     art:"eggs"},
+    {name:"presskit", label:"04 · MULTIMEDIA PRESS KITS",
+     desc:"Before the internet press kit there was the CD-ROM: DreamWorks' The Peacemaker (1997) as a milestone of interactive film promotion.",
+     art:"digits"},
+    {name:"gamewizard", label:"05 · GAME WIZARD (1994)",
+     desc:"An educational look at a shareware DOS 'game enhancer' — a memory editor from the era before trainers became mainstream.",
+     art:"raster"}
+  ];
+  const host = document.getElementById("chapters");
+  const PAL = window.PAL16;
+  function drawPreview(cv, art){
+    const g = cv.getContext("2d"), cw = cv.width = 300, ch = cv.height = 150;
+    g.fillStyle = "#000"; g.fillRect(0,0,cw,ch);
+    const lt = Date.now()/1000;
+    if(art==="raster"){ for(let y=0;y<ch;y+=3){ g.fillStyle=PAL[((y/3|0)+Math.floor(lt*8))%2?10:6]; g.fillRect(0,y,cw,3);} }
+    else if(art==="plasma"){ for(let y=0;y<ch;y+=5){ for(let x=0;x<cw;x+=5){ const v=Math.sin(x*.05+lt)*Math.cos(y*.05+lt*.7); g.fillStyle=PAL[4+(Math.floor((v+1)*6))%10]; g.fillRect(x,y,5,5);} } }
+    else if(art==="digits"){ for(let y=0;y<ch;y+=5){ g.fillStyle=PAL[1+(Math.floor(Math.abs(Math.sin(lt*3+y*.05))*13))]; g.fillRect(0,y,cw,5);} }
+    else if(art==="eggs"){ g.font="bold 13px monospace"; g.textAlign="center"; for(let i=0;i<7;i++){g.fillStyle=PAL[10+ (i%3)]; g.fillText("EGG", cw/2 + Math.sin(lt*2+i)*18, 22+i*18);} }
+  }
+  chapters.forEach(c=>{
+    const a=document.createElement("a"); a.className="ch-card"; a.href="chapters/"+c.name+".html";
+    const cv=document.createElement("canvas");
+    const cap=document.createElement("div"); cap.className="cap";
+    const b=document.createElement("b"); b.textContent=c.label;
+    const s=document.createElement("span"); s.textContent=c.desc;
+    cap.appendChild(b); cap.appendChild(s);
+    a.appendChild(cv); a.appendChild(cap); host.appendChild(a);
+    drawPreview(cv,c.art);
+    setInterval(()=>drawPreview(cv,c.art),140);
+  });
+  window.addEventListener("load",()=>{ window.stageRun(document.getElementById("hero"), {title:"SECRETS OF THE SCREEN", sub:"arcade · demoscene · easter eggs · press kits", color:10}); });
+</script>
+</body>
+</html>

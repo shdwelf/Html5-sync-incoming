@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demoscene &amp; Cracktros — Secrets of the Screen</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="top"></div>
+<div class="hero"><canvas id="hero"></canvas>
+  <div class="hcap"><b>CRACKTRO / DEMOSCENE</b> code, art and music as a self-taught craft.</div></div>
+<main>
+  <h1>Chapter 02 — Cracktros &amp; the Demoscene</h1>
+  <p class="lead">On 8-bit and 16-bit home computers, a generation taught itself to program by pushing hardware to its
+  visual and musical limits. Out of that tinkering grew a worldwide art movement — the <b>demo scene</b> — and its more
+  contentious sibling, the <b>crack intro</b>: a short, self-made credit screen attached to a software release.</p>
+
+  <div class="callout red">
+    <b>Framing honestly.</b> "Crack intros" come from removing copy protection from commercial software, which was (and
+    is) software piracy. This chapter covers the <i>intros themselves</i> as a historical art form and their influence on
+    programming culture. It does <b>not</b> reproduce, host, or endorse cracked software or keygen tools. The genuine
+    originals are preserved for study in emulation collections (e.g. the Internet Archive's C64 software-library
+    cracktros); please experience them there.
+  </div>
+
+  <h2>A thumbnail history</h2>
+  <table>
+    <tr><th>~Year</th><th>Development</th></tr>
+    <tr><td>1982</td><td>The Commodore 64 ships — a colour-capable, sound-capable computer that becomes a favourite canvas.</td></tr>
+    <tr><td>1984–86</td><td>Early intros are plain scrolling credit text; groups compete to be noticed.</td></tr>
+    <tr><td>mid/late-80s</td><td>Intros grow into technical showcases: raster effects, bitmap scrolls, sequenced music, loader games.</td></tr>
+    <tr><td>~1988–93</td><td>The pure "demo" (no game attached) dominates across C64, Amiga, Atari ST and PC; emphasis shifts to audio-visual craft.</td></tr>
+    <tr><td>today</td><td>Demo competitions and chiptune artists continue the tradition; scene history is studied and archived.</td></tr>
+  </table>
+
+  <h2>Signature effects (rendered live below)</h2>
+  <p>Six visual signatures of the era, re-created fresh in the classic palette. These are original renders, not copies of
+  anyone's work.</p>
+  <div class="grid" id="fx"></div>
+
+  <h2>Why it matters</h2>
+  <p>The demo scene was a massive, informal school of programming. Writers learned to talk to graphics and sound chips
+  byte-by-byte, to write real-time renderers, and to treat software as a performative art. Its spirit lives on in
+  chiptune music, in modern real-time graphics, and in the makers who still code "just to see what the machine can do."</p>
+
+  <h2>Sources</h2>
+  <ul class="src">
+    <li>Internet Archive — <a href="https://archive.org/details/softwarelibrary_c64_cracktros" target="_blank" rel="noopener">Software Library: Commodore C64 Cracktros</a></li>
+  </ul>
+
+  <footer><a href="../index.html">← back to home</a></footer>
+</main>
+<script src="../js/chip.js"></script>
+<script src="../js/stage.js"></script>
+<script src="../js/nav.js"></script>
+<script>
+  const FX=[["Loader / Digits","digit"],["Raster Bars","raster"],["Scrolltext","scroll"],
+            ["Logotype","logo"],["Plasma","plasma"],["Credits","credit"]];
+  const PAL=window.PAL16, host=document.getElementById("fx");
+  function draw(g,cw,ch,kind,lt){
+    g.fillStyle="#000";g.fillRect(0,0,cw,ch);
+    if(kind==="raster"){for(let y=0;y<ch;y+=3)g.fillStyle=PAL[((y/3|0)+Math.floor(lt*8))%2?10:6],g.fillRect(0,y,cw,3);}
+    else if(kind==="plasma"){for(let y=0;y<ch;y+=5)for(let x=0;x<cw;x+=5){const v=Math.sin(x*.05+lt)*Math.cos(y*.05+lt*.7);g.fillStyle=PAL[4+(Math.floor((v+1)*6))%10];g.fillRect(x,y,5,5);}}
+    else if(kind==="digit"){for(let y=0;y<ch;y+=5)g.fillStyle=PAL[1+(Math.floor(Math.abs(Math.sin(lt*3+y*.06))*13))],g.fillRect(0,y,cw,5);}
+    else if(kind==="scroll"){g.fillStyle=PAL[1];g.fillRect(0,0,cw,ch);g.fillStyle="#000";g.font="bold 10px monospace";g.textAlign="left";
+      const msg="   DEMO SCENE ...  RASTER  SCROLLTEXT  PLASMA  LOADER  ...  ";const tw=g.measureText(msg).width;g.save();g.translate(cw-(lt*26)%(tw+cw),ch/2-6);g.fillText(msg,0,0);g.restore();}
+    else if(kind==="logo"){const k=Math.abs(Math.sin(lt));g.fillStyle=PAL[6];g.fillRect(cw/2-30*k,ch/2-8,60*k,16);g.fillStyle=PAL[14];g.fillRect(cw/2-30*k,ch/2+8,60*k,10);}
+    else if(kind==="credit"){for(let i=0;i<6;i++){g.fillStyle=PAL[i%2?0:1];g.fillRect(0,i*25,cw,25);}g.fillStyle=PAL[15];g.fillRect(0,0,cw,25);g.fillStyle=PAL[0];g.font="bold 12px monospace";g.textAlign="center";g.fillText("CODED BY / MUSIC BY / GFX BY",cw/2,18);}
+  }
+  FX.forEach(f=>{const a=document.createElement("div");a.className="ch-card";const cv=document.createElement("canvas");const cap=document.createElement("div");cap.className="cap";const b=document.createElement("b");b.textContent=f[0];cap.appendChild(b);a.appendChild(cv);a.appendChild(cap);host.appendChild(a);
+    const g=cv.getContext("2d"),cw=cv.width=300,ch=cv.height=130;let lt=Date.now()/1000;draw(g,cw,ch,f[1],lt);setInterval(()=>{lt=Date.now()/1000;draw(g,cw,ch,f[1],lt);},120);});
+  window.addEventListener("load",()=>window.stageRun(document.getElementById("hero"),{title:"CRACKTRO // DEMOSCENE",sub:"raster · scrolltext · plasma · chiptune",color:11}));
+</script>
+</body>
+</html>
