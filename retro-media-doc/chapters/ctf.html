@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capture The Flag — Secrets of the Screen</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="top"></div>
+<div class="hero"><canvas id="hero"></canvas>
+  <div class="hcap"><b>CAPTURE THE FLAG</b> cybersecurity as a competitive sport, and the archive that tracks it.</div></div>
+<main>
+  <h1>Chapter 06 — Capture The Flag &amp; CTFtime</h1>
+  <p class="lead"><b>Capture the Flag</b> (CTF) is a cybersecurity competition where teams solve challenges to find
+  hidden "flags" — short strings like <span class="mono">flag{...}</span> — buried in intentionally vulnerable programs,
+  websites, files or systems. CTFs are how a huge part of the security community learns and competes, and
+  <a href="https://ctftime.org/" target="_blank" rel="noopener">CTFtime</a> is the de-facto hub that lists events, records
+  results, and archives what happened afterwards.</p>
+
+  <h2>How a CTF works</h2>
+  <table>
+    <tr><th>Format</th><th>How it plays</th><th>Examples</th></tr>
+    <tr><td>Jeopardy-style</td><td>A board of independent challenges across categories, each worth points by difficulty. Solve → submit flag → points.</td><td>many online events</td></tr>
+    <tr><td>Attack–Defense</td><td>Each team defends an identical vulnerable service while attacking the other teams' copies. Points for both.</td><td>DEF CON CTF finals</td></tr>
+    <tr><td>Mixed / King of the Hill</td><td>Combines jeopardy with live, repeatedly-scored targets or territory control.</td><td>qualifiers that mix formats</td></tr>
+  </table>
+  <p class="mut">The first widely recognised security CTF was held at DEF CON in 1996. Some CTFs are run at
+  conferences (DEF CON, CSAW, PlaidCTF) and many more are online-only and open to anyone.</p>
+
+  <h2>What ctf-time.org does</h2>
+  <p>CTFtime is a community calendar and archive rather than a competition itself. Its main jobs:</p>
+  <ul>
+    <li><b>Calendar</b> — lists upcoming CTFs with dates, formats and links so teams can plan.</li>
+    <li><b>Results &amp; ratings</b> — records each event's scoreboard and computes a rolling team rating per year, so you can compare teams across the globe.</li>
+    <li><b>Archive of challenges &amp; writeups</b> — after an event, organizers often release the challenge files, and teams publish <b>writeups</b> (walkthroughs) explaining their solutions. CTFtime links these together — effectively a public library of past problems and their solutions.</li>
+    <li><b>Team pages</b> — each team has a page showing history, rankings and (often) links to their published writeups.</li>
+  </ul>
+
+  <h2>A slice of recent results (from the CTFtime yearly rating tables)</h2>
+  <p class="mut">Teams rise and fall each season; these are the #1 teams per year on CTFtime's rating list.</p>
+  <table>
+    <tr><th>Season</th><th>#1 team (CTFtime rating)</th></tr>
+    <tr><td>2026</td><td>TeamH4C (KR)</td></tr>
+    <tr><td>2025</td><td>r3kapig (CN)</td></tr>
+    <tr><td>2024</td><td>kalmarunionen (DK)</td></tr>
+    <tr><td>2023</td><td>water/emoji-named team (CTFtime)</td></tr>
+    <tr><td>2022</td><td>organizers (CH)</td></tr>
+    <tr><td>2021 &amp; earlier</td><td>see CTFtime's per-year archive</td></tr>
+  </table>
+  <p class="mut">Long-running powerhouse names also recur lower on these tables — r3kapig, Nu1L, Never Stop Exploiting,
+  Project Sekai, The Flat Network Society — a reminder that the top of the field is consistently strong and global.</p>
+
+  <h2>The "writeup archive" idea (presented responsibly)</h2>
+  <p>The most educational part of the CTF culture is the <b>writeup library</b>: after an event ends, competitors publish
+  step-by-step solutions. Reading old writeups is how newcomers learn the standard techniques. The shared challenge
+  categories you'll keep meeting are:</p>
+  <ul>
+    <li><b>Crypto</b> — break or exploit ciphers and weak randomness.</li>
+    <li><b>Reverse engineering</b> — dissect a binary to understand and unlock it.</li>
+    <li><b>Pwn / binary exploitation</b> — memory-safety bugs in intentionally vulnerable programs.</li>
+    <li><b>Web</b> — find flaws in a challenge website (injection, auth bugs, etc.).</li>
+    <li><b>Forensics</b> — recover data from memory dumps, captures or disk images.</li>
+    <li><b>Misc / Stego</b> — puzzles, encodings, hidden data in media.</li>
+  </ul>
+
+  <h3>A tiny, safe taste — decode a sample flag</h3>
+  <p>Real CTFs mix ciphers and encodings. Here's a harmless, self-contained example (no exploit, no real target). Try to
+  decode this sample flag — click to reveal.</p>
+  <div class="egg">
+    <button id="decodeBtn">decode the sample flag</button>
+    <div class="reveal hidden" id="flagWrap">
+      given: <span class="mono" id="given"></span><br><br>
+      <span id="flagAnswer"></span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>Decoding it yourself (peek-free):</b> the string below is the flag <b>ROT13</b>-encoded, then wrapped in the usual
+    <span class="mono">flag{...}</span> brackets with every letter shifted 13. Un-shift each letter by 13 to read it.
+  </div>
+
+  <div class="callout red">
+    <b>Ethics &amp; limits.</b> CTF skills belong in <b>sandboxed challenge environments</b>. Please (1) never use "answers" to
+    cheat in a <i>live</i> competition — that harms everyone and breaks its rules; (2) never point the techniques at real
+    systems without authorisation; and (3) treat the writeup archive as a <b>retrospective learning library</b>, which is
+    exactly what the community intends it to be. This page explains categories and links outward; it doesn't host
+    working exploits for real-world targets.
+  </div>
+
+  <h2>Sources &amp; where the real library lives</h2>
+  <ul class="src">
+    <li>CTFtime — <a href="https://ctftime.org/" target="_blank" rel="noopener">ctftime.org</a> (calendar, results, writeup/event archive)</li>
+    <li>Wikipedia — "Capture the flag (cybersecurity)" for the history and formats.</li>
+  </ul>
+  <footer><a href="../index.html">← back to home</a></footer>
+</main>
+<script>
+  // harmless ROT13 sample flag
+  function rot13(s){return s.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<='Z'?65:97)+((c.charCodeAt(0)-(c<='Z'?65:97)+13)%26)));}
+  const real="flag{secrets_of_the_screen_ctf_archive}";
+  const encoded=rot13(real);
+  document.getElementById("given").textContent=encoded;
+  document.getElementById("decodeBtn").addEventListener("click",function(){
+    document.getElementById("flagWrap").classList.remove("hidden");
+    document.getElementById("flagAnswer").textContent="decoded: "+rot13(encoded);
+    if(window.chip)window.chip.blip(880);
+  });
+</script>
+<script src="../js/chip.js"></script>
+<script src="../js/stage.js"></script>
+<script src="../js/nav.js"></script>
+<script>window.addEventListener("load",()=>window.stageRun(document.getElementById("hero"),{title:"CAPTURE THE FLAG",sub:"flags · scoreboards · the writeup archive",color:10}));</script>
+</body>
+</html>

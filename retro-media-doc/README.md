@@ -13,10 +13,12 @@ WebAudio); no media files or archive content are reproduced.
 | `chapters/eggs.html` | Easter eggs in software (MS-DOS) and film trivia |
 | `chapters/presskit.html` | Multimedia CD-ROM press kits — the 1997 DreamWorks "The Peacemaker" kit |
 | `chapters/gamewizard.html` | Game Wizard (1994): an educational look at a shareware DOS game enhancer |
+| `chapters/ctf.html` | Capture the Flag — formats, the CTFtime results/ratings archive, and the writeup library as a retrospective learning resource |
 
 ## How it's built
 - `css/style.css` — shared retro/CRT styling.
-- `js/chip.js` — original SID-style WebAudio chiptune engine (loop/pattern model).
+- `js/chip.js` — original SID-style WebAudio chiptune engine with a multi-song model
+  (title / arcade / ballad — selectable from the top-bar ♪ control).
 - `js/stage.js` — shared animated "attract screen" canvas backdrop.
 - `js/nav.js` — injects a shared top navigation + the music toggle on every page.
 - Chapters carry their own live canvas interactive(s).
@@ -26,6 +28,8 @@ WebAudio); no media files or archive content are reproduced.
 - Easter Egg Archive — eeggs.com (MS-DOS list)
 - National Treasure fan easter-egg archive — nationaltreasure.us/easter-eggs
 - Internet Archive — The Peacemaker (1997) press kit; C64 cracktros; Game Wizard
+- CTFtime — ctf-time.org (CTF calendar, results/ratings, writeup archive)
+- Wikipedia — "Capture the flag (cybersecurity)"
 
 ## Boundaries
 Original educational homage. Distributes **no** cracked software, keygens, or copied
