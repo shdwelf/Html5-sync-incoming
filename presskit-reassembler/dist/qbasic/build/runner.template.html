@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QBasic Runner — Press Kit Reassembler</title>
+<style>
+  :root{--bg:#05060a;--ink:#c8d6ea;--mut:#6b7a94;--grn:#4ade80;--red:#f87171;--gold:#fbbf24;--cyan:#22d3ee;--line:#1f2a44}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;min-height:100vh}
+  header{padding:16px 20px;border-bottom:1px solid var(--line)}
+  header h1{margin:0;font-size:15px;letter-spacing:.1em;color:var(--cyan)}
+  header .sub{color:var(--mut);font-size:11px}
+  .wrap{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;padding:16px 20px;max-width:1200px;margin:0 auto}
+  @media(max-width:960px){.wrap{grid-template-columns:1fr}}
+  .panel{background:#0a0e18;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .panel h2{margin:0 0 10px;font-size:11px;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+  #term{background:#000;border:1px solid #233;border-radius:6px;padding:8px 6px;min-height:320px;white-space:pre;
+        font:14px/1.2 ui-monospace,Menlo,Consolas,monospace;overflow:auto}
+  #term div{white-space:pre}
+  textarea{width:100%;height:340px;background:#05070d;color:#b9e6c9;border:1px solid var(--line);border-radius:6px;
+        font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;padding:8px;resize:vertical}
+  .btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  button{cursor:pointer;border:none;border-radius:7px;padding:9px 13px;font:inherit;font-weight:700;letter-spacing:.04em;font-size:12px;background:#0b1222;color:var(--cyan);border:1px solid var(--line)}
+  button:hover{border-color:var(--cyan)}
+  button.primary{background:linear-gradient(90deg,#0ea5e9,#22d3ee);color:#06222b}
+  #inbar{display:none;gap:8px;margin-top:8px}
+  #inbar input{flex:1;background:#000;color:#0f0;border:1px solid #233;border-radius:6px;padding:8px;font:inherit}
+  .status{color:var(--mut);font-size:11px;margin-top:8px;min-height:16px}
+  .ok{color:var(--grn)} .err{color:var(--red)}
+  .foot{color:var(--mut);font-size:10px;padding:12px 20px;border-top:1px solid var(--line);line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <h1>QBasic RUNNER · PRESS KIT REASSEMBLER</h1>
+  <div class="sub">Runs an original QBasic-style program in the browser &amp; reassembles the DOS .COM through WebAssembly</div>
+</header>
+
+<div class="wrap">
+  <section class="panel">
+    <h2>Terminal</h2>
+    <div id="term"></div>
+    <div id="inbar"><input id="inval" placeholder="type input &amp; press Enter"><button id="inok">Enter</button></div>
+    <div class="status" id="status">idle — press Run. Access code: <b>opensaysme</b></div>
+    <div class="btns">
+      <button class="primary" id="run">▶ Run</button>
+      <button id="stop">■ Stop</button>
+      <button id="dlcom" disabled>⬇ Save .com (after ACCESS GRANTED)</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Program (PRESSKIT.BAS)</h2>
+    <textarea id="src" spellcheck="false"></textarea>
+    <p style="color:var(--mut);font-size:11px">Original QBasic-subset program. Edit, then Run. On a correct access code the
+       browser invokes the embedded <b>WebAssembly</b> cipher engine and rebuilds the runnable DOS <b>.com</b>.</p>
+  </section>
+</div>
+
+<div class="foot">
+  This is an <b>original</b> BASIC interpreter and an original QBasic-style program — it does <b>not</b> embed Microsoft's
+  QBasic source. (Microsoft's GW-BASIC on GitHub is 8088 assembly, MIT-licensed — not QBasic, and not GPL.) The DOS .com
+  output is the same self-contained press-kit program as the main app, encrypted via WASM.
+</div>
+
+<script>
+"use strict";
+/* ================= payloads (injected at build) ================= */
+const WASM_B64 = "@@WASM@@";
+const CODE = @@CODE@@;
+const CODE_LEN = CODE.length;
+const MEMBASE = 0x100;
+
+let ex=null;
+function b64ToBytes(b){const s=atob(b),a=new Uint8Array(s.length);for(let i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a;}
+async function initWasm(){const {instance}=await WebAssembly.instantiate(b64ToBytes(WASM_B64),{});ex=instance.exports;}
+function wasmEncode(kind,key,bytes){const src=0x8000,dst=0x9000;new Uint8Array(ex.memory.buffer,src).set(bytes);ex.encode(kind,key,src,bytes.length,dst);return new Uint8Array(ex.memory.buffer,dst,bytes.length).slice();}
+
+/* ================= DOS .com builder (matches main app) ================= */
+function sanitizeBody(str,key){const a=[];for(const ch of str){let b=ch.codePointAt(0);b&=0xff;if(b>0x7f)b=63;if(b===0x24)continue;if(b===((key^0x24)&0xff))continue;a.push(b);}return new Uint8Array(a);}
+function sanitizePlain(str){const a=[];for(const ch of str){let b=ch.codePointAt(0);b&=0xff;if(b>0x7f)b=63;if(b===0x24)continue;a.push(b);}return new Uint8Array(a);}
+function buildCom({title,pass,body1,body2,key}){
+  key=(key===undefined)?0x5A:(key&0xff);
+  const code=Uint8Array.from(CODE);
+  let patched=0;for(let i=0;i<code.length-1;i++){if(code[i]===0x34){code[i+1]=key;patched++;}}
+  const b1=sanitizeBody(body1,key);const c1=wasmEncode(0,key,b1);
+  let c2=null,b2p=null;if(body2){b2p=sanitizeBody(body2,key);c2=wasmEncode(0,key,b2p);}
+  const P=MEMBASE;
+  const data=[];
+  const baseOff=CODE_LEN+16;
+  function place(bytes,term){const o=data.length;for(const b of bytes)data.push(b);if(term)data.push(0x24);return baseOff+o;}
+  const rcb=[0,0,0,0,0,0,0,0];
+  rcb[0]=P+place(sanitizePlain(title+'\r\n\r\n'),true);
+  rcb[1]=P+place(sanitizePlain('\nACCESS CODE: '),true);
+  rcb[2]=P+place(sanitizePlain('\nACCESS GRANTED\r\n\r\n'),true);
+  rcb[3]=P+place(sanitizePlain('\r\n*** ACCESS DENIED ***\r\n'),true);
+  rcb[4]=P+place(sanitizePlain(String(pass).toLowerCase()),true);
+  rcb[5]=P+place(new Uint8Array([32,0,...new Array(32).fill(0)]),false);
+  rcb[6]=P+place(c1,true);
+  if(c2)rcb[7]=P+place(c2,true);
+  const out=[];for(const b of code)out.push(b);for(const w of rcb){out.push(w&0xff,(w>>8)&0xff);}for(const b of data)out.push(b);
+  return new Uint8Array(out);
+}
+function download(name,bytes){const blob=new Blob([bytes],{type:'application/octet-stream'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();}
+
+/* ================= 80x25 terminal ================= */
+const COLS=80,ROWS=25;
+const PAL={0:'#000',1:'#00a',2:'#0a0',3:'#0aa',4:'#a00',5:'#a0a',6:'#a50',7:'#bbb',8:'#555',9:'#55f',10:'#0f0',11:'#0ff',12:'#f55',13:'#f5f',14:'#ff5',15:'#fff'};
+const screen=[];function initScreen(){screen.length=0;for(let r=0;r<ROWS;r++){screen.push({text:Array(COLS).fill(' '),col:Array(COLS).fill(7)});}}
+initScreen();
+let curR=0,curC=0,curCol=7;
+const termEl=document.getElementById('term');
+function render(){
+  const html=[];
+  for(let r=0;r<ROWS;r++){
+    const row=screen[r];let seg='',color=-1,line='';
+    for(let c=0;c<COLS;c++){
+      const ch=row.text[c],co=row.col[c];
+      if(co!==color){if(color!==-1){line+='</span>';}line+='<span style="color:'+(PAL[co]||PAL[7])+'">';color=co;}
+      line+=ch===' '?'&nbsp;':ch;
+    }
+    line+='</span>';html.push(line);
+  }
+  termEl.innerHTML=html.join('<br>');
+}
+function put(ch,c){const r=Math.max(0,Math.min(ROWS-1,curR)),cc=Math.max(0,Math.min(COLS-1,curC));screen[r].text[cc]=ch;screen[r].col[cc]=curCol;curC++;if(curC>=COLS){curC=0;curR++;if(curR>=ROWS)curR=ROWS-1;}}
+function setLoc(r,c){curR=Math.max(0,Math.min(ROWS-1,(r|0)-1));curC=Math.max(0,Math.min(COLS-1,(c|0)-1));}
+function printStr(s){for(const ch of s){if(ch==='\n'){curR++;curC=0;if(curR>=ROWS)curR=ROWS-1;}else if(ch==='\r'){}else put(ch);}}
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.type='square';g.gain.value=.03;o.start();setTimeout(()=>{o.stop();a.close();},80);}catch(e){}}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+/* ================= expression evaluation ================= */
+function tok(str){const t=[];let i=0;while(i<str.length){const c=str[i];
+  if(c===' ')i++;
+  else if(c==='"'||c==="'"){let q=c,j=i+1,s='';while(j<str.length&&str[j]!==q){s+=str[j];j++;}t.push({k:'str',v:s});i=j+1;}
+  else if(/[0-9.]/.test(c)){let j=i,s='';while(j<str.length&&/[0-9.]/.test(str[j])){s+=str[j];j++;}t.push({k:'num',v:parseFloat(s)});i=j;}
+  else if(/[A-Za-z_]/.test(c)){let j=i,s='';while(j<str.length&&/[A-Za-z0-9_$]/.test(str[j])){s+=str[j];j++;}const up=s.toUpperCase();if(up==='AND')t.push({k:'and'});else if(up==='OR')t.push({k:'or'});else t.push({k:'id',v:s});i=j;}
+  else if('+-*/()<>=!,'.includes(c)){if(c==='!'&&str[i+1]==='='){t.push({k:'ne'});i+=2;}else if(str[i]==='<'&&str[i+1]==='='){t.push({k:'le'});i+=2;}else if(str[i]==='>'&&str[i+1]==='='){t.push({k:'ge'});i+=2;}else if(str[i]==='<'&&str[i+1]==='>'){t.push({k:'ne'});i+=2;}else if(str[i]==='='&&str[i+1]==='='){t.push({k:'eq'});i+=2;}else if(c==='<'){t.push({k:'lt'});i++;}else if(c==='>'){t.push({k:'gt'});i++;}else if(c==='='){t.push({k:'eq'});i++;}else{t.push({k:c});i++;}}
+  else i++;
+}return t;}
+function mkParser(str){const toks=tok(str);let p=0;
+  const peek=()=>toks[p]||{k:'eof'};
+  const next=()=>toks[p++];
+  function orE(){let e=andE();while(peek().k==='or'){next();const r=andE();const l=e;e=(sc)=>{return bool(l(sc))||bool(r(sc));};}return e;}
+  function andE(){let e=cmpE();while(peek().k==='and'){next();const r=cmpE();const l=e;e=(sc)=>{return bool(l(sc))&&bool(r(sc));};}return e;}
+  function cmpE(){let e=addE();const k=peek().k;if(['eq','ne','lt','gt','le','ge'].includes(k)){next();const r=addE();const o=k;const l=e;e=(sc)=>{const a=l(sc),b=r(sc);switch(o){case'eq':return a===b;case'ne':return a!==b;case'lt':return a<b;case'gt':return a>b;case'le':return a<=b;case'ge':return a>=b;}};}return e;}
+  function addE(){let e=mulE();while(peek().k==='+'||peek().k==='-'){const op=next().k;const r=mulE();const l=e;e=(sc)=>{const a=l(sc),b=r(sc);if(op==='+'){if(typeof a==='string'||typeof b==='string')return String(a)+String(b);return a+b;}return a-b;};}return e;}
+  function mulE(){let e=unE();while(peek().k==='*'||peek().k==='/'){const op=next().k;const r=unE();const l=e;e=(sc)=>{const a=l(sc),b=r(sc);return op==='*'?a*b:a/b;};}return e;}
+  function unE(){if(peek().k==='-'){next();const e=unE();return sc=>-e(sc);}return prim();}
+  function prim(){const tk=next();
+    if(tk.k==='num')return sc=>tk.v;
+    if(tk.k==='str')return sc=>tk.v;
+    if(tk.k==='id'){const name=tk.v;
+      if(peek().k==='('){next(); // function call
+        const nameu=name.toUpperCase();
+        if(nameu==='LCASE$'){const e=orE();expect(')');return sc=>String(e(sc)).toLowerCase();}
+        if(nameu==='UCASE$'){const e=orE();expect(')');return sc=>String(e(sc)).toUpperCase();}
+        if(nameu==='STRING$'){const n=orE();expect(',');const ch=orE();expect(')');return sc=>String(ch(sc)).repeat(n(sc)|0);}
+        if(nameu==='LEN'){const e=orE();expect(')');return sc=>String(e(sc)).length;}
+        throw new Error('unknown fn '+name);
+      }
+      const isStr=name.endsWith('$');
+      return sc=>sc.get(name,isStr);
+    }
+    if(tk.k==='('){const e=orE();expect(')');return e;}
+    throw new Error('expr syntax near '+tk.k);
+  }
+  function expect(k){if(peek().k===k)next();else throw new Error('expected '+k+' got '+peek().k);}
+  return {parse:()=>orE()};
+}
+function bool(x){return x===true||x===1||x===1.0||x==='1'||x==='-1'||(typeof x==='number'&&x!==0);}
+
+/* ================= statement splitter ================= */
+function splitStmts(line){const out=[];let i=0,q=null,depth=0,s='';
+  while(i<line.length){const c=line[i];
+    if(q){s+=c;if(c===q)q=null;}
+    else if(c==='"'||c==="'"){q=c;s+=c;}
+    else if(c==='('){depth++;s+=c;}
+    else if(c===')'){depth--;s+=c;}
+    else if(c===':'&&depth===0){out.push(s.trim());s='';}
+    else s+=c;
+    i++;
+  }if(s.trim())out.push(s.trim());return out;}
+
+/* ================= parser -> tree ================= */
+function parseProgram(src){
+  const raw=src.split('\n');
+  const lines=[];
+  for(const l of raw){let t=l.trim();if(!t)continue;if(t[0]==="'")continue;if(/^REM\s/i.test(t))continue;t=t.replace(/^\d+\s*/,'');if(!t)continue;lines.push(t);}
+  let pos=0;
+  function isEndIf(l){const u=l.toUpperCase();return u==='END IF'||u.startsWith('END IF ');}
+  function isElse(l){const u=l.toUpperCase();return u==='ELSE'||u.startsWith('ELSE ');}
+  function isNext(l){return /^NEXT\b/i.test(l);}
+  function parseBlock(){
+    const seq=[];
+    while(pos<lines.length){
+      const line=lines[pos];
+      if(isEndIf(line)||isElse(line)||isNext(line)) return seq; // do NOT consume terminator
+      const startsIf=/^IF\b/i.test(line), startsFor=/^FOR\b/i.test(line);
+      if(startsIf||startsFor){ pos++; seq.push(parseStatement(line)); continue; }
+      pos++;
+      for(const s of splitStmts(line)){
+        if(!s)continue; if(s[0]==="'")continue; if(/^REM\b/i.test(s))continue;
+        seq.push(parseStatement(s));
+      }
+    }
+    return seq;
+  }
+  function parseStatement(line){
+    const up=line.toUpperCase();
+    if(/^END\b/.test(up))return {k:'end'};
+    if(/^CLS\b/.test(up))return {k:'cls'};
+    if(/^SCREEN\b/.test(up)){const e=mkParser(line.slice(6)).parse();return{k:'screen',e};}
+    if(/^COLOR\b/.test(up)){const rest=line.slice(5);const parts=splitArgs(rest);const fg=mkParser(parts[0]).parse();const bg=parts[1]?mkParser(parts[1]).parse():()=>null;return{k:'color',fg,bg};}
+    if(/^LOCATE\b/.test(up)){const parts=splitArgs(line.slice(6));const r=mkParser(parts[0]).parse();const c=parts[1]?mkParser(parts[1]).parse():()=>1;return{k:'locate',r,c};}
+    if(/^PRINT\b/.test(up)){const rest=line.slice(5).trim();return{k:'print',parts:parsePrintArgs(rest)};}
+    if(/^SOUND\b/.test(up)){const p=splitArgs(line.slice(5));return{k:'sound',f:mkParser(p[0]).parse(),d:mkParser(p[1]?p[1]:'1').parse()};}
+    if(/^SLEEP\b/.test(up)){const rest=line.slice(5).trim();return{k:'sleep',e:rest?mkParser(rest).parse():()=>0};}
+    if(/^INPUT\b/.test(up))return parseInput(line.slice(5));
+    if(/^IF\b/.test(up)){
+      const m=line.match(/^IF\s+(.+?)\s+THEN\s*(.*)$/i);
+      if(!m)throw new Error('IF parse: '+line);
+      const cond=mkParser(m[1]).parse();const rest=m[2].trim();
+      if(rest===''){ // block form
+        const thens=parseBlock();      // pos now at ELSE / END IF / eof
+        let els=null;
+        if(pos<lines.length&&isElse(lines[pos])){pos++;els=parseBlock();}
+        if(pos<lines.length&&isEndIf(lines[pos]))pos++; // consume END IF
+        return{k:'if',cond,then:thens,else:els};
+      }
+      // single-line IF ... THEN stmts (and optional ELSE)
+      const stmts=[];const tail=rest.split(/\s+ELSE\s+/i);const thenPart=tail[0];let elsePart=tail[1];
+      for(const s of splitStmts(thenPart))stmts.push(parseStatement(s));
+      let els=null;
+      if(elsePart){els=[];for(const s of splitStmts(elsePart))els.push(parseStatement(s));}
+      return{k:'if',cond,then:stmts,else:els};
+    }
+    if(/^FOR\b/.test(up)){
+      const m=line.match(/^FOR\s+([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.+?)\s+TO\s+(.+?)(?:\s+STEP\s+(.+))?$/i);
+      if(!m)throw new Error('FOR parse '+line);
+      const v=m[1];const start=mkParser(m[2]).parse();const end=mkParser(m[3]).parse();const step=m[4]?mkParser(m[4]).parse():()=>1;
+      const body=parseBlock(); // stops (without consuming) at NEXT
+      if(pos<lines.length&&isNext(lines[pos]))pos++; // consume the NEXT line
+      return{k:'for',v,start,end,step,body};
+    }
+    // assignment
+    const am=line.match(/^([A-Za-z_][A-Za-z0-9_]*\$?)\s*=\s*(.+)$/);
+    if(am){return{k:'set',v:am[1],e:mkParser(am[2]).parse()};}
+    throw new Error('cannot parse: '+line);
+  }
+  function splitArgs(s){const out=[];let i=0,q=null,depth=0,cur='';
+    while(i<s.length){const c=s[i];if(q){cur+=c;if(c===q)q=null;}else if(c==='"'||c==="'"){q=c;cur+=c;}else if(c==='('){depth++;cur+=c;}else if(c===')'){depth--;cur+=c;}else if(c===','&&depth===0){out.push(cur.trim());cur='';}else cur+=c;i++;}
+    if(cur.trim())out.push(cur.trim());return out;}
+  function parsePrintArgs(rest){if(!rest)return [];return splitArgs2(rest);}
+  function splitArgs2(s){const out=[];let i=0,q=null,depth=0,cur='';
+    while(i<s.length){const c=s[i];if(q){cur+=c;if(c===q)q=null;}else if(c==='"'||c==="'"){q=c;cur+=c;}else if(c==='('){depth++;cur+=c;}else if(c===')'){depth--;cur+=c;}else if((c===';'||c===',')&&depth===0){if(cur.trim())out.push({expr:mkParser(cur.trim()).parse(),tab:c===','});cur='';}else cur+=c;i++;}
+    if(cur.trim())out.push({expr:mkParser(cur.trim()).parse(),tab:false});return out;}
+  function parseInput(s){s=s.trim();
+    // optional quoted prompt then variable; or variable
+    let prompt=null,varName=null;
+    if(s[0]==='"'||s[0]==="'"){let q=s[0],j=1,p='';while(j<s.length&&s[j]!==q){p+=s[j];j++;}prompt=p;j++;s=s.slice(j).trim();if(s[0]===',')s=s.slice(1).trim();}
+    varName=s.trim().replace(/;$/,'').trim();
+    return{k:'input',prompt,var:varName};}
+  const seq=parseBlock();
+  return seq;
+}
+
+/* ================= scope ================= */
+function Scope(){this.vals={};}
+Scope.prototype.get=function(name,isStr){const v=this.vals[name];if(v===undefined){if(isStr)return '';return 0;}return v;};
+Scope.prototype.set=function(name,v){this.vals[name]=v;};
+
+/* ================= interpreter ================= */
+class Halt extends Error{}
+class Runner{
+  constructor(){this.stopped=false;this.sc=new Scope();this.inputQ=[];this.comCtx=null;}
+  stop(){this.stopped=true;}
+  async run(tree){this.stopped=false;try{await this.execSeq(tree);return{halted:true,com:this.comCtx};}catch(e){if(e instanceof Halt)return{halted:true,com:this.comCtx};throw e;}}
+  async execSeq(seq){for(const n of seq){if(this.stopped)throw new Halt();await this.exec(n);}}
+  async exec(n){
+    switch(n.k){
+      case'end':throw new Halt();
+      case'cls':initScreen();curR=0;curC=0;break;
+      case'screen':break;
+      case'color':{const fg=Math.round(n.fg(this.sc)||0);const bg=n.bg?n.bg(this.sc):null;curCol=fg&15;break;}
+      case'locate':{const r=Math.round(n.r(this.sc));const c=n.c?Math.round(n.c(this.sc)):1;setLoc(r,c);break;}
+      case'print':{for(const part of n.parts){let v=part.expr(this.sc);let s=(typeof v==='string')?v:String(v);if(part.tab){while((curC%14)!==0)put(' ');}printStr(s);}break;}
+      case'sound':{beep();break;}
+      case'sleep':{const sec=n.e(this.sc);await sleep((sec|0)*1000||50);break;}
+      case'set':this.sc.set(n.v,n.e(this.sc));break;
+      case'input':{
+        if(n.prompt){printStr(n.prompt);render();}
+        const val=await this.askInput();
+        this.sc.set(n.var,val);
+        printStr('\n');break;}
+      case'if':{const c=bool(n.cond(this.sc));if(c)await this.execSeq(n.then);else if(n.else)await this.execSeq(n.else);break;}
+      case'for':{
+        const v=n.v;this.sc.set(v,n.start(this.sc));
+        const end=()=>n.end(this.sc);const step=()=>n.step(this.sc);
+        for(let i=this.sc.get(v,false); step()>=0? i<=end() : i>=end(); i+=step()){
+          if(this.stopped)throw new Halt();
+          this.sc.set(v,i);await this.execSeq(n.body);
+          i=this.sc.get(v,false);
+        }
+        break;}
+    }
+  }
+  askInput(){
+    return new Promise(resolve=>{
+      if(this.inputQ.length){resolve(this.inputQ.shift());return;}
+      const inp=document.getElementById('inval'),bar=document.getElementById('inbar');
+      bar.style.display='flex';inp.value='';inp.focus();
+      const done=()=>{bar.style.display='none';const v=inp.value;inp.removeEventListener('keydown',hk);document.getElementById('inok').removeEventListener('click',hk2);resolve(v);};
+      const hk=e=>{if(e.key==='Enter')done();};
+      const hk2=done;
+      inp.addEventListener('keydown',hk);document.getElementById('inok').addEventListener('click',hk2);
+    });
+  }
+  setGrantedCom(com){this.comCtx=com;}
+}
+
+/* ================= run wiring ================= */
+const srcEl=document.getElementById('src');
+srcEl.value=`' ===== PRESSKIT.BAS (original QBasic-style) =====
+SCREEN 0
+COLOR 11
+CLS
+LOCATE 2, 24: PRINT "PRESS KIT REASSEMBLER"
+LOCATE 3, 24: PRINT STRING$(26, "=")
+COLOR 7
+LOCATE 5, 2: PRINT "engine .... WebAssembly cipher (XOR / ROT13 / Caesar)"
+LOCATE 6, 2: PRINT "output .... classic DOS press-kit program (.COM)"
+LOCATE 7, 2: PRINT "content ... your variables, your text - original tool"
+COLOR 14
+LOCATE 10, 20: PRINT "+-----------------------------------------+"
+LOCATE 11, 20: PRINT "|                                         |"
+LOCATE 12, 20: PRINT "|   [ REASSEMBLE THE PRESS KIT. ]         |"
+LOCATE 13, 20: PRINT "|   [ type the access code, then GO. ]     |"
+LOCATE 14, 20: PRINT "|                                         |"
+LOCATE 15, 20: PRINT "+-----------------------------------------+"
+COLOR 11
+LOCATE 18, 2: INPUT "ACCESS CODE > ", code$
+IF LCASE$(code$) <> "opensaysme" AND LCASE$(code$) <> "release" THEN
+    COLOR 12: LOCATE 20, 2: PRINT "*** ACCESS DENIED ***"
+    SLEEP 2
+    END
+END IF
+COLOR 10
+LOCATE 20, 2: PRINT "ACCESS GRANTED"
+COLOR 7
+LOCATE 22, 2: PRINT "Rebuilding .COM through WebAssembly ..."
+LOCATE 23, 2: PRINT "Press the [ Save .com ] button when enabled."
+SLEEP
+END
+`;
+
+const runner=new Runner();
+let lastTree=null;
+let grantedCom=null;
+let runEnded=false;
+
+async function doRun(){
+  if(!ex){document.getElementById('status').textContent='waiting for WASM...';await initWasm();}
+  initScreen();curR=0;curC=0;curCol=7;render();
+  document.getElementById('dlcom').disabled=true;grantedCom=null;runEnded=false;grantedFlag=false;
+  runner.sc=new Scope();
+  const status=document.getElementById('status');
+  status.textContent='running... (access code: opensaysme)';
+  try{
+    const tree=parseProgram(srcEl.value);lastTree=tree;
+    const res=await runner.run(tree);
+    if(!grantedFlag) status.textContent='program ended (code not accepted / END)';
+  }catch(e){
+    if(e.name==='Halt'){}else{status.textContent='ERROR: '+e.message;console.error(e);}
+  }
+  render();
+}
+
+/* Build com on grant: monkey-patch print to detect GRANTED then remember code$ */
+const _origInput=Runner.prototype.askInput;
+// Instead: track code$ value after run, plus a marker set when granted printed
+// We override Runner.exec for 'if' grant detection is complex; simpler: detect by scanning scope after grant by wrapping exec('set')? 
+// We'll wrap askInput to record password, and detect grant by watching when a 'print' outputs ACCESS GRANTED is not trivial.
+// Easiest reliable approach: build the com from the entered code in input handler the moment ACCESS GRANTED path runs by post-processing:
+// After the whole program we don't know if granted. So we patch at source: append a special END-of-run? 
+// Cleaner: we wrap Runner.exec of 'input' to also capture, and wrap 'print' to detect granted text then build com with runner.sc value.
+const origExec=Runner.prototype.exec;
+Runner.prototype.exec=async function(n){
+  if(n.k==='input'){this.lastInputVar=n.var;}
+  await origExec.call(this,n);
+};
+// Build after a successful run that reached ACCESS GRANTED: we test by re-running logic? 
+// We'll instead build the com lazily on demand using values the runner collected during a granted path.
+let grantedFlag=false;
+const origPrintExec=Runner.prototype.exec;
+Runner.prototype.exec=async function(n){
+  if(n.k==='print'){for(const part of n.parts){let v=part.expr(this.sc);let s=(typeof v==='string')?v:String(v);if(/ACCESS GRANTED/i.test(s)&&!grantedFlag){grantedFlag=true;buildGrantedCom();}}}
+  await origExec.call(this,n);
+};
+function buildGrantedCom(){
+  try{
+    const pass=runner.sc.get('code$',true)||'opensaysme';
+    const com=buildCom({title:'THE CRIMSON HOUR',pass,body1:'The reassembled press kit.\nLine one.\nLine two.\nMade with an original QBasic runner + WebAssembly.',body2:'Hidden payload decrypted only at runtime.\nSetec-style too-many-secrets homage.',key:0x5A});
+    grantedCom=com;
+    document.getElementById('dlcom').disabled=false;
+    const st=document.getElementById('status');st.className='status ok';st.textContent='ACCESS GRANTED - .com ready ('+com.length+' B)';
+  }catch(e){const st=document.getElementById('status');st.className='status err';st.textContent='com build error: '+e.message;}
+}
+document.getElementById('run').addEventListener('click',doRun);
+document.getElementById('stop').addEventListener('click',()=>runner.stop());
+document.getElementById('dlcom').addEventListener('click',()=>{if(grantedCom)download('presskit.com',grantedCom);});
+(async function boot(){await initWasm();document.getElementById('status').textContent='WASM ready. press Run.';})();
+</script>
+</body>
+</html>

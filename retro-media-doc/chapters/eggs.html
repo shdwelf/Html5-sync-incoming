@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Easter Eggs — Secrets of the Screen</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="top"></div>
+<div class="hero"><canvas id="hero"></canvas>
+  <div class="hcap"><b>EASTER EGGS</b> hidden messages buried in software and film.</div></div>
+<main>
+  <h1>Chapter 03 — Easter Eggs</h1>
+  <p class="lead">An <b>easter egg</b> is a deliberate, hidden feature or message tucked inside a product — usually playful,
+  usually undocumented, and meant to be discovered. They exist across software and (as behind-the-scenes trivia) in films.
+  Two wonderful public sources of record are the <b>Easter Egg Archive</b> (eeggs.com) and fan-run collections of
+  movie-trivia "eggs."</p>
+
+  <h2>Eggs in software: MS-DOS examples</h2>
+  <p>The <a href="https://eeggs.com/tree/1135.html" target="_blank" rel="noopener">MS-DOS easter-egg list on the Easter Egg Archive</a>
+  collects several small, harmless jokes tucked into the operating system of the late 1980s / early 1990s:</p>
+  <ul>
+    <li><b>The "no help" gag.</b> In some versions of Microsoft's system diagnostics utility (<span class="mono">MSD.EXE</span>),
+    pressing <b>F1</b> on the About screen produced a joke instead of the help you'd expect — a wink at how empty that
+    help actually was.</li>
+    <li><b>The timestamp joke.</b> Every file shipped in MS-DOS 6.22 was stamped to match the version number — all showing
+    the same <b>6:22</b> time — a quiet signature across the whole release.</li>
+    <li><b>Message games.</b> Several system tools hid cheeky responses when invoked in unexpected ways, part of the era's
+    friendly tone.</li>
+  </ul>
+  <p class="mut">I'm describing these from the archive in original words; visit eeggs.com for the exact keystrokes and
+  screenshots. Old eggs like these make great, safe things to try in an emulator (e.g. MS-DOS in DOSBox).</p>
+
+  <div class="egg">
+    <button onclick="revealEgg(this)">find the easter egg</button>
+    <div class="reveal hidden" id="egg1">🐣 you found it — in the old days you'd have to press F1 or type a secret command.</div>
+  </div>
+
+  <h2>Eggs in film: behind-the-scenes trivia</h2>
+  <p>Movies don't usually have "easter eggs" in the code sense, but fan archivists use the word for hidden jokes and
+  behind-the-scenes details planted in a production. A good example is the unofficial fan site for the <i>National Treasure</i>
+  films (<a href="https://www.nationaltreasure.us/easter-eggs" target="_blank" rel="noopener">nationaltreasure.us/easter-eggs</a>),
+  which catalogs details fans love to rewatch for: prop choices that wink at history, running jokes between characters,
+  and hidden references in the clue-hunting set pieces. These are the "eggs" of the movie world — small, human touches
+  that reward a close second viewing.</p>
+
+  <div class="callout">
+    <b>Note on rights.</b> This site describes such eggs in its own words and does not reproduce any studio's or
+    archive's original text or imagery. If you want the exact entries, follow the linked fan archives.
+  </div>
+
+  <h2>Why eggs matter</h2>
+  <p>Easter eggs humanise a product. They are the signature of the people who built it — proof that behind the interface
+  there was someone having fun. Preserving them (and the stories of finding them) is a small but real part of computing
+  and film history.</p>
+
+  <h2>Sources</h2>
+  <ul class="src">
+    <li>The Easter Egg Archive, MS-DOS list — <a href="https://eeggs.com/tree/1135.html" target="_blank" rel="noopener">eeggs.com/tree/1135.html</a></li>
+    <li>National Treasure fan easter-egg list — <a href="https://www.nationaltreasure.us/easter-eggs" target="_blank" rel="noopener">nationaltreasure.us/easter-eggs</a></li>
+  </ul>
+  <footer><a href="../index.html">← back to home</a></footer>
+</main>
+<script>
+  function revealEgg(btn){ const r=document.getElementById("egg1"); r.classList.remove("hidden");
+    if(window.chip)window.chip.blip(720); btn.style.opacity=.5; }
+  window.revealEgg=revealEgg;
+</script>
+<script src="../js/chip.js"></script>
+<script src="../js/stage.js"></script>
+<script src="../js/nav.js"></script>
+<script>window.addEventListener("load",()=>window.stageRun(document.getElementById("hero"),{title:"EASTER EGGS",sub:"hidden messages in software & film",color:13}));</script>
+</body>
+</html>

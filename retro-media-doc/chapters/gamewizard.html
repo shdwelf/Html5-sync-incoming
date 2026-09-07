@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Wizard (1994) — Secrets of the Screen</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div id="top"></div>
+<div class="hero"><canvas id="hero"></canvas>
+  <div class="hcap"><b>GAME WIZARD (1994)</b> an educational look at a shareware DOS game enhancer.</div></div>
+<main>
+  <h1>Chapter 05 — Game Wizard: a shareware DOS "enhancer"</h1>
+  <p class="lead"><b>Game Wizard</b> (Ray Hsu / Enhanced Software Design, 1994) was a DOS <b>game enhancer</b> — a tool
+  you could run beside a game to modify it in memory. It survives as <b>shareware</b> and is preserved, emulatable, on the
+  <a href="https://archive.org/details/GameWizard" target="_blank" rel="noopener">Internet Archive</a> under its historical
+  software collection. This chapter explains <i>what</i> such a program did and <i>how</i> it worked — as a piece of
+  computing history.</p>
+
+  <h2>What a "game enhancer" did</h2>
+  <p>In the DOS era, most games kept values (lives, health, money, time) in plain memory while running. A "trainer" or
+  "enhancer" tool worked alongside the game to let you:</p>
+  <ul>
+    <li><b>Freeze or modify values</b> — locate a number in memory (e.g. "5 lives") and change it.</li>
+    <li><b>Slow down or speed up</b> a game's execution.</li>
+    <li><b>Save and restore</b> a running game's state, even if the game had no save feature.</li>
+    <li>Attach to <b>almost any game</b> without needing per-game codes.</li>
+  </ul>
+  <p class="mut">The archive's description says it allowed the user to "participate more intelligently" in games and to
+  apply its features to "any program or game" — that is, it was generic rather than tied to one title.</p>
+
+  <h2>How it worked (conceptually)</h2>
+  <p>These tools exploit the fact that a DOS program's data lives at real, findable memory addresses. A typical workflow:</p>
+  <ol>
+    <li>Run the enhancer, then launch the game under it.</li>
+    <li>Scan memory for a known value (your current score, say).</li>
+    <li>Play and lose a point, then scan again for the new value.</li>
+    <li>Repeat until the enhancer pinpoints the one address holding that value, then write a new number to it.</li>
+  </ol>
+  <p>Nothing is patched on disk — the archive notes modifications affect only the copy running in memory, leaving the stored
+  program untouched. That made it a flexible learning tool: experimenting with live memory was a hands-on (if informal) way
+  to understand how programs represent state.</p>
+
+  <div class="callout">
+    <b>Educational framing only.</b> Tools like Game Wizard were used to cheat at single-player games — harmless in spirit —
+    but the <i>techniques</i> overlap with those used for software piracy. This page treats Game Wizard strictly as a
+    historical DOS application and a lesson in how in-memory data works; it does not endorse circumventing modern
+    protections, and it reproduces no copyrighted program content.
+  </div>
+
+  <h2>Why it's worth remembering</h2>
+  <p>Game Wizard sits at an interesting crossroads: it's shareware-era <i>marketing</i> (a "try before you buy" tool), it's a
+  memory-editing <i>utility</i>, and it's a <i>gameplay</i> accessory. Understanding it helps explain a whole genre of DOS
+  utilities — memory scanners, trainers, and even the "cheat device" products that later appeared on consoles — that taught
+  a generation how programs really store data.</p>
+
+  <h2>Sources</h2>
+  <ul class="src">
+    <li>Internet Archive — <a href="https://archive.org/details/GameWizard" target="_blank" rel="noopener">Game Wizard (1994), shareware, emulatable</a></li>
+  </ul>
+  <footer><a href="../index.html">← back to home</a></footer>
+</main>
+<script src="../js/chip.js"></script>
+<script src="../js/stage.js"></script>
+<script src="../js/nav.js"></script>
+<script>window.addEventListener("load",()=>window.stageRun(document.getElementById("hero"),{title:"GAME WIZARD · 1994",sub:"a shareware DOS game enhancer, explained",color:9}));</script>
+</body>
+</html>

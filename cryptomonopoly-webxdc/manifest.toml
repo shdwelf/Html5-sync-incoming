@@ -1,0 +1,5 @@
+name = "Cryptomonopoly"
+description = "A crypto-flavoured original trading-board game. Runs as a WebXDC app in Delta Chat or as a local hot-seat game in any browser. Original game; no copyrighted game assets."
+type = "webxdc-app"
+version = "0.1.0"
+icon = "icon.png"
