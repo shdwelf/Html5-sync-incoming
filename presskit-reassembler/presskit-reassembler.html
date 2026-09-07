@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Press Kit Reassembler</title>
+<style>
+  :root{
+    --bg:#0b0f1a; --panel:#111827; --panel2:#0d1424; --ink:#e6ecf5; --mut:#8b96ad;
+    --line:#1f2a44; --cyan:#22d3ee; --gold:#fbbf24; --grn:#4ade80; --red:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 70% -10%,#14324a 0%,var(--bg) 55%);color:var(--ink);
+       font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:100vh}
+  header{padding:22px 26px 10px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  header h1{margin:0;font-size:18px;letter-spacing:.14em;color:var(--cyan)}
+  header .sub{color:var(--mut);font-size:11px}
+  .tag{margin-left:auto;font-size:10px;color:var(--gold);border:1px solid var(--gold);padding:3px 8px;border-radius:20px;opacity:.85}
+  main{display:grid;grid-template-columns:380px 1fr;gap:18px;padding:18px 26px;max-width:1280px;margin:0 auto}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:10px;
+         padding:16px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  .panel h2{margin:0 0 12px;font-size:12px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;font-weight:600}
+  label{display:block;font-size:11px;color:var(--mut);margin:12px 0 4px;letter-spacing:.04em}
+  input,textarea,select{width:100%;background:#0a0f1c;border:1px solid var(--line);color:var(--ink);
+       border-radius:6px;padding:8px 10px;font:inherit;font-size:13px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--cyan)}
+  textarea{min-height:74px;resize:vertical}
+  .row{display:flex;gap:10px} .row>*{flex:1}
+  button{cursor:pointer;border:none;border-radius:8px;padding:11px 14px;font:inherit;font-weight:700;
+       letter-spacing:.05em;font-size:13px}
+  #go{width:100%;margin-top:16px;background:linear-gradient(90deg,#0ea5e9,#22d3ee);color:#06222b}
+  #go:hover{filter:brightness(1.1)}
+  button.ghost{background:#0a0f1c;color:var(--cyan);border:1px solid var(--line)}
+  button.ghost:hover{border-color:var(--cyan)}
+  .muted{color:var(--mut);font-size:11px}
+  .mono{font-family:ui-monospace,monospace}
+  pre{background:#060a12;border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;font-size:11.5px;
+      white-space:pre;max-height:340px;color:#c8e6c9;line-height:1.35}
+  .out{display:grid;gap:14px}
+  .kv{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pill{background:#0a0f1c;border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:11px}
+  .pill b{color:var(--grn)}
+  .ok{color:var(--grn)} .warn{color:var(--gold)} .err{color:var(--red)}
+  .hidden{display:none}
+  table.cipher{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+  table.cipher th,table.cipher td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+  table.cipher th{color:var(--mut);font-weight:600}
+  .chip{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;margin-left:6px}
+  .chip.wasm{background:#1e293b;color:var(--cyan);border:1px solid #334155}
+  .foot{color:var(--mut);font-size:10.5px;padding:16px 26px;border-top:1px solid var(--line);max-width:1280px;margin:0 auto;line-height:1.6}
+  h3.panel-sub{margin:16px 0 6px;font-size:11px;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#1f2a44;border-radius:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>PRESS KIT REASSEMBLER</h1>
+  <span class="sub">HTML5 form &middot; WASM cipher engine &middot; classic 16-bit DOS output</span>
+  <span class="tag">ORIGINAL TOOL &mdash; NOT an official studio product</span>
+</header>
+
+<main>
+  <!-- ============================= FORM ============================= -->
+  <section class="panel">
+    <h2>1 &middot; Form variables</h2>
+
+    <label>Program title</label>
+    <input id="f_title" value="THE CRIMSON HOUR" spellcheck="false">
+
+    <label>Tagline</label>
+    <input id="f_tag" value="Every release hides a second release." spellcheck="false">
+
+    <label>Access code (password shown after correct entry)</label>
+    <div class="row">
+      <input id="f_pass" value="opensaysme" spellcheck="false" style="flex:2">
+    </div>
+
+    <label>Access-granted message (optional)</label>
+    <input id="f_granted" value="ACCESS GRANTED" spellcheck="false">
+
+    <label>Access-denied message (optional)</label>
+    <input id="f_denied" value="*** ACCESS DENIED ***" spellcheck="false">
+
+    <label>Body 1 &mdash; press text / cast page <span class="muted">(printed after correct code)</span></label>
+    <textarea id="f_body1" spellcheck="false">THE CRIMSON HOUR
+A 2026 original press kit.
+
+Line one of the story.
+Line two of the story.
+Third line to round it out.</textarea>
+
+    <label>Body 2 &mdash; hidden secret / quote <span class="muted">(optional, printed second)</span></label>
+    <textarea id="f_body2" spellcheck="false">Hidden payload: this line decrypts only at runtime.
+Every byte was reassembled in WebAssembly.</textarea>
+
+    <div class="row">
+      <div>
+        <label>XOR runtime key (hex)</label>
+        <input id="f_key" value="5A" spellcheck="false">
+      </div>
+      <div>
+        <label>Output filename</label>
+        <input id="f_name" value="presskit" spellcheck="false">
+      </div>
+    </div>
+    <p class="muted" id="hint">
+      Note: for reliable classic-DOS printing, the <code>$</code> character and (for XOR) the byte
+      <code>key^0x24</code> are stripped from bodies, and ASCII-only text is recommended.
+    </p>
+
+    <button id="go">▶ &nbsp;REASSEMBLE</button>
+  </section>
+
+  <!-- ============================= OUTPUT ============================= -->
+  <section class="panel">
+    <h2>2 &middot; Reassembled output</h2>
+    <div class="kv" id="welcome"><span class="muted">Fill the form and press Reassemble.</span></div>
+
+    <div id="out" class="out hidden">
+
+      <div>
+        <div class="kv">
+          <h3 class="panel-sub" style="margin:0">Built files</h3>
+          <span id="filesum" class="muted"></span>
+        </div>
+        <div class="kv" style="margin-top:8px">
+          <button class="ghost" id="dl_com">⬇ Download presskit.com</button>
+          <button class="ghost" id="dl_dat">⬇ Download presskit.dat</button>
+          <button class="ghost" id="dl_hex">⬇ Download .hex log</button>
+        </div>
+        <p class="muted" style="margin:8px 0 0">
+          Run <span class="mono">presskit.com</span> in DOSBox / js-dos, type the access code, and both encrypted
+          bodies are XOR-decrypted in memory and printed &mdash; the byte layout and RCB pointer table are assembled below.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="panel-sub">Verification <span class="chip wasm">wasm round-trip</span></h3>
+        <pre id="verify"></pre>
+      </div>
+
+      <div>
+        <h3 class="panel-sub">Cipher lab <span class="chip wasm">encoded by WebAssembly</span></h3>
+        <p class="muted">Body 1 under each cipher (first 96 bytes). XOR is what the runnable program stores.</p>
+        <table class="cipher" id="ciphertab"></table>
+      </div>
+
+      <div>
+        <h3 class="panel-sub">DOS program &mdash; hex + ASCII</h3>
+        <pre id="hexout"></pre>
+      </div>
+
+      <div>
+        <h3 class="panel-sub">Companion .DAT resource (plaintext mirror)</h3>
+        <pre id="datout"></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="foot">
+  An <b>original</b> educational retrocomputing tool: it reassembles a variable-driven classic DOS "press kit"
+  program (MZ-era style, single-segment .COM) whose body text you supply, using an embedded WebAssembly cipher/CRC engine.
+  It reproduces no studio&rsquo;s promotional copy and is not affiliated with, or endorsed by, any film studio or brand.
+  Text you enter is yours. Original source: <span class="mono">presskit-reassembler/wasm/presskit.wat</span> (WAT),
+  <span class="mono">presskit-reassembler/wasm/build_dos_stub.py</span> (assembled 16-bit runtime, Keystone).
+</div>
+
+<script>
+"use strict";
+/* ---------------- embedded payloads ---------------- */
+const WASM_B64 = "AGFzbQEAAAABEAJgBX9/f39/AX9gAn9/AX8DBAMAAQEFAwEAIAcbAwZtZW1vcnkCAAZlbmNvZGUAAAVjcmMxNgACCqoCA2sBAn9BACEFAkADQCAFIANPDQEgAiAFai0AACEGIAZBJEcEQCAAQQBGBEAgBiABcyEGCyAAQQJGBEAgBiABEAEhBgsgAEEBRgRAIAZBDRABIQYLCyAEIAVqIAY6AAAgBUEBaiEFDAALCyADC04BAX8gACECIABBwQBPIABB2gBNcQRAQcEAIABBwQBrIAFqQRpwaiECCyAAQeEATyAAQfoATXEEQEHhACAAQeEAayABakEacGohAgsgAgttAQR/Qf//AyEDQQAhAgJAA0AgAiABTw0BIAAgAmotAAAhBCADIARzIQNBACEFAkADQCAFQQhPDQEgA0EBcQRAIANBAXZBgcACcyEDBSADQQF2IQMLIAVBAWohBQwACwsgAkEBaiECDAALCyADCw==";
+
+const CODE = [0xb8,0x03,0x00,0xcd,0x10,0xbd,0x97,0x01,0x8b,0x56,0x00,0xb4,0x09,0xcd,0x21,0x8b,0x56,0x02,0xb4,0x09,0xcd,0x21,0x8b,0x56,0x0a,0xb4,0x0a,0xcd,0x21,0x8b,0x76,0x0a,0x83,0xc6,0x02,0x8b,0x7e,0x08,0x8a,0x1d,0x80,0xfb,0x24,0x74,0x18,0x8a,0x04,0x3c,0x0d,0x74,0x57,0x3c,0x41,0x72,0x06,0x3c,0x5a,0x77,0x02,0x0c,0x20,0x38,0xd8,0x75,0x49,0x46,0x47,0xeb,0xe1,0x8b,0x56,0x04,0xb4,0x09,0xcd,0x21,0x8b,0x76,0x0c,0x8a,0x04,0x3c,0x24,0x74,0x07,0x34,0x5a,0x88,0x04,0x46,0xeb,0xf3,0x8b,0x56,0x0c,0xb4,0x09,0xcd,0x21,0x8b,0x76,0x0e,0x83,0x7e,0x0e,0x00,0x74,0x14,0x8a,0x04,0x3c,0x24,0x74,0x07,0x34,0x5a,0x88,0x04,0x46,0xeb,0xf3,0x8b,0x56,0x0e,0xb4,0x09,0xcd,0x21,0xb4,0x00,0xcd,0x16,0xb4,0x4c,0xb0,0x00,0xcd,0x21,0x8b,0x56,0x06,0xb4,0x09,0xcd,0x21,0xb4,0x4c,0xb0,0x01,0xcd,0x21];
+const CODE_LEN = CODE.length;          // 151
+const RCB_LEN   = 16;                  // 8 x 16-bit pointer words
+const MEMBASE   = 0x100;               // .COM: file byte o lives at 0x100 + o
+const RCB_SRC   = 0x8000;              // wasm scratch: plaintext in
+const RCB_DST   = 0x9000;              // wasm scratch: ciphertext out
+
+let ex = null;                          // wasm exports
+
+/* ---------------- small helpers ---------------- */
+const $ = id => document.getElementById(id);
+function txt(str){ return new TextEncoder().encode(str); }
+function hex(bytes, n){ n=n??bytes.length; const out=[]; for(let i=0;i<Math.min(n,bytes.length);i++) out.push(bytes[i].toString(16).padStart(2,"0")); return out.join(" "); }
+function u8(bs){ return new Uint8Array(bs); }
+
+function b64ToBytes(b64){
+  const bin = atob(b64), a = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
+  return a;
+}
+
+async function initWasm(){
+  const wasmBytes = b64ToBytes(WASM_B64);
+  const { instance } = await WebAssembly.instantiate(wasmBytes, {});
+  ex = instance.exports;
+}
+
+/* wasm encode: returns {plain, cipher} Uint8Arrays */
+function wasmEncode(kind, key, plainBytes){
+  const src=RCB_SRC, dst=RCB_DST;
+  new Uint8Array(ex.memory.buffer, src).set(plainBytes);
+  const len = ex.encode(kind, key, src, plainBytes.length, dst);
+  const cipher = new Uint8Array(ex.memory.buffer, dst, len).slice();
+  return { plain: plainBytes.slice(), cipher };
+}
+
+/* ---------------- text normalisation for DOS bodies ---------------- */
+function ascii(bytes){ return Array.from(bytes).map(b=>String.fromCharCode(b)).join(""); }
+
+// DOS bodies: strip 0x24 always; for XOR also strip (key ^ 0x24) so the stored
+// ciphertext never holds a stray terminator. Keep only 7-bit ASCII-ish text.
+function sanitizeBody(str, key){
+  const a=[];
+  for(const ch of str){ let b=ch.charCodeAt(0);
+    if(b>=0xD800&&b<=0xDFFF) b=63;               // surrogate half -> '?'
+    b&=0xff; if(b>0x7f) b=63; if(b===0x24) continue; if(b===((key^0x24)&0xff)) continue; a.push(b); }
+  return new Uint8Array(a);
+}
+function sanitizePlain(str){ // title/prompt/granted/denied/pass -> must not contain 0x24
+  const a=[];
+  for(const ch of str){ let b=ch.charCodeAt(0);
+    if(b>=0xD800&&b<=0xDFFF) b=63;
+    b&=0xff; if(b>0x7f) b=63; if(b===0x24) continue; a.push(b); }
+  return new Uint8Array(a);
+}
+function push(ba, bytes){ for(const b of bytes) ba.push(b); return ba; }
+
+/* ---------------- the reassembler ---------------- */
+function assemble(){
+  const title = $("f_title").value.trim() || "UNTITLED";
+  const tag   = $("f_tag").value.trim();
+  const pass  = $("f_pass").value.trim().toLowerCase() || "opensaysme";
+  const granted = $("f_granted").value.trim() || "ACCESS GRANTED";
+  const denied  = $("f_denied").value.trim()  || "*** ACCESS DENIED ***";
+  const body1txt = $("f_body1").value;
+  const body2txt = $("f_body2").value.trim();
+  const key = (parseInt($("f_key").value.trim().replace(/^0x/i,""),16) & 0xff) || 0x5a;
+  const base = $("f_name").value.trim() || "presskit";
+
+  // ---------- normalise body plaintext, then encrypt with wasm (XOR key) ----------
+  const b1plain = sanitizeBody(body1txt, key);
+  const { cipher: b1cipher } = wasmEncode(0, key, b1plain);
+  let b2cipher = null, b2plain = null;
+  if(body2txt){ b2plain = sanitizeBody(body2txt, key); ({ cipher: b2cipher } = wasmEncode(0, key, b2plain)); }
+
+  // ---------- $-terminated plaintext strings ----------
+  const sTitle   = sanitizePlain(title + "\r\n" + (tag? ("\"" + tag + "\"\r\n") : "") + "\r\n");
+  const sPrompt  = sanitizePlain("\nACCESS CODE: ");
+  const sGranted = sanitizePlain("\n" + granted + "\r\n\r\n");
+  const sDenied  = sanitizePlain("\r\n" + denied + "\r\n");
+
+  // ---------- patch the two XOR-key immediates in the static code ----------
+  // The only 'xor al, imm8' (opcode 0x34) instructions in the skeleton are the
+  // two in-memory decryptors, so rewriting each 0x34's following byte to the
+  // chosen key lets the runtime decrypt with any key while keeping the code static.
+  const code = u8(CODE);
+  let xorPatched = 0;
+  for(let i=0;i<code.length-1;i++){
+    if(code[i]===0x34){ code[i+1] = key; xorPatched++; }
+  }
+  if(xorPatched < 2) throw new Error("did not find both XOR decryptor immediates to patch");
+
+  // ---------- layout ----------
+  const rcb = new Array(8).fill(0);
+  const data = [];
+  // ordered data items; record stream offsets (relative to end of code)
+  const baseOff = CODE_LEN + RCB_LEN;   // first data byte's stream offset
+  function place(bytes, term){ const o = data.length; push(data, bytes); if(term) data.push(0x24); return baseOff + o; }
+  const P = MEMBASE;                    // ptr(o) = 0x100 + o
+  rcb[0] = P + place(sTitle,  true);   // title
+  rcb[1] = P + place(sPrompt, true);   // prompt
+  rcb[2] = P + place(sGranted,true);   // granted
+  rcb[3] = P + place(sDenied, true);   // denied
+  rcb[4] = P + place(sanitizePlain(pass), true);            // pass (stored lower)
+  rcb[5] = P + place([32,0,...new Array(32).fill(0)], false); // input buffer
+  rcb[6] = P + place(b1cipher, true);  // body1 (encrypted, $ terminator)
+  if(b2cipher) rcb[7] = P + place(b2cipher, true);          // body2 (encrypted) else 0
+
+  // ---------- concatenate code + rcb + data ----------
+  const out = [];
+  push(out, code);
+  for(const w of rcb){ out.push(w & 0xff, (w>>8) & 0xff); }
+  push(out, data);
+  const bin = new Uint8Array(out);
+
+  return { bin, rcb, key, base, sTitle:sTitle, sPrompt:sPrompt, sGranted:sGranted,
+           b1plain, b1cipher, b2plain, b2cipher, pass, title, tag, body1txt, body2txt, denied };
+}
+
+/* ---------------- hex + ascii dump ---------------- */
+function dump(bin, width=16, max=2048){
+  const lines=[];
+  for(let off=0; off<Math.min(bin.length,max); off+=width){
+    const part=bin.subarray(off,off+width);
+    let h="", as="";
+    for(let i=0;i<width;i++){ if(i<part.length) h += part[i].toString(16).padStart(2,"0")+" "; else h+="   "; }
+    for(let i=0;i<part.length;i++){ const c=part[i]; as += (c>=32&&c<127)?String.fromCharCode(c):"."; }
+    lines.push((off.toString(16).padStart(5,"0"))+"  "+h+" |"+as+"|");
+  }
+  if(bin.length>max) lines.push("... truncated ("+bin.length+" bytes total)");
+  return lines.join("\n");
+}
+
+/* ---------------- download helper ---------------- */
+function download(name, bytes){
+  const blob = new Blob([bytes], {type:"application/octet-stream"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+/* ---------------- main handler ---------------- */
+function onReassemble(){
+  const r = assemble();
+  const show = $("out");
+  show.classList.remove("hidden");
+  $("welcome").innerHTML = "";
+
+  // files summary
+  const sum = $("filesum");
+  sum.innerHTML = `<span class="pill">presskit.com <b>${r.bin.length} B</b></span> `+
+                  `<span class="pill">xor key <b>0x${r.key.toString(16).toUpperCase().padStart(2,"0")}</b></span> `+
+                  `<span class="pill">rcb base <b>0x0197</b></span>`;
+
+  $("dl_com").onclick = ()=>download(r.base+".com", r.bin);
+  $("dl_dat").onclick = ()=>download(r.base+".dat", makeDat(r));
+  $("dl_hex").onclick = ()=>download(r.base+".hex", dump(r.bin));
+
+  // verification: XOR-decrypt ciphertext back and compare
+  const back1 = u8(r.b1cipher.map(b=> b===0x24?b:(b^r.key)));
+  const same = back1.length===r.b1plain.length && back1.every((b,i)=>b===r.b1plain[i]);
+  const backStr = ascii(back1);
+  $("verify").textContent =
+`WebAssembly encode -> decode round-trip
+  plaintext (${r.b1plain.length} B) : ${JSON.stringify(ascii(r.b1plain))}
+  stored ciphertext               : ${hex(r.b1cipher, 40)}${r.b1cipher.length>40?"...":""}
+  XOR-decode back                 : ${JSON.stringify(backStr)}
+  matches original plaintext?     : ${same ? "YES ✓ (ok)" : "NO ✗ (error)"}
+  body2 stored?                   : ${r.b2cipher ? "yes, "+r.b2cipher.length+" B": "no"}  (0 pointer, skipped by runtime)`;
+
+  // cipher lab
+  fillCipherLab(r);
+
+  // hex
+  $("hexout").textContent = dump(r.bin);
+
+  // dat
+  $("datout").textContent = makeDat(r);
+}
+
+function makeDat(r){
+  const dat = [];
+  const P = (s)=>push(dat, txt(s)) && dat.push(0x0d,0x0a);
+  dat.push(...txt("; Press Kit Reassembler - plaintext .DAT resource mirror (original)"));
+  P("");
+  P("--- PROGRAM ---"); P(r.title); P(r.tag?("\""+r.tag+"\""):"");
+  P("--- ACCESS ---"); P(r.pass);
+  P("--- GRANTED ---"); P(ascii(r.sGranted).replace(/\r\n/g," "));
+  P("--- BODY 1 (displayed after decrypt) ---"); push(dat,r.b1plain); P("");
+  if(r.b2plain){ P("--- BODY 2 (secret, displayed second) ---"); push(dat,r.b2plain); P(""); }
+  P("--- CIPHERTEXT (hex) ---");
+  P("xor-"+r.key.toString(16).padStart(2,"0")+": "+hex(r.b1cipher));
+  // build the text from bytes in chunks to avoid call-arg limits
+  let out="";
+  for(let i=0;i<dat.length;i+=20000){ out += String.fromCharCode.apply(null, dat.slice(i,i+20000)); }
+  return out;
+}
+
+function fillCipherLab(r){
+  const key = r.key;
+  const lab = [
+    ["XOR 0x"+key.toString(16).toUpperCase().padStart(2,"0"), wasmEncode(0,key,r.b1plain).cipher],
+    ["ROT13",    wasmEncode(1,0,r.b1plain).cipher],
+    ["Caesar +7",wasmEncode(2,7,r.b1plain).cipher],
+  ];
+  let h=`<tr><th>cipher</th><th>first 96 encoded bytes (wasm)</th><th>decode</th></tr>`;
+  for(const [name,c] of lab){
+    h+=`<tr><td>${name}</td><td>${hex(c,96)}</td><td>ROT13/Caesar self-symmetric; XOR shown in verification</td></tr>`;
+  }
+  $("ciphertab").innerHTML = h;
+}
+
+/* ---------------- wiring ---------------- */
+$("go").addEventListener("click", onReassemble);
+document.addEventListener("keydown", e=>{ if((e.ctrlKey||e.metaKey)&&e.key==="Enter") onReassemble(); });
+
+(async function boot(){
+  await initWasm();
+  $("welcome").innerHTML = `<span class="pill ok">WebAssembly engine ready ✓</span>
+    <span class="pill">${ex? "exports: encode, crc16, memory":"missing"}</span>`;
+  // convenience: prefill a log of the RCB layout in the terminal area? keep minimal
+})();
+</script>
+</body>
+</html>
