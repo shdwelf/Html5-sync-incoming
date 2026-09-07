@@ -1,0 +1,9 @@
+# TbFence binaries are 1990s shareware (Thunderbyte B.V.). They are analyzed
+# locally but NOT committed here (that would redistribute the shareware).
+_src/
+analysis/
+*.exe
+*.com
+*.sys
+*.dat
+*.zip
