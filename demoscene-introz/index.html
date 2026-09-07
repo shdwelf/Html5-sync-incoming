@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRACKTRO // DEMOSCENE — an original homage</title>
+<style>
+  :root{
+    --bg:#0b0d16; --ink:#d8e2f0; --mut:#7b86a0;
+    --c64-bg:#40318d; --c64-fg:#fff; --c64-1:#5a2e9e; --c64-2:#f43;
+    --cyan:#8ff; --mag:#f8f; --yel:#ff5; --grn:#5f5; --line:#232a45;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#05060c;color:var(--ink);
+    font-family:"Courier New",ui-monospace,Menlo,Consolas,monospace;}
+  /* CRT overlay */
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);
+    mix-blend-mode:multiply;}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:59;
+    background:radial-gradient(120% 90% at 50% 40%,transparent 60%,rgba(0,0,0,.5) 100%);}
+
+  /* ================= stage ================= */
+  #stage{position:relative;width:100%;height:70vh;min-height:420px;overflow:hidden;
+    background:#0a0c18;border-bottom:1px solid var(--line);}
+  #stage canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .stageUI{position:absolute;left:0;right:0;bottom:8px;z-index:40;text-align:center;color:var(--c64-fg);
+    text-shadow:0 0 8px rgba(0,0,0,.8);font-size:12px;letter-spacing:.12em;}
+  .keys{position:absolute;top:10px;right:12px;z-index:40;display:flex;gap:8px}
+  .keys button{background:rgba(0,0,0,.45);color:var(--c64-fg);border:1px solid rgba(255,255,255,.25);
+    padding:6px 12px;font:inherit;font-size:11px;cursor:pointer;letter-spacing:.08em}
+  .keys button:hover{border-color:var(--yel)}
+  #startOvl{position:absolute;inset:0;z-index:50;background:#05060c;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;cursor:pointer;text-align:center;padding:20px}
+  #startOvl h1{font-size:clamp(18px,4vw,34px);letter-spacing:.2em;margin:0;color:var(--yel);
+    text-shadow:0 0 12px rgba(255,255,0,.4)}
+  #startOvl p{max-width:640px;color:var(--mut);font-size:12px;line-height:1.6}
+  #startOvl .go{color:#0a0c18;background:var(--yel);padding:10px 22px;font:inherit;font-weight:bold;
+    letter-spacing:.15em;border:none}
+  .hidden{display:none}
+
+  /* ================= doc ================= */
+  main{max-width:960px;margin:0 auto;padding:34px 18px 80px}
+  h2{font-size:20px;letter-spacing:.14em;color:var(--yel);margin:44px 0 6px}
+  h2 .n{color:var(--mut);font-size:13px;vertical-align:top;margin-right:8px}
+  .lead{color:var(--mut);font-size:13px;max-width:70ch;line-height:1.7}
+  .lead b{color:var(--ink)}
+  hr.sep{border:none;border-top:1px dashed var(--line);margin:30px 0}
+  /* timeline */
+  .tl{display:flex;flex-direction:column;gap:0;margin-top:18px;position:relative}
+  .tl-item{display:flex;gap:16px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+  .tl-year{flex:0 0 92px;color:var(--cyan);font-weight:bold;font-size:14px;padding-top:2px}
+  .tl-body{flex:1}
+  .tl-title{font-size:13px;color:var(--ink);margin-bottom:2px}
+  .tl-desc{color:var(--mut);font-size:12px;line-height:1.6}
+  /* genre cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:18px}
+  .card{background:linear-gradient(160deg,#141a30,#0d1120);border:1px solid var(--line);border-radius:10px;
+    padding:0;overflow:hidden;position:relative}
+  .card canvas{width:100%;height:130px;display:block;background:#0a0c18}
+  .card .cap{padding:10px 12px}
+  .card .cap b{display:block;font-size:12px;color:var(--yel);letter-spacing:.06em;margin-bottom:3px}
+  .card .cap span{color:var(--mut);font-size:11px;line-height:1.5;display:block}
+  .tag{display:inline-block;font-size:9px;letter-spacing:.12em;border:1px solid currentColor;
+    border-radius:20px;padding:1px 7px;margin-left:8px;vertical-align:middle;opacity:.8}
+  .foot{margin-top:50px;color:var(--mut);font-size:11px;line-height:1.8;border-top:1px solid var(--line);padding-top:16px}
+  .warn{background:#141025;border:1px solid #3a2f55;color:#cbbfe6;border-radius:8px;padding:10px 14px;
+    font-size:11px;line-height:1.7;margin-top:16px}
+  a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div id="startOvl">
+  <h1>CRACKTRO // DEMOSCENE</h1>
+  <p>an <b>original</b> web homage to the Commodore&nbsp;64 crack-intro &amp; chiptune era —
+     the self-made graphics, music and code of 1980s–90s home-computer crews.<br>
+     No archive files are used; every pixel and note here is generated fresh in your browser.</p>
+  <button class="go" id="goBtn">▶ &nbsp;POWER ON</button>
+</div>
+
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div class="keys">
+    <button id="musicBtn">♪ music</button>
+    <button id="fsBtn">⛶ fullscreen</button>
+  </div>
+  <div class="stageUI" id="stageMsg"></div>
+</div>
+
+<main>
+  <h2><span class="n">01</span>WHAT THIS IS</h2>
+  <p class="lead">A small, self-contained browser gallery in the spirit of the home-computer
+  <b>demo &amp; crack-intro</b> scene. Scroll beneath the animated screen for a short history, then
+  browse original &ldquo;style&rdquo; cards rendered live with the <b>Commodore&nbsp;64 palette</b>
+  and a browser-synthesised SID-style soundtrack. Everything is drawn and played on the fly —
+  no emulated files, no copied artwork.</p>
+
+  <h2><span class="n">02</span>A BRIEF HISTORY</h2>
+  <div class="tl">
+    <div class="tl-item"><div class="tl-year">1982</div><div class="tl-body">
+      <div class="tl-title">Commodore 64 arrives</div>
+      <div class="tl-desc">8-bit home computer with 64&nbsp;KB RAM, the 6581 &ldquo;SID&rdquo; sound
+      chip and the VIC-II graphics chip — cheap, popular, and a perfect canvas for young programmers.</div></div></div>
+    <div class="tl-item"><div class="tl-year">1984–85</div><div class="tl-body">
+      <div class="tl-title">The crack intro appears</div>
+      <div class="tl-desc">As games circulated, groups who removed copy-protection began adding a
+      short credit screen &mdash; often just a scrolled name. It was the seed of a whole culture of
+      self-taught coding, art and music.</div></div></div>
+    <div class="tl-item"><div class="tl-year">mid-80s</div><div class="tl-body">
+      <div class="tl-title">From tag to showcase</div>
+      <div class="tl-desc">Intros grew into elaborate, technically ambitious productions: raster
+      effects, bitmap scrolls, synthesised music, loader games. Many crews made &ldquo;demo-only&rdquo;
+      intros with no game attached at all.</div></div></div>
+    <div class="tl-item"><div class="tl-year">1988–93</div><div class="tl-body">
+      <div class="tl-title">The demo scene matures</div>
+      <div class="tl-desc">Across the C64, Amiga, Atari ST and PC, the emphasis shifted to pure
+      audio-visual craft. That tradition &mdash; programming as an art form with no commercial goal &mdash;
+      is now studied and preserved as a part of computing history.</div></div></div>
+    <div class="tl-item"><div class="tl-year">today</div><div class="tl-body">
+      <div class="tl-title">Preserved and still alive</div>
+      <div class="tl-desc">Emulation, scene archives and archives like the Internet Archive keep the
+      software runnable, while new &ldquo;intro&rdquo; competitions and chiptune artists continue the craft.</div></div></div>
+  </div>
+
+  <h2><span class="n">03</span>STYLE GALLERY<span class="tag">ORIGINAL RENDERS</span></h2>
+  <p class="lead">Five visual signatures of the era, re-created here with fresh code in the
+  C64 palette. None are reproductions of any group&rsquo;s actual work.</p>
+  <div class="cards" id="cards"></div>
+
+  <div class="warn">
+    <b>An honest note.</b> This page celebrates the <i>craft</i> of the crack-intro/demoscene as a
+    historical art form. It does <b>not</b> distribute cracked software, keygens, or anyone&rsquo;s
+    copied work, and it isn&rsquo;t affiliated with any crew. If you&rsquo;re here for the actual
+    archive collections, please enjoy them on the Internet Archive where the originals are preserved
+    for study and play under their terms.
+  </div>
+
+  <div class="foot">
+    <b>CRACKTRO // DEMOSCENE</b> &mdash; original educational homage · single self-contained HTML file ·
+    WebAudio chiptune + Canvas graphics generated in-browser · no network assets, works offline.
+  </div>
+</main>
+
+<script>
+"use strict";
+/* =====================================================================
+   Original in-browser homage. All graphics are drawn on <canvas> with the
+   classic C64 palette; all audio is synthesised with WebAudio. No external
+   files are loaded. Educational / historical framing only.
+   ===================================================================== */
+
+const C64=["#000000","#ffffff","#883932","#67b6bd","#8b3e94","#55a049","#40318d",
+           "#bfce72","#8b6f47","#c0722f","#78c0fb","#9f79d3","#4d8707","#6ffb77","#c46b8e","#c2c2c2"];
+const PAL=C64; // index as classic C64 color
+
+/* ---------- canvas ---------- */
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+let W=0,H=0;
+function size(){W=cv.width=cv.offsetWidth*devicePixelRatio;H=cv.height=cv.offsetHeight*devicePixelRatio;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);}
+window.addEventListener('resize',size);
+size();
+
+/* ---------- stage renderer state ---------- */
+const st={t:0, on:true, mode:0};
+const BAR_COLORS=[[6,8],[1,1],[15,9],[10,14]]; // c64 color pairs for raster bars
+const starf=[];
+for(let i=0;i<120;i++)starf.push({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2});
+
+function step(){return 8;}
+function drawStage(){
+  ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);
+  // vertical colour bars region on left third & right thin, mid is black field
+  const midx=W*0.0;
+  // Moving raster bars across whole width, offset by time, using c64 palette pairs
+  const colsel=BAR_COLORS[Math.floor(st.t/1)%BAR_COLORS.length];
+  const off=(st.t*46)%(step()*2);
+  for(let r=0;r*step()<H;r++){
+    ctx.fillStyle=PAL[(r*3+Math.floor(st.t*1))%2===0? colsel[0]:colsel[1]];
+    ctx.fillRect(0,r*step()+0,W,step());
+  }
+  // a black gradient window (phosphor field) where content will sit via DOM only
+  // starfield dots
+  for(const s of starf){
+    const px=s.x*W, py=(s.y*H+ st.t*(2+s.z*6))%H;
+    ctx.fillStyle=PAL[Math.min(15,6+Math.floor(s.z*6))];
+    ctx.fillRect(px,py,1.4,1.4);
+  }
+  // bouncing bars logo block
+  const bx=Math.cos(st.t*0.02)*W*0.15 + W*0.5;
+  const by=Math.abs(Math.sin(st.t*0.011))* (H*0.28)+H*0.28;
+  ctx.fillStyle=PAL[6];
+  ctx.fillRect(bx-80,by-14,160,10);
+  ctx.fillStyle=PAL[10];
+  ctx.fillRect(bx-80,by-4,160,10);
+  ctx.fillStyle=PAL[7];
+  ctx.fillRect(bx-80,by+6,160,10);
+  // message text
+  ctx.font=(Math.min(W,H)*0.03)+'px "Courier New",monospace';
+  ctx.textAlign="center";
+  ctx.fillStyle=PAL[1];
+  ctx.shadowColor=PAL[10];ctx.shadowBlur=6;
+  ctx.fillText("C R A C K T R O",W/2,by-30);
+  ctx.shadowBlur=0;
+  ctx.font=(Math.min(W,H)*0.016)+'px monospace';
+  ctx.fillStyle=PAL[15];
+  ctx.fillText("an original web homage · history of the 8-bit scene",W/2,by+40);
+}
+
+/* ---------- marquee scroller message ---------- */
+const MSG="... ORIGINAL HOMAGE TO THE HOME-COMPUTER CRACK-INTRO & DEMOSCENE (c64, 1982-) ... "
+  +"RASTER BARS - SCROLLING TEXT - SID CHIPTUNE - LOADER ART - CODE AS CRAFT ... "
+  +"NO ARCHIVE FILES USED: EVERYTHING ON THIS SCREEN IS GENERATED FRESH IN YOUR BROWSER ... "
+  +"POWERED BY WEB AUDIO + CANVAS ... PLEASE ENJOY THE REAL ORIGINALS ON THE INTERNET ARCHIVE WHERE THEY ARE PRESERVED ... ";
+let scrollx=1;
+function drawScroll(){
+  const y=H-20; const baseline=y;
+  ctx.font='16px monospace'; ctx.fillStyle=PAL[1]; ctx.shadowColor=PAL[10];ctx.shadowBlur=4;
+  ctx.textBaseline='bottom';
+  ctx.textAlign='left';
+  const full=ctx.measureText(MSG).width;
+  // wrap twice
+  let x=W - ((st.t*34)%(full+ W));
+  ctx.fillText(MSG,x,baseline);
+  if(x<0) ctx.fillText(MSG,x+full+ W,baseline);
+  ctx.shadowBlur=0;
+}
+
+function renderLoop(){
+  if(!st.on)return;
+  st.t+=1/60;
+  drawStage();
+  drawScroll();
+  requestAnimationFrame(renderLoop);
+}
+
+/* ============ WebAudio SID-ish chiptune (original) ============ */
+let AC=null,master=null,playing=false,schedTimer=null,nextNoteTime=0,step16=0;
+const tempo=132; const spb=60/tempo/4; // 16th
+// a minor melodic loop, semitones from A2=45 -> frequency table
+function fnum(n){return 440*Math.pow(2,(n-69)/12);}
+const lead=[57,-1,60,-1,64,-1,62,-1,60,-1,57,-1,55,-1,53,-1,
+           57,-1,60,-1,64,-1,65,64,62,-1,60,-1,57,-1,-1,-1];
+const bass=[45,-1,45,-1,48,-1,48,-1,50,-1,50,-1,48,-1,45,-1,
+           45,-1,45,-1,48,-1,48,-1,50,-1,43,-1,-1,-1,43,-1,-1,-1];
+const arp =[69,72,76,69, 72,76,69,72, 67,71,74,67, 71,74,67,71];
+const noiseStep=[0,0,0,0,1,0,0,0, 0,0,0,0,1,0,0,1]; // snare on some
+
+function initAudio(){
+  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain();master.gain.value=0.0;master.connect(AC.destination);
+}
+function makeOsc(type){const o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.value=110;o.connect(g);g.connect(master);g.gain.value=0;
+  return {o,g};}
+function env(g,when,dur,peak){g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(peak,when+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,when+dur);}
+function playNote(ch,midi,when,dur){
+  const osc=makeOsc(ch.type);osc.o.type=ch.type;osc.o.frequency.value=fnum(midi);
+  env(osc.g,when,dur,ch.vol);osc.o.start(when);osc.o.stop(when+dur+0.05);
+}
+function playNoise(when,dur,vol){
+  if(!AC)return;const b=AC.createBuffer(1,AC.sampleRate*dur,AC.sampleRate);
+  const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const src=AC.createBufferSource();src.buffer=b;const g=AC.createGain();
+  src.connect(g);g.connect(master);env(g,when,dur,vol);src.start(when);
+}
+const LEAD={type:'square',vol:.10}; const BASS={type:'triangle',vol:.16};
+function schedule(){
+  while(nextNoteTime < AC.currentTime + 0.12){
+    const s=step16 % lead.length;
+    const l=lead[s];
+    if(l>0){ // pulse lead with a quick vibrato-ish detune alternation
+      playNote(LEAD,l,nextNoteTime,spb*0.9);
+    }
+    const b=bass[s]; if(b>0)playNote(BASS,b,nextNoteTime,spb*1.9);
+    // arp on the hi voice every even step quieter
+    if(s%4===0){ const a=arp[(s/2|0)%arp.length]; playNote({type:'square',vol:.05},a+12,nextNoteTime,spb*0.6);}
+    if(noiseStep[s]) playNoise(nextNoteTime,spb*0.7,.10);
+    nextNoteTime+=spb; step16++;
+  }
+}
+function startMusic(){ if(!AC)initAudio(); if(!AC)return;
+  if(AC.state==='suspended')AC.resume();
+  if(playing)return; playing=true;
+  nextNoteTime=AC.currentTime+0.05;step16=0;
+  master.gain.linearRampToValueAtTime(0.6,AC.currentTime+0.2);
+  schedTimer=setInterval(schedule,25);
+  document.getElementById('musicBtn').textContent='♪ on';
+}
+function stopMusic(){playing=false;clearInterval(schedTimer);schedTimer=null;
+  if(master&&AC)master.gain.linearRampToValueAtTime(0,AC.currentTime+0.15);}
+
+/* ---------- genre cards render ---------- */
+const CARD_DEFS=[
+ {name:"LOADER / DIGITS",t:'digits',desc:"Digit & border-colour cycling as a crack loaded — a signature of disk-loaders and early intros."},
+ {name:"RASTER BARS",t:'raster',desc:"Synchronised colour splits — the classic demoscene raster effect."},
+ {name:"SCROLLTEXT",t:'scroll',desc:"The horizontal message scroller, edge-to-edge, that every intro wore."},
+ {name:"LOGO / COBRA",t:'logo',desc:"Big geometric logotype builds and transforms in the middle of the screen."},
+ {name:"BALLS & PLASMA",t:'plasma',desc:"Bouncy sprites and colour-cycling plasma that filled the frame."},
+ {name:"FINAL / CREDITS",t:'credit',desc:"The crew roll-call — the entire reason any intro existed."}
+];
+function renderCard(cv2,def){
+  const g=cv2.getContext('2d');const cw=cv2.width,ch=cv2.height;
+  g.fillStyle="#000";g.fillRect(0,0,cw,ch);
+  const localt=Date.now()/1000 + Math.random()*100; // per-card phase so they differ
+  const f=(x)=>Math.abs(Math.sin(localt*x));
+  if(def.t==='digits'){
+    for(let r=0;r<ch;r+=4){g.fillStyle=PAL[1+Math.floor(f(3)*14)];g.fillRect(0,r,cw,4);}
+    g.fillStyle=PAL[14];g.fillRect(0,ch-3,cw,3);
+  } else if(def.t==='raster'){
+    for(let r=0;r<ch;r+=3){g.fillStyle=PAL[(r/3+Math.floor(localt*8))%2? 6:10];g.fillRect(0,r,cw,3);}
+  } else if(def.t==='scroll'){
+    g.fillStyle=PAL[6];g.fillRect(0,0,cw,ch);
+    g.fillStyle=PAL[15];g.font='9px monospace';g.textBaseline='middle';
+    g.save();g.translate(cw-Math.floor((localt*30)% (cw+200)),ch/2);g.fillText("SCROLLTEXT RUNS FOREVER LEFT . . . ",0,0);g.restore();
+  } else if(def.t==='logo'){
+    g.fillStyle=PAL[1];g.fillRect(0,0,cw,ch);
+    const grow=f(0.5)*cw;g.fillStyle=PAL[6];g.fillRect(cw/2-grow/2,0,grow,ch*0.5);
+    g.fillStyle=PAL[10];g.fillRect(cw/2-grow/2,ch*0.5,grow,ch*0.5);
+    g.fillStyle=PAL[1];g.font='bold '+Math.floor(14+8*f(1))+'px monospace';g.textAlign='center';
+    g.fillText("LOGO",cw/2,ch*0.42);
+  } else if(def.t==='plasma'){
+    for(let y=0;y<ch;y+=4){for(let x=0;x<cw;x+=4){
+      const v=Math.sin(x*0.08+localt)*Math.cos(y*0.08+localt*0.7);
+      g.fillStyle=PAL[4+Math.floor((v+1)*5)%10];g.fillRect(x,y,4,4);
+    }}
+  } else if(def.t==='credit'){
+    for(let i=0;i<ch/8;i++){g.fillStyle=PAL[i%2? 0:1];g.fillRect(0,i*8,cw,8);}
+    g.fillStyle=PAL[15];g.fillRect(0,0,cw,16);
+    g.fillStyle=PAL[15];g.font='9px monospace';g.textAlign='center';
+    g.fillText("CODED BY ...",cw/2,10);
+    g.fillStyle=PAL[14];g.font='8px monospace';
+    g.fillText("MUSIC BY ...",cw/2,ch-14);
+  }
+  // CRT vignette
+  g.fillStyle="rgba(0,0,0,0.15)";g.fillRect(0,0,cw,ch);
+}
+function buildCards(){
+  const host=document.getElementById('cards');
+  for(const def of CARD_DEFS){
+    const d=document.createElement('div');d.className='card';
+    const c=document.createElement('canvas');c.width=320;c.height=130;
+    const cap=document.createElement('div');cap.className='cap';
+    const b=document.createElement('b');b.textContent=def.name;
+    const s=document.createElement('span');s.textContent=def.desc;
+    cap.appendChild(b);cap.appendChild(s);
+    d.appendChild(c);d.appendChild(cap);host.appendChild(d);
+    (function(c0,df){renderCard(c0,df);setInterval(function(){renderCard(c0,df);},120);})(c,def);
+  }
+}
+
+/* ---------- wiring ---------- */
+const ovl=document.getElementById('startOvl');
+function powerOn(){
+  ovl.classList.add('hidden');
+  initAudio();
+  st.on=true; requestAnimationFrame(renderLoop);
+}
+document.getElementById('goBtn').addEventListener('click',powerOn);
+document.addEventListener('keydown',e=>{ if(ovl && !ovl.classList.contains('hidden')){ if(e.key===' '||e.key==='Enter')powerOn(); }});
+let mus=0;
+document.getElementById('musicBtn').addEventListener('click',()=>{ if(!playing)startMusic(); else stopMusic();});
+document.getElementById('fsBtn').addEventListener('click',()=>{const el=document.documentElement;
+  if(!document.fullscreenElement)el.requestFullscreen&&el.requestFullscreen();else document.exitFullscreen&&document.exitFullscreen();});
+window.addEventListener('resize',()=>{});
+
+buildCards();
+</script>
+</body>
+</html>
