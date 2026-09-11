@@ -114,7 +114,7 @@
 
 <header>
   <button id="btn-hamburger" title="Toggle operations panel">☰</button><div class="brand">Cyber<span>Chef</span></div>
-  <div class="sub">HTML5 · 349 recipes · Sarati, La Buse, Qonos &amp; more</div>
+  <div class="sub">HTML5 · 359 recipes · Reality, Three squares &amp; more</div>
   <div class="spacer"></div>
   <button class="btn" id="btn-clear">Clear Recipe</button>
   <button class="btn" id="btn-load-examples">Load Examples</button>
@@ -2168,6 +2168,16 @@ const RECIPE_PACKS={
  'GCWizard Jacobite / Hylian 64':[['gcwJacobHichusHonor',{}],['gcwSithMagicSga',{}]],
  'GCWizard Dragon / Cybertronic':[['gcwDragonCyberKab',{}],['gcwJacobHichusHonor',{}]],
  'GCWizard Sarati / La Buse':[['gcwSaratiKrempelBuse',{}],['gcwDragonCyberKab',{}]],
+ 'GCWizard Gernreich / Marain':[['gcwGernMandMarain',{}],['gcwSaratiKrempelBuse',{}]],
+ 'GCWizard Alphabetum / Antiker':[['gcwAlphabetumAntik',{}],['gcwGernMandMarain',{}]],
+ 'GCWizard Auslan / Klinzhai':[['gcwAuslIllKlinz',{}],['gcwAlphabetumAntik',{}]],
+ 'GCWizard Livre / Pleiadian':[['gcwLivreFoyPlei',{}],['gcwAuslIllKlinz',{}]],
+ 'GCWizard Doop 2 / NZSL':[['gcwDoopBslNzsl',{}],['gcwLivreFoyPlei',{}]],
+ 'GCWizard Autre Beda / Erebor':[['gcwAutreErebHyl',{}],['gcwDoopBslNzsl',{}]],
+ 'GCWizard Leitz / Hebrew v2':[['gcwLeitzHebHanja',{}],['gcwAutreErebHyl',{}]],
+ 'GCWizard Puzzle 2 / Base16':[['gcwPuz16HebWw',{}],['gcwLeitzHebHanja',{}]],
+ 'GCWizard Hylian ALBW / Steinheil':[['gcwHylAlbStein',{}],['gcwPuz16HebWw',{}]],
+ 'GCWizard Reality / Three squares':[['gcwRealTsqBeda',{}],['gcwHylAlbStein',{}]],
  'Encrypt & MAC (ChaCha20-Poly1305 style)':[['sha3_256',{}],['poly1305',{}]],
  'Sign & Verify (Ed25519)':[['ed25519',{}]],
  'Hash a file (SHA-256)':[['sha256',{}]],
@@ -10724,7 +10734,7 @@ const SYM_PERIODIC={A:'Ac',B:'B',C:'C',D:'Dy',E:'Er',F:'F',G:'Ga',H:'H',I:'I',J:
 const SYM_HEXAHUE={A:'R',B:'G',C:'B',D:'C',E:'M',F:'Y',G:'r',H:'g',I:'b',J:'c',K:'m',L:'y',M:'K',N:'W',O:'RR',P:'GG',Q:'BB',R:'CC',S:'MM',T:'YY',U:'kk',V:'ww',W:'RG',X:'GB',Y:'BC',Z:'CM'};
 const SYM_CELESTIAL={A:'☉',B:'☽',C:'☿',D:'♀',E:'♁',F:'♂',G:'♃',H:'♄',I:'♅',J:'♆',K:'♇',L:'♈',M:'♉',N:'♊',O:'♋',P:'♌',Q:'♍',R:'♎',S:'♏',T:'♐',U:'♑',V:'♒',W:'♓',X:'☊',Y:'☋',Z:'⋆'};
 const SYM_FLAGS2={A:'🇦',B:'🇧',C:'🇨',D:'🇩',E:'🇪',F:'🇫',G:'🇬',H:'🇭',I:'🇮',J:'🇯',K:'🇰',L:'🇱',M:'🇲',N:'🇳',O:'🇴',P:'🇵',Q:'🇶',R:'🇷',S:'🇸',T:'🇹',U:'🇺',V:'🇻',W:'🇼',X:'🇽',Y:'🇾',Z:'🇿'};
-const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD · Mary Stuart · Babington · Castelnau · Maze · Oak Island · Prussian Army Colorcode · Robots · San Luca · Scream Cipher · Slash and Pipe · TLL · Blue Monday · Chain of Death · Cooke-Wheatstone · Solmization · Four triangles · Fiber IEC 60304 · Card code · Stippelcode · Cooke-Wheatstone 1-needle · Cooke-Wheatstone 2-needle · Country flags · TomTom slash · Codescript · Tines · Window · Puzzle code · Red Herring · Snooker · Billiard balls · Shoes · Skulls · Surf · Space Invaders · Stenography · Spintype · Rhesus · Pipeline · Pixel · Planets · Road signs · Weather WW · Musica · Note values · Do-Re-Mi · Ballet · Christmas · Color code · Eurythmy · GC attributes · Moon phases · TAE · Hazard · Ice Lolly · Alchemy · Tropical zodiac · Beaufort scale · ColorADD · Windmill · Webdings · Wingdings · Cloud CL/CM/CH · Rainbow · Alchemy alphabet · Knots · Vulcanian · Yavin · Yan Koryani · Weldon · Unitology · Ulog · Xelbet · Yinyang · Zamonian · Visitor 2009 · Visitor 1984 · Western Union · Pressure tendency · Nina rainbow · Oak pit · Cloud genus · Cistercian · Kaktovik · Shadoks · Babylonian · Egyptian numbers · Arabic-Indic · Devanagari · Eastern Arabic-Indic · Bibibinary · Brahmi · Thai digits · Tamil digits · Greek numerals · Chinese numerals · Japanese numerals · Cyrillic numerals · Kharoshthi · Hieratic · Finger numbers · Native Korean · Sino-Korean · Gesture numbers · Suetterlin · Kurrent · Alien mushrooms · Aquaria · Arcadian · Phoenician leftover · Tifinagh IRCAM · Old Hungarian leftover · Glagolitic leftover · Adlam leftover · Cherokee leftover · Ath leftover · Linear B leftover · Gnommish · Hobbit runes · Kabouter ABC · Sith leftover · Magicode · Standard Galactic · Samurai leftover · Jacobite leftover · Hichus · Honorius leftover · Hylian 64 · Dragon language · Cybertronic · Kabouter 1947 · Samurai 2 · Sarati leftover · Krempel · La Buse · Qonos.';
+const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD · Mary Stuart · Babington · Castelnau · Maze · Oak Island · Prussian Army Colorcode · Robots · San Luca · Scream Cipher · Slash and Pipe · TLL · Blue Monday · Chain of Death · Cooke-Wheatstone · Solmization · Four triangles · Fiber IEC 60304 · Card code · Stippelcode · Cooke-Wheatstone 1-needle · Cooke-Wheatstone 2-needle · Country flags · TomTom slash · Codescript · Tines · Window · Puzzle code · Red Herring · Snooker · Billiard balls · Shoes · Skulls · Surf · Space Invaders · Stenography · Spintype · Rhesus · Pipeline · Pixel · Planets · Road signs · Weather WW · Musica · Note values · Do-Re-Mi · Ballet · Christmas · Color code · Eurythmy · GC attributes · Moon phases · TAE · Hazard · Ice Lolly · Alchemy · Tropical zodiac · Beaufort scale · ColorADD · Windmill · Webdings · Wingdings · Cloud CL/CM/CH · Rainbow · Alchemy alphabet · Knots · Vulcanian · Yavin · Yan Koryani · Weldon · Unitology · Ulog · Xelbet · Yinyang · Zamonian · Visitor 2009 · Visitor 1984 · Western Union · Pressure tendency · Nina rainbow · Oak pit · Cloud genus · Cistercian · Kaktovik · Shadoks · Babylonian · Egyptian numbers · Arabic-Indic · Devanagari · Eastern Arabic-Indic · Bibibinary · Brahmi · Thai digits · Tamil digits · Greek numerals · Chinese numerals · Japanese numerals · Cyrillic numerals · Kharoshthi · Hieratic · Finger numbers · Native Korean · Sino-Korean · Gesture numbers · Suetterlin · Kurrent · Alien mushrooms · Aquaria · Arcadian · Phoenician leftover · Tifinagh IRCAM · Old Hungarian leftover · Glagolitic leftover · Adlam leftover · Cherokee leftover · Ath leftover · Linear B leftover · Gnommish · Hobbit runes · Kabouter ABC · Sith leftover · Magicode · Standard Galactic · Samurai leftover · Jacobite leftover · Hichus · Honorius leftover · Hylian 64 · Dragon language · Cybertronic · Kabouter 1947 · Samurai 2 · Sarati leftover · Krempel · La Buse · Qonos · Gernreich leftover · Mandalorian leftover · Marain v2 · Siemens leftover · Alphabetum gothicum · Alphabetum egiptiorum · Alphabetum arabum · Antiker leftover · Australian sign language · Illuminati v2 · Klinzhai leftover · Iamiel leftover · Livre leftover · Foybreguet leftover · Pleiadian leftover · Futurama 2 leftover · Doop 2 leftover · British sign language · New Zealand sign language · Character antique leftover · Autre Beda leftover · Cirth Erebor leftover · Hylian Skyward leftover · Hylian Twilight leftover · Leitz leftover · Hebrew v2 leftover · Hylian Twilight Wii leftover · Hanja leftover · Puzzle 2 leftover · Base16 leftover · Hebrew leftover v1 · Hylian Wind Waker leftover · Hylian ALBW leftover · Hylian symbols leftover · Base16 v2 leftover · Steinheil leftover · Reality leftover · Three squares leftover · Nortman de Beda leftover · Tetragram v1 leftover.';
 
 function hashSearch(mask, targetHex, algo, ranges, maxN){
   maxN=Math.min(maxN||20000, 200000);
@@ -17021,7 +17031,65 @@ const ROBINSON_BOOK={
   PUBLICAN:'Market closes, final close.',
   PUBLICLY:'Market closed on the call.',
   PUBLISH:'Market closed on the evening board.',
-  PUBLISHED:'Market closed last night.'
+  PUBLISHED:'Market closed last night.',
+  PRAYING:'Northwest buying freely in this market.',
+  PREAMBLE:'Foreigners buying freely in this market.',
+  PRECAUTION:'Chicago buying freely in this market.',
+  PRECEDE:'Country buying freely in this market.',
+  PRECEDENCE:'Shippers buying freely in this market.',
+  PRECEDING:'Elevator men buying freely in this market.',
+  PRECENTOR:'Firmer on large shipments from here.',
+  PRECEPT:'Firmer on large clearances seaboard.',
+  PRECEPTOR:'Cash demand a bullish feature.',
+  PRECISION:'Market oversold locally, look for reaction.',
+  PRECLUDE:'Continued cold weather advancing market.',
+  PRECLUDING:'Continued, wet weather advancing market.',
+  PRECLUSION:'Crowd so bullish bear news has little effect.',
+  PREDATORY:'Bulls talk higher prices but too timid to follow up their conviction.',
+  PREDICANT:'Bears talk lower prices but lack the nerve to follow their conviction.',
+  PREDICATE:'Bulls seem to have lost courage.',
+  PREJUDICE:'Character of buying too much by scalpers chancing an eighth.',
+  PRELACY:'Character of selling too much by scalpers chancing an eighth.',
+  PRELATE:'Good investment buying; ought to do better.',
+  PREMATURE:'Looks as if market bulled to sell on.',
+  PREMISES:'Higher cables would advance market quickly.',
+  PREPARABLE:'Crowd bearish and short, any bull news will start buying.',
+  PREPAYMENT:'Market of a negative character, without guiding indications.',
+  PREPAY:'Cables conflicting look as if manipulated from this side.',
+  PREPAYING:'Leaders selling looks like lower prices.',
+  PREPONDER:'New York selling freely in this market.',
+  PREPOSSESS:'St. Louis selling freely in this market.',
+  PREPOTENT:'Northwest selling freely in this market.',
+  PRESBYTER:'Foreigners selling freely in this market.',
+  PRESCRIBE:'Chicago selling freely in this market.',
+  PRESENCE:'Country selling freely in this market.',
+  PRESENTLY:'Elevator men selling freely in this market.',
+  PRESS:'Receivers selling freely in this market.',
+  PRESSING:'Crowd so bearish bull news has little effect.',
+  PRESTO:'Bears seem to have lost courage.',
+  PRESSED:'Will require fresh buying to sustain prices.',
+  PRESSMAN:'Holders realizing freely market lacks support.',
+  PRESTIGE:'Lower cables would cause decline.',
+  PRETENSION:'Crowd bullish and long, any bear news will start selling.',
+  PRETTILY:'Lower cables a damper on the market.',
+  PREVALENT:'Estimated cars wheat for to-morrow.',
+  PREVENTION:'Estimated cars corn for to-morrow.',
+  PRIEST:'Estimated cars oats for to-morrow.',
+  PRIESTESS:'Estimated live hogs for to-morrow.',
+  PRIESTLY:'Visible supply wheat increases.',
+  PRIESTHOOD:'Visible supply com increases.',
+  PRIGGED:'Visible supply oats increases.',
+  PRIGGING:'Visible supply wheal decreases.',
+  PRIGGISH:'Visible supply corn decreases.',
+  PRIMACY:'Visible supply oats decreases.',
+  PRIMAL:"To-day's clearances seaboard wheat ____",
+  PRIMING:"To-day's clearances seaboard corn ____",
+  PRIMEVAL:"To-day's clearances seaboard oats ____",
+  PRIMATIVE:'____ boat loads taken at seaboard for export.',
+  PRIMNESS:'____ taken here for export.',
+  PRIMROSE:'____ taken here for shipment.',
+  PRINCELY:'____ cash wheat worked here.',
+  NERVOUSLY:'23 50'
 };
 
 const E3_OFFICIAL=[
@@ -17086,7 +17154,7 @@ addOp('gcwColorCodes','ColorAdd / Honey / Tokki','GCWizard',
   }
 );
 addOp('gutenbergRobinsonBook','Robinson Cipher Book (PG #48232)','Codebooks',
-  'Larger working extract from Stephen L. Robinson, The Robinson Telegraphic Cipher (PG #48232): market-downward remainder (PRETENDING, PUBLISHED) plus PREFACE-PREFIXED. Collision keys already in the book are not overwritten. Dotted blanks stay empty. Still a sample, not every page of the book.',
+  'Larger working extract from Stephen L. Robinson, The Robinson Telegraphic Cipher (PG #48232): NERVOUSLY 23 50 kept. Remaining rows after PUBLISHED are already in the extract or dotted blanks. Collision keys already in the book are not overwritten. Dotted blanks stay empty. Still a sample, not every page of the book.',
   [
     {key:'mode',label:'Mode',type:'select',default:'decode',options:[['decode','Decode codeword → phrase'],['encode','Encode phrase → codeword'],['list','List this extract']]}
   ],
@@ -24887,6 +24955,873 @@ addOp('gcwSaratiKrempelBuse','Sarati / Krempel / La Buse / Qonos','GCWizard',
     }
     const out=p.enc(t);
     return kitCard(p.title+' encode',p.badge,kitMono(out),out);
+  }
+);
+
+/* v1.88 leftover: Gernreich / Mandalorian / Marain v2 / Siemens */
+
+const GERN={};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(k){ GERN[k]='GERN-'+k; });
+GERN.CH='GERN-CH';
+GERN.WH='GERN-WH';
+function gernEnc(s){
+  const raw=String(s==null||s===''?'HELLO':s).toUpperCase();
+  let i=0, out=[];
+  while(i<raw.length){
+    const two=raw.slice(i,i+2);
+    if(two==='CH'||two==='WH'){ out.push('GERN-'+two); i+=2; continue; }
+    const ch=raw[i];
+    if(GERN[ch]) out.push(GERN[ch]);
+    i++;
+  }
+  return out.join(' ');
+}
+
+const MANDL={};
+'ABCDEFGHIJKLMNOPQRSTVWXYZ'.split('').forEach(function(k){ MANDL[k]='MANDL-'+k; });
+for(let i=0;i<=9;i++) MANDL[String(i)]='MANDL-'+i;
+
+const MAR2={};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(k){ MAR2[k]='MAR2-'+k; });
+['AY','EE','LL','NG','OO','SH','TH'].forEach(function(k){ MAR2[k]='MAR2-'+k; });
+function mar2Enc(s){
+  const raw=String(s==null||s===''?'HELLO':s).toUpperCase();
+  const keys=['AY','EE','LL','NG','OO','SH','TH'];
+  let i=0, out=[];
+  while(i<raw.length){
+    let hit=null;
+    keys.forEach(function(k){ if(!hit && raw.slice(i,i+2)===k) hit=k; });
+    if(hit){ out.push(MAR2[hit]); i+=2; continue; }
+    const ch=raw[i];
+    if(MAR2[ch]) out.push(MAR2[ch]);
+    i++;
+  }
+  return out.join(' ');
+}
+
+const SIEM={};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(k){ SIEM[k]='SIEM-'+k; });
+for(let i=0;i<=9;i++) SIEM[String(i)]='SIEM-'+i;
+function siemEnc(s){
+  const out=[];
+  for(const ch of String(s==null||s===''?'HELLO':s)){
+    if(/[A-Za-z]/.test(ch)) out.push('SIEM-'+ch.toUpperCase());
+    else if(/\d/.test(ch)) out.push('SIEM-'+ch);
+    else if(ch==='&') out.push('SIEM-AMP');
+    else if(ch==="'") out.push('SIEM-APOS');
+    else if(ch===':') out.push('SIEM-COLON');
+    else if(ch===',') out.push('SIEM-COMMA');
+    else if(ch==='-') out.push('SIEM-DASH');
+    else if(ch==='.') out.push('SIEM-DOT');
+    else if(ch==='=') out.push('SIEM-EQUALS');
+    else if(ch==='!') out.push('SIEM-BANG');
+    else if(ch==='('||ch===')') out.push(ch==='('?'SIEM-LPAREN':'SIEM-RPAREN');
+    else if(ch==='+') out.push('SIEM-PLUS');
+    else if(ch==='?') out.push('SIEM-Q');
+    else if(ch==='"') out.push('SIEM-QUOTE');
+    else if(ch===';') out.push('SIEM-SEMI');
+    else if(ch==='/') out.push('SIEM-SLASH');
+    else if(ch===' ') out.push('SIEM-SPACE');
+    else if(ch==='*') out.push('SIEM-TIMES');
+  }
+  return out.join(' ');
+}
+
+addOp('gcwGernMandMarain','Gernreich / Mandalorian / Marain v2 / Siemens','GCWizard',
+  'Leftover GCWizard writings. Gernreich leftover A-Z plus published CH/WH (Reference). Mandalorian leftover A-Z and 0-9 except U (no U plate). Marain v2 leftover A-Z plus published AY/EE/LL/NG/OO/SH/TH (Reference; HELLO uses LL). Siemens leftover A-Z, 0-9, and published punctuation (Reference). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'gernreich',options:[['gernreich','Gernreich'],['mandalorian','Mandalorian leftover'],['marain','Marain v2'],['siemens','Siemens']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='gernreich'){
+      if(a.mode==='list'){
+        const lines=Object.keys(GERN).map(function(k){ return k+'  '+GERN[k]; });
+        return kitCard('Gernreich leftover','Reference CH/WH',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(GERN, t||'');
+        return kitCard('Gernreich decode','Reference CH/WH',kitMono(out),out);
+      }
+      const out=gernEnc(t);
+      return kitCard('Gernreich encode','Reference CH/WH',kitMono(out),out);
+    }
+    if(a.table==='mandalorian'){
+      if(a.mode==='list'){
+        const lines=Object.keys(MANDL).map(function(k){ return k+'  '+MANDL[k]; });
+        return kitCard('Mandalorian leftover','no U',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(MANDL, t||'');
+        return kitCard('Mandalorian decode','no U',kitMono(out),out);
+      }
+      const out=symEnc(MANDL, t||'HELLO');
+      return kitCard('Mandalorian encode','no U',kitMono(out),out);
+    }
+    if(a.table==='marain'){
+      if(a.mode==='list'){
+        const lines=Object.keys(MAR2).map(function(k){ return k+'  '+MAR2[k]; });
+        return kitCard('Marain v2 leftover','Reference LL',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(MAR2, t||'');
+        return kitCard('Marain v2 decode','Reference LL',kitMono(out),out);
+      }
+      const out=mar2Enc(t);
+      return kitCard('Marain v2 encode','Reference LL',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(SIEM).map(function(k){ return k+'  '+SIEM[k]; });
+      return kitCard('Siemens leftover','Reference A-Z 0-9',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    const out=siemEnc(t);
+    return kitCard('Siemens encode','Reference A-Z 0-9',kitMono(out),out);
+  }
+);
+
+/* v1.89 leftover: Alphabetum gothicum / egiptiorum / arabum / Antiker */
+
+const GOTHUM={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ GOTHUM[k]='GOTH-'+k; });
+GOTHUM.ET='GOTH-ET';
+function gothEnc(s){
+  const out=[];
+  for(const ch of String(s==null||s===''?'HELLO':s)){
+    const u=ch.toUpperCase();
+    if(ch==='&') out.push('GOTH-ET');
+    else if(GOTHUM[u]) out.push(GOTHUM[u]);
+  }
+  return out.join(' ');
+}
+
+const EGIPT={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ EGIPT[k]='EGIPT-'+k; });
+EGIPT.TH='EGIPT-TH';
+function egiptEnc(s){
+  const raw=String(s==null||s===''?'HELLO':s).toUpperCase();
+  let i=0, out=[];
+  while(i<raw.length){
+    if(raw.slice(i,i+2)==='TH'){ out.push('EGIPT-TH'); i+=2; continue; }
+    const ch=raw[i];
+    if(EGIPT[ch]) out.push(EGIPT[ch]);
+    i++;
+  }
+  return out.join(' ');
+}
+
+const ARABUM=azTok('ARABUM');
+const ANTIK=azTok('ANTIK', true);
+
+addOp('gcwAlphabetumAntik','Alphabetum gothicum / egiptiorum / arabum / Antiker','GCWizard',
+  'Leftover GCWizard writings. Alphabetum gothicum leftover A-Z except J/V/W plus published ET ligature as & (Reference; extra C_/D_ plates not assigned). Alphabetum egiptiorum leftover A-Z except J/V/W plus published TH (Reference). Alphabetum arabum leftover A-Z (Reference). Antiker leftover A-Z and 0-9, Stargate Ancient named tokens (Reference). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'gothicum',options:[['gothicum','Alphabetum gothicum'],['egiptiorum','Alphabetum egiptiorum'],['arabum','Alphabetum arabum'],['antiker','Antiker']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='gothicum'){
+      if(a.mode==='list'){
+        const lines=Object.keys(GOTHUM).map(function(k){ return k+'  '+GOTHUM[k]; });
+        return kitCard('Alphabetum gothicum leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(GOTHUM, t||'');
+        return kitCard('Gothicum decode','no J/V/W',kitMono(out),out);
+      }
+      const out=gothEnc(t);
+      return kitCard('Gothicum encode','no J/V/W',kitMono(out),out);
+    }
+    if(a.table==='egiptiorum'){
+      if(a.mode==='list'){
+        const lines=Object.keys(EGIPT).map(function(k){ return k+'  '+EGIPT[k]; });
+        return kitCard('Alphabetum egiptiorum leftover','no J/V/W TH',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(EGIPT, t||'');
+        return kitCard('Egiptiorum decode','no J/V/W TH',kitMono(out),out);
+      }
+      const out=egiptEnc(t);
+      return kitCard('Egiptiorum encode','no J/V/W TH',kitMono(out),out);
+    }
+    if(a.table==='arabum'){
+      if(a.mode==='list'){
+        const lines=Object.keys(ARABUM).map(function(k){ return k+'  '+ARABUM[k]; });
+        return kitCard('Alphabetum arabum leftover','Reference A-Z',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(ARABUM, t||'');
+        return kitCard('Arabum decode','Reference A-Z',kitMono(out),out);
+      }
+      const out=symEnc(ARABUM, t||'HELLO');
+      return kitCard('Arabum encode','Reference A-Z',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(ANTIK).map(function(k){ return k+'  '+ANTIK[k]; });
+      return kitCard('Antiker leftover','Reference A-Z 0-9',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(ANTIK, t||'');
+      return kitCard('Antiker decode','Reference A-Z 0-9',kitMono(out),out);
+    }
+    const out=symEnc(ANTIK, t||'HELLO');
+    return kitCard('Antiker encode','Reference A-Z 0-9',kitMono(out),out);
+  }
+);
+
+/* v1.90 leftover: Auslan / Illuminati v2 / Klinzhai / Iamiel */
+
+const AUSL=azTok('AUSL', true);
+AUSL[':']='AUSL-COLON';
+AUSL[',']='AUSL-COMMA';
+AUSL['-']='AUSL-DASH';
+AUSL['/']='AUSL-DIV';
+AUSL['.']='AUSL-DOT';
+AUSL['=']='AUSL-EQUALS';
+AUSL['+']='AUSL-PLUS';
+AUSL['?']='AUSL-Q';
+AUSL[';']='AUSL-SEMI';
+AUSL['*']='AUSL-TIMES';
+AUSL['@']='AUSL-AT';
+
+const ILL2=azTok('ILL2', true);
+
+const KLINZ={};
+'ABDEFGHIJKLMNOPRSTUVWXYZ'.split('').forEach(function(k){ KLINZ[k]='KLINZ-'+k; });
+for(let i=0;i<=9;i++) KLINZ[String(i)]='KLINZ-'+i;
+['NG','OO','TH'].forEach(function(k){ KLINZ[k]='KLINZ-'+k; });
+function klinzEnc(s){
+  return symEnc(KLINZ, s==null||s===''?'HELLO':s);
+}
+
+const IAMIEL={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ IAMIEL[k]='IAMIEL-'+k; });
+IAMIEL['&']='IAMIEL-AMP';
+function iamielEnc(s){
+  return symEnc(IAMIEL, s==null||s===''?'HELP':s);
+}
+
+addOp('gcwAuslIllKlinz','Auslan / Illuminati v2 / Klinzhai / Iamiel','GCWizard',
+  'Leftover GCWizard writings. Australian sign language leftover A-Z, 0-9, and published punctuation (Reference; two-handed Auslan glyphs not embedded). Illuminati v2 leftover A-Z and 0-9 as ILL2- (existing EYE-A Illuminati is not redeclared). Klingon Klinzhai leftover A-Z except C/Q plus published NG/OO/TH and 0-9 (Reference; Mandel Klinzhai, not pIqaD). Iamiel leftover A-Z except J/V/W plus ampersand (Reference). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'auslan',options:[['auslan','Australian sign language'],['ill2','Illuminati v2'],['klinzhai','Klinzhai'],['iamiel','Iamiel']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='auslan'){
+      if(a.mode==='list'){
+        const lines=Object.keys(AUSL).map(function(k){ return k+'  '+AUSL[k]; });
+        return kitCard('Auslan leftover','Reference A-Z 0-9',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(AUSL, t||'');
+        return kitCard('Auslan decode','Reference A-Z 0-9',kitMono(out),out);
+      }
+      const out=symEnc(AUSL, t||'HELLO');
+      return kitCard('Auslan encode','Reference A-Z 0-9',kitMono(out),out);
+    }
+    if(a.table==='ill2'){
+      if(a.mode==='list'){
+        const lines=Object.keys(ILL2).map(function(k){ return k+'  '+ILL2[k]; });
+        return kitCard('Illuminati v2 leftover','ILL2- not EYE-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(ILL2, t||'');
+        return kitCard('Illuminati v2 decode','ILL2- not EYE-',kitMono(out),out);
+      }
+      const out=symEnc(ILL2, t||'HELLO');
+      return kitCard('Illuminati v2 encode','ILL2- not EYE-',kitMono(out),out);
+    }
+    if(a.table==='klinzhai'){
+      if(a.mode==='list'){
+        const lines=Object.keys(KLINZ).map(function(k){ return k+'  '+KLINZ[k]; });
+        return kitCard('Klinzhai leftover','no C/Q NG/OO/TH',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(KLINZ, t||'');
+        return kitCard('Klinzhai decode','no C/Q NG/OO/TH',kitMono(out),out);
+      }
+      const out=klinzEnc(t);
+      return kitCard('Klinzhai encode','no C/Q NG/OO/TH',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(IAMIEL).map(function(k){ return k+'  '+IAMIEL[k]; });
+      return kitCard('Iamiel leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(IAMIEL, t||'');
+      return kitCard('Iamiel decode','no J/V/W',kitMono(out),out);
+    }
+    const out=iamielEnc(t);
+    return kitCard('Iamiel encode','no J/V/W',kitMono(out),out);
+  }
+);
+
+/* v1.91 leftover: Livre Cinquiesme / Foy-Breguet / Pleiadian / Futurama 2 */
+
+const LIVRE={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ LIVRE[k]='LIVRE-'+k; });
+LIVRE.SCH='LIVRE-SCH';
+LIVRE.TH='LIVRE-TH';
+LIVRE['&']='LIVRE-AMP';
+function livreEnc(s){
+  return symEnc(LIVRE, s==null||s===''?'HELLO':s);
+}
+
+const FOYBR=azTok('FOY');
+
+const PLEI={};
+'ABCDEFGHIKLMNOPRSTUWXZ'.split('').forEach(function(k){ PLEI[k]='PLEI-'+k; });
+PLEI.CH='PLEI-CH';
+PLEI.SCH='PLEI-SCH';
+function pleiEnc(s){
+  return symEnc(PLEI, s==null||s===''?'HELLO':s);
+}
+
+const FUT2=azTok('FUT2', true);
+for(let i=10;i<=26;i++) FUT2[String(i)]='FUT2-'+i;
+
+addOp('gcwLivreFoyPlei','Livre Cinquiesme / Foy-Breguet / Pleiadian / Futurama 2','GCWizard',
+  'Leftover GCWizard writings. Livre Cinquiesme leftover A-Z except J/V/W plus published SCH/TH and ampersand (Reference). Foy-Breguet leftover A-Z named tokens (Reference; Chappe needle positions not invented). Pleiadian leftover A-Z except J/Q/V/Y plus published CH/SCH (Reference). Futurama 2 leftover A-Z and 0-26 as FUT2- (existing FUT1- is not redeclared). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'livre',options:[['livre','Livre Cinquiesme'],['foy','Foy-Breguet'],['pleiadian','Pleiadian'],['fut2','Futurama 2']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='livre'){
+      if(a.mode==='list'){
+        const lines=Object.keys(LIVRE).map(function(k){ return k+'  '+LIVRE[k]; });
+        return kitCard('Livre Cinquiesme leftover','no J/V/W SCH/TH',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(LIVRE, t||'');
+        return kitCard('Livre decode','no J/V/W SCH/TH',kitMono(out),out);
+      }
+      const out=livreEnc(t);
+      return kitCard('Livre encode','no J/V/W SCH/TH',kitMono(out),out);
+    }
+    if(a.table==='foy'){
+      if(a.mode==='list'){
+        const lines=Object.keys(FOYBR).map(function(k){ return k+'  '+FOYBR[k]; });
+        return kitCard('Foy-Breguet leftover','Reference A-Z',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(FOYBR, t||'');
+        return kitCard('Foy-Breguet decode','Reference A-Z',kitMono(out),out);
+      }
+      const out=symEnc(FOYBR, t||'HELLO');
+      return kitCard('Foy-Breguet encode','Reference A-Z',kitMono(out),out);
+    }
+    if(a.table==='pleiadian'){
+      if(a.mode==='list'){
+        const lines=Object.keys(PLEI).map(function(k){ return k+'  '+PLEI[k]; });
+        return kitCard('Pleiadian leftover','no J/Q/V/Y CH/SCH',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(PLEI, t||'');
+        return kitCard('Pleiadian decode','no J/Q/V/Y CH/SCH',kitMono(out),out);
+      }
+      const out=pleiEnc(t);
+      return kitCard('Pleiadian encode','no J/Q/V/Y CH/SCH',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(FUT2).map(function(k){ return k+'  '+FUT2[k]; });
+      return kitCard('Futurama 2 leftover','FUT2- not FUT1-',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(FUT2, t||'');
+      return kitCard('Futurama 2 decode','FUT2- not FUT1-',kitMono(out),out);
+    }
+    const out=symEnc(FUT2, t||'HELLO');
+    return kitCard('Futurama 2 encode','FUT2- not FUT1-',kitMono(out),out);
+  }
+);
+
+/* v1.92 leftover: Doop 2 / British SL / NZSL / Character antique */
+
+const DOOP2={};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(k){ DOOP2[k]='DOOP2-'+k; });
+DOOP2['1']='DOOP2-1';
+DOOP2['.']='DOOP2-DOT';
+
+const BSIGN=azTok('BSL');
+
+const NZSL=azTok('NZSL', true);
+NZSL[':']='NZSL-COLON';
+NZSL[',']='NZSL-COMMA';
+NZSL['-']='NZSL-DASH';
+NZSL['/']='NZSL-DIV';
+NZSL['.']='NZSL-DOT';
+NZSL['=']='NZSL-EQUALS';
+NZSL['+']='NZSL-PLUS';
+NZSL['?']='NZSL-Q';
+NZSL[';']='NZSL-SEMI';
+NZSL['*']='NZSL-TIMES';
+NZSL['@']='NZSL-AT';
+
+const CANT={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ CANT[k]='CANT-'+k; });
+CANT['&']='CANT-AMP';
+function cantEnc(s){
+  return symEnc(CANT, s==null||s===''?'HELLO':s);
+}
+
+addOp('gcwDoopBslNzsl','Doop 2 / British SL / NZSL / Character antique','GCWizard',
+  'Leftover GCWizard writings. Doop Speak leftover A-Z plus published 1 and dot as DOOP2- (existing DOOP- is not redeclared; no 0 plate). British sign language leftover A-Z (Reference; two-handed glyphs not embedded). New Zealand sign language leftover A-Z, 0-9, and published punctuation (Reference). Character antique leftover A-Z except J/V/W plus ampersand (Reference). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'doop2',options:[['doop2','Doop 2'],['bsl','British sign language'],['nzsl','New Zealand sign language'],['antique','Character antique']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='doop2'){
+      if(a.mode==='list'){
+        const lines=Object.keys(DOOP2).map(function(k){ return k+'  '+DOOP2[k]; });
+        return kitCard('Doop 2 leftover','DOOP2- not DOOP-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(DOOP2, t||'');
+        return kitCard('Doop 2 decode','DOOP2- not DOOP-',kitMono(out),out);
+      }
+      const out=symEnc(DOOP2, t||'HELLO');
+      return kitCard('Doop 2 encode','DOOP2- not DOOP-',kitMono(out),out);
+    }
+    if(a.table==='bsl'){
+      if(a.mode==='list'){
+        const lines=Object.keys(BSIGN).map(function(k){ return k+'  '+BSIGN[k]; });
+        return kitCard('British sign leftover','Reference A-Z',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(BSIGN, t||'');
+        return kitCard('British sign decode','Reference A-Z',kitMono(out),out);
+      }
+      const out=symEnc(BSIGN, t||'HELLO');
+      return kitCard('British sign encode','Reference A-Z',kitMono(out),out);
+    }
+    if(a.table==='nzsl'){
+      if(a.mode==='list'){
+        const lines=Object.keys(NZSL).map(function(k){ return k+'  '+NZSL[k]; });
+        return kitCard('NZSL leftover','Reference A-Z 0-9',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(NZSL, t||'');
+        return kitCard('NZSL decode','Reference A-Z 0-9',kitMono(out),out);
+      }
+      const out=symEnc(NZSL, t||'HELLO');
+      return kitCard('NZSL encode','Reference A-Z 0-9',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(CANT).map(function(k){ return k+'  '+CANT[k]; });
+      return kitCard('Character antique leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(CANT, t||'');
+      return kitCard('Character antique decode','no J/V/W',kitMono(out),out);
+    }
+    const out=cantEnc(t);
+    return kitCard('Character antique encode','no J/V/W',kitMono(out),out);
+  }
+);
+
+/* v1.93 leftover: Autre Beda / Cirth Erebor / Hylian Skyward / Twilight GCN */
+
+const AUTRE={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ AUTRE[k]='AUTRE-'+k; });
+AUTRE['&']='AUTRE-AMP';
+function autreEnc(s){
+  return symEnc(AUTRE, s==null||s===''?'HELLO':s);
+}
+
+const EREB={};
+'ABCDEFGIJKLMOPQRSTUVWXZ'.split('').forEach(function(k){ EREB[k]='EREB-'+k; });
+for(let i=0;i<=9;i++) EREB[String(i)]='EREB-'+i;
+EREB.SZ='EREB-SZ';
+EREB.UE='EREB-UE';
+EREB[',']='EREB-COMMA';
+EREB['.']='EREB-DOT';
+EREB['!']='EREB-BANG';
+EREB['?']='EREB-Q';
+function erebEnc(s){
+  return symEnc(EREB, s==null||s===''?'GOLD':s);
+}
+
+const HYLSS=azTok('HYLSS');
+
+const HYLTP=azTok('HYLTP');
+HYLTP[':']='HYLTP-COLON';
+HYLTP[',']='HYLTP-COMMA';
+HYLTP['.']='HYLTP-DOT';
+HYLTP['!']='HYLTP-BANG';
+HYLTP[';']='HYLTP-SEMI';
+
+addOp('gcwAutreErebHyl','Autre Beda / Cirth Erebor / Hylian Skyward / Twilight','GCWizard',
+  'Leftover GCWizard writings. Autre Beda leftover A-Z except J/V/W plus ampersand (Reference). Cirth Erebor leftover A-Z except H/N/Y, 0-9, published SZ/UE and punctuation (Reference; extra _a plates not assigned; existing CIRTH Angerthas is not redeclared). Hylian Skyward Sword leftover A-Z as HYLSS- (existing HYL- / HYL64- not redeclared). Hylian Twilight Princess GCN leftover A-Z plus published punctuation as HYLTP-. Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'autre',options:[['autre','Autre Beda'],['erebor','Cirth Erebor'],['skyward','Hylian Skyward'],['twilight','Hylian Twilight']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='autre'){
+      if(a.mode==='list'){
+        const lines=Object.keys(AUTRE).map(function(k){ return k+'  '+AUTRE[k]; });
+        return kitCard('Autre Beda leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(AUTRE, t||'');
+        return kitCard('Autre Beda decode','no J/V/W',kitMono(out),out);
+      }
+      const out=autreEnc(t);
+      return kitCard('Autre Beda encode','no J/V/W',kitMono(out),out);
+    }
+    if(a.table==='erebor'){
+      if(a.mode==='list'){
+        const lines=Object.keys(EREB).map(function(k){ return k+'  '+EREB[k]; });
+        return kitCard('Cirth Erebor leftover','no H/N/Y',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(EREB, t||'');
+        return kitCard('Erebor decode','no H/N/Y',kitMono(out),out);
+      }
+      const out=erebEnc(t);
+      return kitCard('Erebor encode','no H/N/Y',kitMono(out),out);
+    }
+    if(a.table==='skyward'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HYLSS).map(function(k){ return k+'  '+HYLSS[k]; });
+        return kitCard('Hylian Skyward leftover','HYLSS- not HYL-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HYLSS, t||'');
+        return kitCard('Skyward decode','HYLSS- not HYL-',kitMono(out),out);
+      }
+      const out=symEnc(HYLSS, t||'HELLO');
+      return kitCard('Skyward encode','HYLSS- not HYL-',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(HYLTP).map(function(k){ return k+'  '+HYLTP[k]; });
+      return kitCard('Hylian Twilight leftover','HYLTP- not HYL-',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(HYLTP, t||'');
+      return kitCard('Twilight decode','HYLTP- not HYL-',kitMono(out),out);
+    }
+    const out=symEnc(HYLTP, t||'HELLO');
+    return kitCard('Twilight encode','HYLTP- not HYL-',kitMono(out),out);
+  }
+);
+
+/* v1.94 leftover: Leitz / Hebrew v2 / Twilight Wii / Hanja */
+
+const LEITZ=azTok('LEITZ', true);
+LEITZ.SCH='LEITZ-SCH';
+LEITZ.ST='LEITZ-ST';
+function leitzEnc(s){
+  return symEnc(LEITZ, s==null||s===''?'HELLO':s);
+}
+
+const HEB2=azTok('HEB2');
+
+const HYLTW=azTok('HYLTW');
+HYLTW[':']='HYLTW-COLON';
+HYLTW[',']='HYLTW-COMMA';
+HYLTW['.']='HYLTW-DOT';
+HYLTW['!']='HYLTW-BANG';
+HYLTW[';']='HYLTW-SEMI';
+
+const HANJA={};
+for(let i=0;i<=9;i++) HANJA[String(i)]='HANJA-'+i;
+[10,11,12,20,30,100,1000,10000].forEach(function(n){ HANJA[String(n)]='HANJA-'+n; });
+function hanjaEnc(s){
+  return symEnc(HANJA, s==null||s===''?'12':s);
+}
+
+addOp('gcwLeitzHebHanja','Leitz / Hebrew v2 / Twilight Wii / Hanja','GCWizard',
+  'Leftover GCWizard writings. Leitz Orgacolor leftover A-Z, 0-9, plus published SCH/ST (Reference). Hebrew v2 leftover A-Z as HEB2- (Hebrew v1 leftover incomplete plates not invented). Hylian Twilight Princess Wii leftover A-Z plus published punctuation as HYLTW- (distinct from HYLTP GCN). Hanja leftover published number plates 0-12, 20, 30, 100, 1000, 10000 (Reference; extra 0_ not assigned). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'leitz',options:[['leitz','Leitz Orgacolor'],['heb2','Hebrew v2'],['twilightwii','Hylian Twilight Wii'],['hanja','Hanja']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='leitz'){
+      if(a.mode==='list'){
+        const lines=Object.keys(LEITZ).map(function(k){ return k+'  '+LEITZ[k]; });
+        return kitCard('Leitz leftover','Reference SCH/ST',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(LEITZ, t||'');
+        return kitCard('Leitz decode','Reference SCH/ST',kitMono(out),out);
+      }
+      const out=leitzEnc(t);
+      return kitCard('Leitz encode','Reference SCH/ST',kitMono(out),out);
+    }
+    if(a.table==='heb2'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HEB2).map(function(k){ return k+'  '+HEB2[k]; });
+        return kitCard('Hebrew v2 leftover','HEB2-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HEB2, t||'');
+        return kitCard('Hebrew v2 decode','HEB2-',kitMono(out),out);
+      }
+      const out=symEnc(HEB2, t||'HELLO');
+      return kitCard('Hebrew v2 encode','HEB2-',kitMono(out),out);
+    }
+    if(a.table==='twilightwii'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HYLTW).map(function(k){ return k+'  '+HYLTW[k]; });
+        return kitCard('Hylian Twilight Wii leftover','HYLTW- not HYLTP-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HYLTW, t||'');
+        return kitCard('Twilight Wii decode','HYLTW- not HYLTP-',kitMono(out),out);
+      }
+      const out=symEnc(HYLTW, t||'HELLO');
+      return kitCard('Twilight Wii encode','HYLTW- not HYLTP-',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(HANJA).map(function(k){ return k+'  '+HANJA[k]; });
+      return kitCard('Hanja leftover','no extra 0_',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(HANJA, t||'');
+      return kitCard('Hanja decode','no extra 0_',kitMono(out),out);
+    }
+    const out=hanjaEnc(t);
+    return kitCard('Hanja encode','no extra 0_',kitMono(out),out);
+  }
+);
+
+/* v1.95 leftover: Puzzle 2 / Base16 / Hebrew leftover / Wind Waker */
+
+const PUZ2=azTok('PUZ2');
+
+const BASE16L={};
+for(let i=1;i<=15;i++) BASE16L[String(i)]='BASE16-'+i;
+function base16Enc(s){
+  return symEnc(BASE16L, s==null||s===''?'12':s);
+}
+
+const HEBL={};
+'BDFGHJKLMNPRSTVWYZ'.split('').forEach(function(k){ HEBL[k]='HEBL-'+k; });
+['CH','KH','SCH','SH','TS'].forEach(function(k){ HEBL[k]='HEBL-'+k; });
+HEBL["'"]='HEBL-APOS';
+[1,2,3,4,5,6,7,8,9,10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900].forEach(function(n){ HEBL[String(n)]='HEBL-'+n; });
+function heblEnc(s){
+  return symEnc(HEBL, s==null||s===''?'HELLO':s);
+}
+
+const HYLWW={};
+'AEINOU'.split('').forEach(function(k){ HYLWW[k]='HYLWW-'+k; });
+for(let i=0;i<=9;i++) HYLWW[String(i)]='HYLWW-'+i;
+['BA','BE','BO','BU','CHI','DA','DE','DO','FU','GA','GE','GI','GO','GU','HA','HE','HI','HO','JI','KA','KE','KI','KO','KU','MA','ME','MI','MO','MU','NA','NE','NI','NO','NU','PA','PE','PI','PO','PU','RA','RE','RI','RO','RU','SA','SE','SHI','SO','SU','TA','TE','TO','TSU','WA','WO','YA','YO','YU','ZA','ZE','ZO','ZU'].forEach(function(k){ HYLWW[k]='HYLWW-'+k; });
+function hylwwEnc(s){
+  return symEnc(HYLWW, s==null||s===''?'KAKI':s);
+}
+
+addOp('gcwPuz16HebWw','Puzzle 2 / Base16 / Hebrew leftover / Wind Waker','GCWizard',
+  'Leftover GCWizard writings. Puzzle 2 leftover A-Z as PUZ2- (existing PUZ- is not redeclared). Base16 leftover 1-15 (Reference; no 0 plate, not invented). Hebrew leftover published letters B/D/F/G/H/J/K/L/M/N/P/R/S/T/V/W/Y/Z plus CH/KH/SCH/SH/TS, apostrophe, and number plates 1-900 (Reference; extra K_/S_ plates not assigned; missing A/C/E/I/O/Q/U/X not invented). Hylian Wind Waker leftover published vowels A/E/I/N/O/U, 0-9, and CV syllables (Reference; extra be_/ji_/zu_ not assigned; existing HYL- not redeclared). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'puz2',options:[['puz2','Puzzle 2'],['base16','Base16 leftover'],['hebrew','Hebrew leftover'],['windwaker','Hylian Wind Waker']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='puz2'){
+      if(a.mode==='list'){
+        const lines=Object.keys(PUZ2).map(function(k){ return k+'  '+PUZ2[k]; });
+        return kitCard('Puzzle 2 leftover','PUZ2- not PUZ-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(PUZ2, t||'');
+        return kitCard('Puzzle 2 decode','PUZ2- not PUZ-',kitMono(out),out);
+      }
+      const out=symEnc(PUZ2, t||'HELLO');
+      return kitCard('Puzzle 2 encode','PUZ2- not PUZ-',kitMono(out),out);
+    }
+    if(a.table==='base16'){
+      if(a.mode==='list'){
+        const lines=Object.keys(BASE16L).map(function(k){ return k+'  '+BASE16L[k]; });
+        return kitCard('Base16 leftover','no 0 plate',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(BASE16L, t||'');
+        return kitCard('Base16 decode','no 0 plate',kitMono(out),out);
+      }
+      const out=base16Enc(t);
+      return kitCard('Base16 encode','no 0 plate',kitMono(out),out);
+    }
+    if(a.table==='hebrew'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HEBL).map(function(k){ return k+'  '+HEBL[k]; });
+        return kitCard('Hebrew leftover','published plates only',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HEBL, t||'');
+        return kitCard('Hebrew leftover decode','published plates only',kitMono(out),out);
+      }
+      const out=heblEnc(t);
+      return kitCard('Hebrew leftover encode','published plates only',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(HYLWW).map(function(k){ return k+'  '+HYLWW[k]; });
+      return kitCard('Wind Waker leftover','HYLWW- syllables',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(HYLWW, t||'');
+      return kitCard('Wind Waker decode','HYLWW- syllables',kitMono(out),out);
+    }
+    const out=hylwwEnc(t);
+    return kitCard('Wind Waker encode','HYLWW- syllables',kitMono(out),out);
+  }
+);
+
+/* v1.96 leftover: Hylian ALBW / Hylian symbols / Base16 v2 / Steinheil */
+
+const HYLALB=azTok('HYLALB');
+
+const HYLSYM={};
+'ABCDEFGHIJKLMNOPQRS'.split('').forEach(function(k){ HYLSYM[k]='HYLSYM-'+k; });
+
+const BASE16B={};
+for(let i=0;i<=15;i++) BASE16B[String(i)]='BASE16B-'+i;
+function base16bEnc(s){
+  return symEnc(BASE16B, s==null||s===''?'12':s);
+}
+
+const STEIN={};
+'ABCDEFGHIJKLMNOPRSTUVWZ'.split('').forEach(function(k){ STEIN[k]='STEIN-'+k; });
+for(let i=0;i<=9;i++) STEIN[String(i)]='STEIN-'+i;
+STEIN.CH='STEIN-CH';
+STEIN.SCH='STEIN-SCH';
+function steinEnc(s){
+  return symEnc(STEIN, s==null||s===''?'HELLO':s);
+}
+
+addOp('gcwHylAlbStein','Hylian ALBW / Hylian symbols / Base16 v2 / Steinheil','GCWizard',
+  'Leftover GCWizard writings. Hylian ALBW/BotW leftover A-Z as HYLALB- (existing HYL- / HYLSS- / HYLTP- / HYLTW- / HYLWW- / HYL64- not redeclared). Hylian symbols leftover A-S only (no T-Z plates). Base16 v2 leftover 0-15 as BASE16B- (distinct from Base16 leftover which has no 0). Steinheil leftover A-Z except Q/X/Y plus published CH/SCH and 0-9 (Reference). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'albw',options:[['albw','Hylian ALBW/BotW'],['symbols','Hylian symbols'],['base16b','Base16 v2'],['steinheil','Steinheil']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='albw'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HYLALB).map(function(k){ return k+'  '+HYLALB[k]; });
+        return kitCard('Hylian ALBW leftover','HYLALB- not HYL-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HYLALB, t||'');
+        return kitCard('ALBW decode','HYLALB- not HYL-',kitMono(out),out);
+      }
+      const out=symEnc(HYLALB, t||'HELLO');
+      return kitCard('ALBW encode','HYLALB- not HYL-',kitMono(out),out);
+    }
+    if(a.table==='symbols'){
+      if(a.mode==='list'){
+        const lines=Object.keys(HYLSYM).map(function(k){ return k+'  '+HYLSYM[k]; });
+        return kitCard('Hylian symbols leftover','A-S only',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(HYLSYM, t||'');
+        return kitCard('Hylian symbols decode','A-S only',kitMono(out),out);
+      }
+      const out=symEnc(HYLSYM, t||'HELLO');
+      return kitCard('Hylian symbols encode','A-S only',kitMono(out),out);
+    }
+    if(a.table==='base16b'){
+      if(a.mode==='list'){
+        const lines=Object.keys(BASE16B).map(function(k){ return k+'  '+BASE16B[k]; });
+        return kitCard('Base16 v2 leftover','0-15 BASE16B-',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(BASE16B, t||'');
+        return kitCard('Base16 v2 decode','0-15 BASE16B-',kitMono(out),out);
+      }
+      const out=base16bEnc(t);
+      return kitCard('Base16 v2 encode','0-15 BASE16B-',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(STEIN).map(function(k){ return k+'  '+STEIN[k]; });
+      return kitCard('Steinheil leftover','no Q/X/Y CH/SCH',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(STEIN, t||'');
+      return kitCard('Steinheil decode','no Q/X/Y CH/SCH',kitMono(out),out);
+    }
+    const out=steinEnc(t);
+    return kitCard('Steinheil encode','no Q/X/Y CH/SCH',kitMono(out),out);
+  }
+);
+
+/* v1.97 leftover: Reality / Three squares / Nortman de Beda / Tetragram v1 */
+
+const REALT=azTok('REALT');
+const TSQ=azTok('TSQ');
+
+const BEDA={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ BEDA[k]='BEDA-'+k; });
+BEDA['&']='BEDA-AMP';
+function bedaEnc(s){
+  return symEnc(BEDA, s==null||s===''?'HELLO':s);
+}
+
+const TET1={};
+'ABCDEFGHIKLMNOPQRSTUXYZ'.split('').forEach(function(k){ TET1[k]='TET1-'+k; });
+TET1['&']='TET1-AMP';
+function tet1Enc(s){
+  return symEnc(TET1, s==null||s===''?'HELLO':s);
+}
+
+addOp('gcwRealTsqBeda','Reality / Three squares / Nortman de Beda / Tetragram v1','GCWizard',
+  'Leftover GCWizard writings. Reality leftover A-Z as REALT-. Three squares leftover A-Z as TSQ-. Nortman de Beda leftover A-Z except J/V/W plus ampersand as BEDA- (existing NORT- is not redeclared). Tetragrammatique v1 leftover A-Z except J/V/W plus ampersand as TET1-. Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'reality',options:[['reality','Reality'],['threesq','Three squares'],['beda','Nortman de Beda'],['tet1','Tetragram v1']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    if(a.table==='reality'){
+      if(a.mode==='list'){
+        const lines=Object.keys(REALT).map(function(k){ return k+'  '+REALT[k]; });
+        return kitCard('Reality leftover','Reference A-Z',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(REALT, t||'');
+        return kitCard('Reality decode','Reference A-Z',kitMono(out),out);
+      }
+      const out=symEnc(REALT, t||'HELLO');
+      return kitCard('Reality encode','Reference A-Z',kitMono(out),out);
+    }
+    if(a.table==='threesq'){
+      if(a.mode==='list'){
+        const lines=Object.keys(TSQ).map(function(k){ return k+'  '+TSQ[k]; });
+        return kitCard('Three squares leftover','Reference A-Z',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(TSQ, t||'');
+        return kitCard('Three squares decode','Reference A-Z',kitMono(out),out);
+      }
+      const out=symEnc(TSQ, t||'HELLO');
+      return kitCard('Three squares encode','Reference A-Z',kitMono(out),out);
+    }
+    if(a.table==='beda'){
+      if(a.mode==='list'){
+        const lines=Object.keys(BEDA).map(function(k){ return k+'  '+BEDA[k]; });
+        return kitCard('Nortman de Beda leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+      }
+      if(a.mode==='decode'){
+        const out=symDec(BEDA, t||'');
+        return kitCard('Beda decode','no J/V/W',kitMono(out),out);
+      }
+      const out=bedaEnc(t);
+      return kitCard('Beda encode','no J/V/W',kitMono(out),out);
+    }
+    if(a.mode==='list'){
+      const lines=Object.keys(TET1).map(function(k){ return k+'  '+TET1[k]; });
+      return kitCard('Tetragram v1 leftover','no J/V/W',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(TET1, t||'');
+      return kitCard('Tetragram v1 decode','no J/V/W',kitMono(out),out);
+    }
+    const out=tet1Enc(t);
+    return kitCard('Tetragram v1 encode','no J/V/W',kitMono(out),out);
   }
 );
 
