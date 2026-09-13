@@ -1798,6 +1798,93 @@
 
   <hr class="hr">
 
+  <h2 id="howe-marryat-chappe"><span class="n">114.</span>Howe digits / Marryat / Popham leftover / Chappe v1</h2>
+  <p class="tagline" style="margin-top:-8px;">Leftover order: unique unpublished writings only. No extra recipe-pack option (still one leftover writings pack). Robinson after PUBLISHED already extracted or dotted blanks.</p>
+  <div class="card">
+    <h3>Howe digits / Marryat / Popham leftover / Chappe v1</h3>
+    <p><span class="badge b-ref">Reference</span> Royal Navy Howe leftover digits 0–9 as HOWED- (existing HOWE- letters not redeclared). Marryat leftover digits 0–9 as MARRY-. Popham leftover flags A–Z except I/J, 0–9, and published AFFIRM/FINISH/NUMERAL/SUBST/TELEGRAPH as POPLF- (existing Popham 1–25 not redeclared). Chappe v1 leftover A–Z, 0–10, and ampersand as CHAP1- named tokens (existing CHAPPE 1-1 codes not redeclared); <span class="kbd">10</span> → CHAP1-10. <span class="kbd">HELLO</span> → POPLF-H POPLF-E POPLF-L POPLF-L POPLF-O. Recipe Pack list stays collapsed.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="sse-trid-chap2"><span class="n">115.</span>SSE camouflage URL / TrID magic / Chappe v2</h2>
+  <p class="tagline" style="margin-top:-8px;">Leftover order plus S.S.E.-inspired camouflage URL and TrID-style magic. Recipe packs stay collapsed (one leftover writings pack + one SSE/TrID pack).</p>
+  <div class="card">
+    <h3>Chappe v2 / Yinyang extras <span class="badge b-ref">Reference</span></h3>
+    <p>Chappe v2 leftover A–Z except X/Y plus CH/SCH/AE/OE/UE; extra _a plates not assigned; existing CHAPPE 1-1 and CHAP1- not redeclared. Yinyang leftover extra diacritics/punctuation as YINEX- (existing YIN- A–Z 0–9 not redeclared).</p>
+  </div>
+  <div class="card">
+    <h3>SSE-style camouflage URL <span class="badge b-ref">Educational</span></h3>
+    <p>Kitchen AES-256-GCM (same PBKDF2 as the AES-GCM recipe) then chunked Base62 (0–9A–Za–z), wrapped as a lookalike short URL. Nothing is fetched (0 external loads). Not byte-identical S.S.E. file encryptor (CTR + BLAKE3) and not PTE Encrypt-as-URL (AES-EAX). Quine mode encrypts this page with a 200 KiB cap so the tab does not freeze — full kitchen is still Download Self.</p>
+  </div>
+  <div class="card">
+    <h3>TrID-style magic <span class="badge b-ref">Educational</span></h3>
+    <p>Small inlined magic table (PNG, JPEG, ZIP, PDF, ELF, PE, WASM, SQLite, …) inspired by TrID / file(1). Not the Mark0 <span class="kbd">triddefs.trd</span> database.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="ata-hdparm-pcb"><span class="n">116.</span>ATA hdparm / generic PCB / TrID TRD</h2>
+  <p class="tagline" style="margin-top:-8px;">Public ATA/SATA/IDE and hdparm security. Not a Western Digital reverse, not Ghidra, not Marco&rsquo;s full triddefs.trd.</p>
+  <div class="card">
+    <h3>ATA / hdparm security <span class="badge b-ok">Verified</span></h3>
+    <p>ATA8-ACS commands 0xF1–0xF6 as used by hdparm (<span class="kbd">--security-set-pass</span>, unlock, erase, freeze, disable). IDENTIFY word 128 bits and the 512-byte password buffer layout. IDE task-file ports and SATA 7/15-pin. SCSI SAT protocol EFh (T10 08-075). Does not crack passwords or talk to a disk.</p>
+  </div>
+  <div class="card">
+    <h3>Generic PCB view <span class="badge b-ref">Educational</span></h3>
+    <p>Clickable SATA / MCU / DRAM / NAND / VRM blocks. Not a reversed WD schematic, not VRML of a real chipset, not firmware disassembly. Use Ghidra offline on firmware you already have.</p>
+  </div>
+  <div class="card">
+    <h3>TrID TRD inspect <span class="badge b-ref">Educational</span></h3>
+    <p>If you paste <span class="kbd">triddefs.trd</span> hex, the kitchen reads the RIFF/TRID header (definition count). The full Mark0 database is not bundled (copyrighted, huge, would freeze the tab). Firmware magics are hints for Ghidra, not a decompiler.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="identify-vecalu"><span class="n">117.</span>ATA IDENTIFY parser / toy vector ALU</h2>
+  <p class="tagline" style="margin-top:-8px;">Non-bypass recipes: public IDENTIFY layout, then a tiny u16 SIMD toy. Not a drive unlocker.</p>
+  <div class="card">
+    <h3>ATA IDENTIFY parser <span class="badge b-ok">Verified</span></h3>
+    <p>512-byte IDENTIFY DEVICE hex: byte-swapped model/serial/firmware, CHS, LBA28, word 128 security bits. Same fields hdparm -I reads. Does not unlock a disk.</p>
+  </div>
+  <div class="card">
+    <h3>Toy vector ALU <span class="badge b-ref">Educational</span></h3>
+    <p>1–16 big-endian u16 lanes from hex. XOR / AND / ADD / saturating ADD / shift. Not VLSI CAD and not a password search.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="tv-filecast"><span class="n">118.</span>TV filecast KCS / NABTS</h2>
+  <p class="tagline" style="margin-top:-8px;">How computer shows put a file on TV: audio FSK in the credits, or data in the VBI. Not EchoStar cards.</p>
+  <div class="card">
+    <h3>Kansas City Standard <span class="badge b-ok">Verified</span></h3>
+    <p>BYTE 1976 cassette AFSK, 300 baud: 0 = four cycles of 1200 Hz, 1 = eight cycles of 2400 Hz; start 0, 8 data LSB first, two stop 1s. Encode to 8 kHz 8-bit WAV hex; decode WAV/PCM hex (sample cap so the tab does not freeze). Same idea as a credit-sting modem dump if you actually captured the audio.</p>
+  </div>
+  <div class="card">
+    <h3>NABTS VBI <span class="badge b-ref">Educational</span></h3>
+    <p>EIA-516 North American teletext: 36-byte line packet sketch and Hamming 8/4 nibbles. Intercast/WaveTop used VBI; many rips strip it. Not DOCSIS and not a Leo Laporte episode decoder without a real capture.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="krieg-ita-gerke"><span class="n">119.</span>Kriegsmarine / ITA1 / Gerke / Dancing men original</h2>
+  <p class="tagline" style="margin-top:-8px;">Leftover order: unique unpublished writings only. No extra recipe-pack option (still one leftover writings pack). Robinson after PUBLISHED already extracted or dotted blanks.</p>
+  <div class="card">
+    <h3>Kriegsmarine / ITA1 1926 / Morse Gerke / Dancing men original</h3>
+    <p><span class="badge b-ref">Reference</span> German Kriegsmarine leftover flags A–Z, 0–9, AE/OE/UE as KRIEG- (existing NATO/ICS/Popham/Howe not redeclared). ITA1 1926 leftover letters/digits plus published punctuation and shift/national plates as ITA1- (existing ITA2P- not redeclared). Morse Gerke leftover A–Z, 0–9, CH/AE/OE/UE as GERKE- (existing Morse / MSTEI- not redeclared). Dancing men original leftover A/B/C/D/E/G/H/I/L/M/N/O/P/R/S/T/V/Y plus stop_e/m/o/t/y as DANOG- (no F/J/K/Q/U/W/X/Z; existing DAN2- not redeclared). <span class="kbd">HELLO</span> → KRIEG-H KRIEG-E KRIEG-L KRIEG-L KRIEG-O. <span class="kbd">CH</span> → GERKE-CH. Glyphs not embedded. Recipe Pack list stays collapsed.</p>
+  </div>
+
+  <hr class="hr">
+
+  <h2 id="ita29-morse-mur"><span class="n">120.</span>ITA1 1929 / Morse 1838 / Vail 1844 / Murray v3</h2>
+  <p class="tagline" style="margin-top:-8px;">Leftover order: unique unpublished writings only. No extra recipe-pack option (still one leftover writings pack). Robinson after PUBLISHED already extracted or dotted blanks.</p>
+  <div class="card">
+    <h3>ITA1 1929 / Morse 1838 patent / Vail 1844 / Murray navy 1796</h3>
+    <p><span class="badge b-ref">Reference</span> ITA1 1929 leftover letters/digits plus published rest/crlf/linefeed/blank and shift/national plates as ITA29- (existing ITA1- 1926 / ITA2P- not redeclared). Morse 1838 patent leftover A–Z, 0–9, and 0-1/5-1/6-1/7-1/8-1/9-1 plates as MOR38-. Morse Vail 1844 leftover A–Z except C as MOR44-. Murray navy 1796 leftover A–Z except J/U as MUR3-. <span class="kbd">HELLO</span> → ITA29-H ITA29-E ITA29-L ITA29-L ITA29-O. <span class="kbd">CAT</span> on Vail skips C. Glyphs not embedded. Recipe Pack list stays collapsed.</p>
+  </div>
+
+  <hr class="hr">
+
   <h2 id="coins-tickers"><span class="n">7.</span>Cryptocurrency Address Generators &amp; Financial Ticker Directories</h2>
   <div class="card">
     <div class="cat">Coins · P2PKH · Base58Check</div>
