@@ -114,7 +114,7 @@
 
 <header>
   <button id="btn-hamburger" title="Toggle operations panel">☰</button><div class="brand">Cyber<span>Chef</span></div>
-  <div class="sub">HTML5 · 388 recipes · TSP, truck mileage, Egypt alphabet</div>
+  <div class="sub">HTML5 · 397 recipes · Chain pairs, Face it digits, Ballet extras</div>
   <div class="spacer"></div>
   <button class="btn" id="btn-clear">Clear Recipe</button>
   <button class="btn" id="btn-load-examples">Load Examples</button>
@@ -2168,8 +2168,12 @@ const RECIPE_PACKS={
  'GCWizard Jacobite / Hylian 64':[['gcwJacobHichusHonor',{}],['gcwSithMagicSga',{}]],
  'GCWizard Dragon / Cybertronic':[['gcwDragonCyberKab',{}],['gcwJacobHichusHonor',{}]],
  'GCWizard Sarati / La Buse':[['gcwSaratiKrempelBuse',{}],['gcwDragonCyberKab',{}]],
- 'GCWizard leftover writings':[['gcwEgyptZhongFlag',{}],['gcwIsoMandWarnRune',{}],['gcwWeathnSafeMaya',{}]],
+ 'GCWizard leftover writings':[['gcwChainpFaceBallet',{}],['gcwBrailenZ340Cry',{}],['gcwBraildZsignFmas',{}]],
  'TSP / truck mileage':[['tspSolve',{}],['truckMileage',{}]],
+ 'SOE poem code / Jabberwocky':[['soePoemCode',{}]],
+ 'Dan Brown / daffodils / Tinker Tailor':[['danBrownCodes',{}],['britFieldPoems',{}]],
+ 'Typoglycemia / inner scramble':[['typoglycemia',{}]],
+ 'French Bazeries / Jacob PG 42297':[['bazeriesCylinder',{}],['gutenbergJacobFr',{}]],
  'SSE camouflage URL / TrID magic':[['sseUrlCamo',{}],['tridMagic',{}]],
  'ATA hdparm / PCB viz / TrID TRD':[['ataHdparmIde',{}],['hddPcbViz',{}],['tridTrd',{}]],
  'IDENTIFY parser / toy vector ALU':[['ataIdentifyParse',{}],['vecAlu',{}]],
@@ -10730,7 +10734,7 @@ const SYM_PERIODIC={A:'Ac',B:'B',C:'C',D:'Dy',E:'Er',F:'F',G:'Ga',H:'H',I:'I',J:
 const SYM_HEXAHUE={A:'R',B:'G',C:'B',D:'C',E:'M',F:'Y',G:'r',H:'g',I:'b',J:'c',K:'m',L:'y',M:'K',N:'W',O:'RR',P:'GG',Q:'BB',R:'CC',S:'MM',T:'YY',U:'kk',V:'ww',W:'RG',X:'GB',Y:'BC',Z:'CM'};
 const SYM_CELESTIAL={A:'☉',B:'☽',C:'☿',D:'♀',E:'♁',F:'♂',G:'♃',H:'♄',I:'♅',J:'♆',K:'♇',L:'♈',M:'♉',N:'♊',O:'♋',P:'♌',Q:'♍',R:'♎',S:'♏',T:'♐',U:'♑',V:'♒',W:'♓',X:'☊',Y:'☋',Z:'⋆'};
 const SYM_FLAGS2={A:'🇦',B:'🇧',C:'🇨',D:'🇩',E:'🇪',F:'🇫',G:'🇬',H:'🇭',I:'🇮',J:'🇯',K:'🇰',L:'🇱',M:'🇲',N:'🇳',O:'🇴',P:'🇵',Q:'🇶',R:'🇷',S:'🇸',T:'🇹',U:'🇺',V:'🇻',W:'🇼',X:'🇽',Y:'🇾',Z:'🇿'};
-const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD · Mary Stuart · Babington · Castelnau · Maze · Oak Island · Prussian Army Colorcode · Robots · San Luca · Scream Cipher · Slash and Pipe · TLL · Blue Monday · Chain of Death · Cooke-Wheatstone · Solmization · Four triangles · Fiber IEC 60304 · Card code · Stippelcode · Cooke-Wheatstone 1-needle · Cooke-Wheatstone 2-needle · Country flags · TomTom slash · Codescript · Tines · Window · Puzzle code · Red Herring · Snooker · Billiard balls · Shoes · Skulls · Surf · Space Invaders · Stenography · Spintype · Rhesus · Pipeline · Pixel · Planets · Road signs · Weather WW · Musica · Note values · Do-Re-Mi · Ballet · Christmas · Color code · Eurythmy · GC attributes · Moon phases · TAE · Hazard · Ice Lolly · Alchemy · Tropical zodiac · Beaufort scale · ColorADD · Windmill · Webdings · Wingdings · Cloud CL/CM/CH · Rainbow · Alchemy alphabet · Knots · Vulcanian · Yavin · Yan Koryani · Weldon · Unitology · Ulog · Xelbet · Yinyang · Zamonian · Visitor 2009 · Visitor 1984 · Western Union · Pressure tendency · Nina rainbow · Oak pit · Cloud genus · Cistercian · Kaktovik · Shadoks · Babylonian · Egyptian numbers · Arabic-Indic · Devanagari · Eastern Arabic-Indic · Bibibinary · Brahmi · Thai digits · Tamil digits · Greek numerals · Chinese numerals · Japanese numerals · Cyrillic numerals · Kharoshthi · Hieratic · Finger numbers · Native Korean · Sino-Korean · Gesture numbers · Suetterlin · Kurrent · Alien mushrooms · Aquaria · Arcadian · Phoenician leftover · Tifinagh IRCAM · Old Hungarian leftover · Glagolitic leftover · Adlam leftover · Cherokee leftover · Ath leftover · Linear B leftover · Gnommish · Hobbit runes · Kabouter ABC · Sith leftover · Magicode · Standard Galactic · Samurai leftover · Jacobite leftover · Hichus · Honorius leftover · Hylian 64 · Dragon language · Cybertronic · Kabouter 1947 · Samurai 2 · Sarati leftover · Krempel · La Buse · Qonos · Gernreich leftover · Mandalorian leftover · Marain v2 · Siemens leftover · Alphabetum gothicum · Alphabetum egiptiorum · Alphabetum arabum · Antiker leftover · Australian sign language · Illuminati v2 · Klinzhai leftover · Iamiel leftover · Livre leftover · Foybreguet leftover · Pleiadian leftover · Futurama 2 leftover · Doop 2 leftover · British sign language · New Zealand sign language · Character antique leftover · Autre Beda leftover · Cirth Erebor leftover · Hylian Skyward leftover · Hylian Twilight leftover · Leitz leftover · Hebrew v2 leftover · Hylian Twilight Wii leftover · Hanja leftover · Puzzle 2 leftover · Base16 leftover · Hebrew leftover v1 · Hylian Wind Waker leftover · Hylian ALBW leftover · Hylian symbols leftover · Base16 v2 leftover · Steinheil leftover · Reality leftover · Three squares leftover · Nortman de Beda leftover · Tetragram v1 leftover · Tenctonese cursive leftover · Tenctonese printed leftover · Tetragram v2 leftover · Tengwar Beleriand leftover · Illuminati v1 leftover · Solmisation leftover · Tengwar classic leftover · Alchemy muzeum leftover · Tengwar general leftover · Wind mill v1 leftover · Wind mill v2 leftover · Morse Steinheil leftover · Window leftover · FOTAG leftover · Toki letter names leftover · Prussian artillery leftover · Prussian infantry leftover · Clocks 2 leftover · Clocks 3 leftover · Toki numbers leftover · Toki letter symbols leftover · Dancing men v2 leftover · NATO flags leftover · ITA2 leftover · Howe digits leftover · Marryat leftover · Popham leftover flags · Chappe v1 leftover · Chappe v2 leftover · Yinyang extras leftover · Kriegsmarine leftover · ITA1 leftover · Gerke leftover · Dancing men original leftover · ITA1 1929 leftover · Morse 1838 leftover · Vail 1844 leftover · Murray v3 leftover · Baudot 1888 leftover · Murray v2 leftover · Prussian telegraph leftover · Chappe 1809 leftover · Baudot 54123 leftover · Dancing men v1 leftover · Code of Claw leftover · Underland leftover · Treble clef leftover · Bass clef leftover · Alto clef leftover · Deafblind leftover · Postcode 01247 leftover · Postcode 8421 leftover · Dancing men v3 leftover · Weather A leftover · Weather C leftover · Weather W leftover · Ravkan extended leftover · Rhesus B leftover · Rhesus C1 leftover · Rhesus C2 leftover · Braille FR leftover · ISO 7010 fire leftover · Weather N leftover · ISO 7010 safe leftover · Maya long count leftover · Braille EU leftover · ISO 7010 mandatory leftover · ISO 7010 prohibition leftover · ISO 7010 warning leftover · Runes extras leftover · Egypt alphabet leftover · Chinese alphabet leftover · Flags leftover alphabet · Hieroglyph leftover extras.';
+const GCW_TABLE_CATALOG='Pigpen / Templar / Freemason · Dancing Men · Baconian · TomTom / Tap · Kenny · Morse · Braille · Semaphore · Zodiac · Aurebesh · Elder Futhark · Younger Futhark · Ogham · Greek · Coptic · Glagolitic · Cyrillic · Hebrew · Phoenician · Linear B · Hieroglyph (Gardiner sample) · Cuneiform sample · Moon alphabet · NATO phonetic · Maritime ICS flags · Semaphore flags · Maritime signal pennants · Hexahue · ColorAdd · Resistor colors · Periodic table · Celestial / planets · Wingdings-like · Webdings-like · Base32 Crockford · Beaufort flags · ICAO spelling · ADP / police codes · Hex dump nibbles · BCD 8421 · Gray · Excess-3 · Aiken · TAPIR · Solitaire · Enigma rotors · ADFGVX · Polybius · Playfair · Bifid · Trifid · Nihilist · Navajo · Cipher wheel · Albam / Atbash / Atbah · Pigpen variant 2 · Templar Maltese · Rosicrucian · Enochian · Theban / Honorianus · Celestial alphabet · Malachim · Passing the river · Daggers · Barcode 39 · POSTNET · PLANET · Color Honey · Color-Tokki · Chappe telegraph · Baudot · Murray · CCITT-2 · ITA-2 · ASCII 7 · Baudot-Murray · Flag semaphore (angle) · Railway signals · Aircraft marshalling · Finger alphabet · ASL sample · Moon type · New York Point · Coelbren · Ogham variant · Futhorc · Medieval runes · Armanen · Anglo-Saxon runes · Gothic · Etruscan · Old Italic · Carian · Lycian · Lydian · Old Persian cuneiform · Ugaritic · South Arabian · Tifinagh · N’Ko · Vai · Cherokee · Canadian Aboriginal · Deseret · Shavian · Osage · Adlam · Wancho · Mro · Medefaidrin · Tangsa · Toto · Vithkuqi · Elbasan · Caucasian Albanian · Old Hungarian · Old Turkic · Imperial Aramaic · Palmyrene · Nabataean · Hatran · Elymaic · Manichaean · Psalter Pahlavi · Avestan · Inscriptional Pahlavi · Inscriptional Parthian · Chorasmian · Old Sogdian · Sogdian · Old Uyghur · Yezidi · Mandaic · Samaritan · Syriac · Arabic presentation · Thaana · Lao · Thai · Khmer · Myanmar · Tai Le · New Tai Lue · Tai Viet · Kayah Li · Cham · Buginese · Balinese · Javanese · Sundanese · Batak · Rejang · Makasar · Hanunoo · Buhid · Tagbanwa · Tagalog · Baybayin · Nyctography · RM4SCC · KIX · Hylian · Klingon pIqaD · Daedric · Tengwar · Cirth / Angerthas · Illuminati · Alchemy / planets · ASL fingerspelling · Gallifreyan · Futurama Alien 1 · Mandoa · Wakandan · Sheikah · Iokharic · ISO 7010 · Maya calendar · Maya numerals · Marain 3x3 · Unown · Gargish · Ninjargon · Romulan · Predator · Quadoo · Fakoo · Matoran · Minimoys · Ravkan · Sheliak · Siekoo · Gnomish · Nazcaan · Plejadian · Sunuz · Ottride · Lorm · Niessen · Allemans · Nortman · Prosyl · Sprykski · Feimeiri · Barbier night writing · Malossi · Fez · Fonic · Raphigraphy · New York Point · Gerudo · Hymmnos · Interlac · Kryptonian · ELIA Frames · Hauy · Gall · Dni · Tenctonese · Klein Stachelschrift · Alston · Howe Boston Line · Visitor · Lucas · Frere · Hebold · Futurama Alien 2 · Dni colors · Terzi · Mascaro · Rila · Atlantean · Dinotopia · Zentradi · Moon9 · American Braille · Computer Braille · Al Bhed · Utopian · Dutton Speedwords · Dotty Moon · Braille Line · Braille-on-Black · Stargate Ancient · Doop · Fakoo12 · Fakoo-plus · Sitelen Pona · Sitelen Sitelen · Goauld · Sitelen Emoji · Sitelen Telo · Birds on a Wire · Face it · UCSUR · linja pona · Birkenbihl · Blox · Cosmic · Ciceror · Clocks · Crystal Language · Affine · Trithemius · Keyword · Gold-Bug · Dagger · Doracus · Dragon runes · Dragonlords · Enochian official · EnnAgrammaton · Eternity Code · European Voynich · Fantastic · Finger alphabet · Popham · ICS flags · Fox Code · Rosicrucian · Hexahue · Geovlog · Ice Codes · Intergalactic · Illuminati Cipher · KarTrak ACI · Covenant · HVD · Mary Stuart · Babington · Castelnau · Maze · Oak Island · Prussian Army Colorcode · Robots · San Luca · Scream Cipher · Slash and Pipe · TLL · Blue Monday · Chain of Death · Cooke-Wheatstone · Solmization · Four triangles · Fiber IEC 60304 · Card code · Stippelcode · Cooke-Wheatstone 1-needle · Cooke-Wheatstone 2-needle · Country flags · TomTom slash · Codescript · Tines · Window · Puzzle code · Red Herring · Snooker · Billiard balls · Shoes · Skulls · Surf · Space Invaders · Stenography · Spintype · Rhesus · Pipeline · Pixel · Planets · Road signs · Weather WW · Musica · Note values · Do-Re-Mi · Ballet · Christmas · Color code · Eurythmy · GC attributes · Moon phases · TAE · Hazard · Ice Lolly · Alchemy · Tropical zodiac · Beaufort scale · ColorADD · Windmill · Webdings · Wingdings · Cloud CL/CM/CH · Rainbow · Alchemy alphabet · Knots · Vulcanian · Yavin · Yan Koryani · Weldon · Unitology · Ulog · Xelbet · Yinyang · Zamonian · Visitor 2009 · Visitor 1984 · Western Union · Pressure tendency · Nina rainbow · Oak pit · Cloud genus · Cistercian · Kaktovik · Shadoks · Babylonian · Egyptian numbers · Arabic-Indic · Devanagari · Eastern Arabic-Indic · Bibibinary · Brahmi · Thai digits · Tamil digits · Greek numerals · Chinese numerals · Japanese numerals · Cyrillic numerals · Kharoshthi · Hieratic · Finger numbers · Native Korean · Sino-Korean · Gesture numbers · Suetterlin · Kurrent · Alien mushrooms · Aquaria · Arcadian · Phoenician leftover · Tifinagh IRCAM · Old Hungarian leftover · Glagolitic leftover · Adlam leftover · Cherokee leftover · Ath leftover · Linear B leftover · Gnommish · Hobbit runes · Kabouter ABC · Sith leftover · Magicode · Standard Galactic · Samurai leftover · Jacobite leftover · Hichus · Honorius leftover · Hylian 64 · Dragon language · Cybertronic · Kabouter 1947 · Samurai 2 · Sarati leftover · Krempel · La Buse · Qonos · Gernreich leftover · Mandalorian leftover · Marain v2 · Siemens leftover · Alphabetum gothicum · Alphabetum egiptiorum · Alphabetum arabum · Antiker leftover · Australian sign language · Illuminati v2 · Klinzhai leftover · Iamiel leftover · Livre leftover · Foybreguet leftover · Pleiadian leftover · Futurama 2 leftover · Doop 2 leftover · British sign language · New Zealand sign language · Character antique leftover · Autre Beda leftover · Cirth Erebor leftover · Hylian Skyward leftover · Hylian Twilight leftover · Leitz leftover · Hebrew v2 leftover · Hylian Twilight Wii leftover · Hanja leftover · Puzzle 2 leftover · Base16 leftover · Hebrew leftover v1 · Hylian Wind Waker leftover · Hylian ALBW leftover · Hylian symbols leftover · Base16 v2 leftover · Steinheil leftover · Reality leftover · Three squares leftover · Nortman de Beda leftover · Tetragram v1 leftover · Tenctonese cursive leftover · Tenctonese printed leftover · Tetragram v2 leftover · Tengwar Beleriand leftover · Illuminati v1 leftover · Solmisation leftover · Tengwar classic leftover · Alchemy muzeum leftover · Tengwar general leftover · Wind mill v1 leftover · Wind mill v2 leftover · Morse Steinheil leftover · Window leftover · FOTAG leftover · Toki letter names leftover · Prussian artillery leftover · Prussian infantry leftover · Clocks 2 leftover · Clocks 3 leftover · Toki numbers leftover · Toki letter symbols leftover · Dancing men v2 leftover · NATO flags leftover · ITA2 leftover · Howe digits leftover · Marryat leftover · Popham leftover flags · Chappe v1 leftover · Chappe v2 leftover · Yinyang extras leftover · Kriegsmarine leftover · ITA1 leftover · Gerke leftover · Dancing men original leftover · ITA1 1929 leftover · Morse 1838 leftover · Vail 1844 leftover · Murray v3 leftover · Baudot 1888 leftover · Murray v2 leftover · Prussian telegraph leftover · Chappe 1809 leftover · Baudot 54123 leftover · Dancing men v1 leftover · Code of Claw leftover · Underland leftover · Treble clef leftover · Bass clef leftover · Alto clef leftover · Deafblind leftover · Postcode 01247 leftover · Postcode 8421 leftover · Dancing men v3 leftover · Weather A leftover · Weather C leftover · Weather W leftover · Ravkan extended leftover · Rhesus B leftover · Rhesus C1 leftover · Rhesus C2 leftover · Braille FR leftover · ISO 7010 fire leftover · Weather N leftover · ISO 7010 safe leftover · Maya long count leftover · Braille EU leftover · ISO 7010 mandatory leftover · ISO 7010 prohibition leftover · ISO 7010 warning leftover · Runes extras leftover · Egypt alphabet leftover · Chinese alphabet leftover · Flags leftover alphabet · Hieroglyph leftover extras · Braille DE leftover · Zodiac signs latin leftover · Freemason v2 leftover · Voynich plates leftover · Braille EN leftover · Zodiac Z340 leftover · Zodiac Z408 leftover · Crystal extras leftover · Chain of Death pairs leftover · Chain of Death extras leftover · Face it digits leftover · Ballet extras leftover.';
 
 function hashSearch(mask, targetHex, algo, ranges, maxN){
   maxN=Math.min(maxN||20000, 200000);
@@ -28124,6 +28128,632 @@ addOp('tspSolve','Traveling salesman (Held-Karp / 2-opt)','Travel',
     const lines=[algo+(closed?'  closed':'  open'), 'n='+n+'  miles='+Math.round(res.miles), order.join(' -> ')];
     const txt=lines.join('\n');
     return kitCard('TSP tour',algo,kitMono(txt),txt);
+  }
+);
+
+/* v1.121 leftover: Braille DE / Zodiac signs latin / Freemason v2 / Voynich plates */
+
+const BRAILD=azTok('BRAILD', true);
+['AE','AU','AEU','CH','EI','EU','OE','SCH','SS','ST','UE'].forEach(function(k){ BRAILD[k]='BRAILD-'+k; });
+BRAILD["'"]='BRAILD-APOS';
+BRAILD.ARTICLE='BRAILD-ARTICLE';
+BRAILD.CAPFOL='BRAILD-CAPFOL';
+BRAILD[':']='BRAILD-COLON';
+BRAILD[',']='BRAILD-COMMA';
+BRAILD['-']='BRAILD-DASH';
+BRAILD['.']='BRAILD-DOT';
+BRAILD['!']='BRAILD-BANG';
+BRAILD['(']='BRAILD-LPAREN';
+BRAILD[')']='BRAILD-RPAREN';
+BRAILD.NUMFOL='BRAILD-NUMFOL';
+BRAILD.PARA='BRAILD-PARA';
+BRAILD['?']='BRAILD-Q';
+BRAILD[';']='BRAILD-SEMI';
+function braildEnc(s){
+  return symEnc(BRAILD, s==null||s===''?'HELLO':s);
+}
+
+const ZSIGN={};
+['ARIES','TAURUS','GEMINI','CANCER','LEO','VIRGO','LIBRA','SCORPIO','SAGITTARIUS','CAPRICORN','AQUARIUS','PISCES'].forEach(function(k){ ZSIGN[k]='ZSIGN-'+k; });
+function zsignEnc(s){
+  return symEnc(ZSIGN, s==null||s===''?'ARIES':s);
+}
+
+const FMAS2=azTok('FMAS2', false);
+function fmas2Enc(s){
+  return symEnc(FMAS2, s==null||s===''?'HELLO':s);
+}
+
+const VOYNX={};
+'AEFHIKOPSTY'.split('').forEach(function(k){ VOYNX[k]='VOYNX-'+k; });
+function voynxEnc(s){
+  return symEnc(VOYNX, s==null||s===''?'HOPE':s);
+}
+
+addOp('gcwBraildZsignFmas','Braille DE / Zodiac signs latin / Freemason v2 / Voynich plates','GCWizard',
+  'Leftover GCWizard writings. Braille DE leftover A-Z, 0-9, German digraphs AE/AU/AEU/CH/EI/EU/OE/SCH/SS/ST/UE and published punctuation as BRAILD- (existing 6-dot Unicode / BRAILF- / BRAILEU- not redeclared). Zodiac signs latin leftover 12 Latin names as ZSIGN- (existing tropical zodiac / Z340 encoder not redeclared). Freemason v2 leftover A-Z as FMAS2- (existing Pigpen / Freemason grid not redeclared). Voynich leftover published plates A/E/F/H/I/K/O/P/S/T/Y only as VOYNX- (extra _a not assigned; existing VOYNICH- full A-Z not redeclared). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'braild',options:[['braild','Braille DE leftover'],['zsign','Zodiac signs latin leftover'],['fmas2','Freemason v2 leftover'],['voynx','Voynich plates leftover']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    const maps={braild:BRAILD,zsign:ZSIGN,fmas2:FMAS2,voynx:VOYNX};
+    const titles={braild:'Braille DE leftover',zsign:'Zodiac signs latin leftover',fmas2:'Freemason v2 leftover',voynx:'Voynich plates leftover'};
+    const notes={braild:'BRAILD- not BRAILF-/EU',zsign:'ZSIGN- 12 names',fmas2:'FMAS2- not Pigpen',voynx:'VOYNX- AEFHIKOPSTY only'};
+    const encs={braild:braildEnc,zsign:zsignEnc,fmas2:fmas2Enc,voynx:voynxEnc};
+    const map=maps[a.table]||BRAILD;
+    const title=titles[a.table]||titles.braild;
+    const note=notes[a.table]||notes.braild;
+    if(a.mode==='list'){
+      const lines=Object.keys(map).map(function(k){ return k+'  '+map[k]; });
+      return kitCard(title,note,kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(map, t||'');
+      return kitCard(title+' decode',note,kitMono(out),out);
+    }
+    const out=(encs[a.table]||braildEnc)(t);
+    return kitCard(title+' encode',note,kitMono(out),out);
+  }
+);
+
+/* v1.122 leftover: Braille EN / Zodiac Z340 leftover / Zodiac Z408 leftover / Crystal extras */
+
+const BRAILEN=azTok('BRAILEN', true);
+['AR','AS','BB','BE','CC','CH','DO','EA','ED','EN','ER','FF','GG','GH','GO','IN','IT','OF','OU','OW','SH','SO','ST','TH','US','WH','AND','BUT','CAN','CHILD','DIS','ENOUGH','EVERY','FOR','FROM','HAVE','HIS','ING','JUST','LIKE','MORE','NOT','OUT','PEOPLE','QUITE','RATHER','SHALL','STILL','THAT','THE','THIS','VERY','WAS','WERE','WHICH','WILL','WITH','YOU'].forEach(function(k){ BRAILEN[k]='BRAILEN-'+k; });
+BRAILEN["'"]='BRAILEN-APOS';
+BRAILEN.CAPFOL='BRAILEN-CAPFOL';
+BRAILEN[':']='BRAILEN-COLON';
+BRAILEN[',']='BRAILEN-COMMA';
+BRAILEN['-']='BRAILEN-DASH';
+BRAILEN['.']='BRAILEN-DOT';
+BRAILEN['!']='BRAILEN-BANG';
+BRAILEN['=']='BRAILEN-EQUALS';
+BRAILEN.NUMFOL='BRAILEN-NUMFOL';
+BRAILEN['+']='BRAILEN-PLUS';
+BRAILEN['?']='BRAILEN-Q';
+BRAILEN[';']='BRAILEN-SEMI';
+BRAILEN['*']='BRAILEN-TIMES';
+function brailenEnc(s){
+  return symEnc(BRAILEN, s==null||s===''?'HELLO':s);
+}
+
+const Z340L={};
+'ABCDEFGHILMNOPRSTUVWY'.split('').forEach(function(k){ Z340L[k]='Z340L-'+k; });
+function z340lEnc(s){
+  return symEnc(Z340L, s==null||s===''?'HELLO':s);
+}
+
+const Z408L={};
+'ABCDEFGHIKLMNOPRSTUVWXY'.split('').forEach(function(k){ Z408L[k]='Z408L-'+k; });
+function z408lEnc(s){
+  return symEnc(Z408L, s==null||s===''?'HELLO':s);
+}
+
+const CRYEX={};
+['AN','AS','AT','CC','CH','ED','EE','EN','ER','ES','FF','GG','HE','HI','IN','IS','IT','LL','ND','NN','ON','OO','OR','OT','PP','RE','RR','SH','SS','ST','TE','TH','TI','TO','TT','AND','ERE','ING','THE','AUGH','OUGH'].forEach(function(k){ CRYEX[k]='CRYEX-'+k; });
+CRYEX[':']='CRYEX-COLON';
+CRYEX[',']='CRYEX-COMMA';
+CRYEX['-']='CRYEX-DASH';
+CRYEX['.']='CRYEX-DOT';
+CRYEX['!']='CRYEX-BANG';
+CRYEX['(']='CRYEX-LPAREN';
+CRYEX[')']='CRYEX-RPAREN';
+CRYEX['%']='CRYEX-PCT';
+CRYEX['?']='CRYEX-Q';
+CRYEX[';']='CRYEX-SEMI';
+CRYEX['*']='CRYEX-STAR';
+function cryexEnc(s){
+  return symEnc(CRYEX, s==null||s===''?'THE':s);
+}
+
+addOp('gcwBrailenZ340Cry','Braille EN / Zodiac Z340 leftover / Zodiac Z408 leftover / Crystal extras','GCWizard',
+  'Leftover GCWizard writings. Braille EN leftover A-Z, 0-9, published Grade-2 contractions (THE/AND/ING/...) and punctuation as BRAILEN- (KNOWLEDEG typo plate and ST-Kopie extra skipped; existing 6-dot / BRAILD- / BRAILF- / BRAILEU- not redeclared). Zodiac Z340 leftover published letters except J/K/Q/X/Z as Z340L- (homophone _ extras not assigned; existing Z340 encoder not redeclared). Zodiac Z408 leftover published letters except J/Q/Z as Z408L-. Crystal leftover extra digraphs/trigraphs as CRYEX- (existing CRYSTAL- A-Z not redeclared). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'brailen',options:[['brailen','Braille EN leftover'],['z340','Zodiac Z340 leftover'],['z408','Zodiac Z408 leftover'],['cryex','Crystal extras leftover']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    const maps={brailen:BRAILEN,z340:Z340L,z408:Z408L,cryex:CRYEX};
+    const titles={brailen:'Braille EN leftover',z340:'Zodiac Z340 leftover',z408:'Zodiac Z408 leftover',cryex:'Crystal extras leftover'};
+    const notes={brailen:'BRAILEN- not 6-dot/DE',z340:'Z340L- no J/K/Q/X/Z',z408:'Z408L- no J/Q/Z',cryex:'CRYEX- not CRYSTAL- A-Z'};
+    const encs={brailen:brailenEnc,z340:z340lEnc,z408:z408lEnc,cryex:cryexEnc};
+    const map=maps[a.table]||BRAILEN;
+    const title=titles[a.table]||titles.brailen;
+    const note=notes[a.table]||notes.brailen;
+    if(a.mode==='list'){
+      const lines=Object.keys(map).map(function(k){ return k+'  '+map[k]; });
+      return kitCard(title,note,kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(map, t||'');
+      return kitCard(title+' decode',note,kitMono(out),out);
+    }
+    const out=(encs[a.table]||brailenEnc)(t);
+    return kitCard(title+' encode',note,kitMono(out),out);
+  }
+);
+
+/* v1.123 SOE / SAS poem code (Wikipedia Jabberwocky worked example, PG text) */
+
+const SOE_JABBER="Twas brillig and the slithy toves Did gyre and gimble in the wabe All mimsy were the borogoves And the mome raths outgrabe";
+const SOE_PT_EX="THE OPERATION TO DEMOLISH THE BUNKER IS TOMORROW AT ELEVEN RENDEZVOUS AT SIX AT FARMER JACQUES";
+
+function soePoemWords(poem){
+  return String(poem||'').toUpperCase().replace(/[^A-Z]+/g,' ').trim().split(/\s+/).filter(Boolean);
+}
+function soeIndToPos(ind){
+  return String(ind||'').toUpperCase().replace(/[^A-Z]/g,'').split('').map(function(ch){ return ch.charCodeAt(0)-64; });
+}
+function soePosToInd(pos){
+  return pos.map(function(p){
+    if(p<1||p>26) return '?';
+    return String.fromCharCode(64+p);
+  }).join('');
+}
+function soeKeyFromWords(words){
+  const s=words.join('').replace(/[^A-Z]/g,'');
+  const key=new Array(s.length);
+  let n=1;
+  for(let c=65;c<=90;c++){
+    const ch=String.fromCharCode(c);
+    for(let i=0;i<s.length;i++) if(s[i]===ch) key[i]=n++;
+  }
+  return {letters:s, key:key};
+}
+function soeColEnc(letters, key){
+  const w=key.length;
+  if(!w) return '';
+  let s=letters;
+  const pad=(w-(s.length%w))%w;
+  for(let i=0;i<pad;i++) s+='X';
+  const rows=s.length/w;
+  const cols=new Array(w);
+  for(let c=0;c<w;c++){
+    let col='';
+    for(let r=0;r<rows;r++) col+=s[r*w+c];
+    cols[c]={n:key[c], i:c, t:col};
+  }
+  cols.sort(function(a,b){ return a.n-b.n || a.i-b.i; });
+  let out='';
+  for(let i=0;i<cols.length;i++) out+=cols[i].t;
+  return out;
+}
+function soeColDec(ct, key){
+  const w=key.length;
+  if(!w || ct.length%w) return ct;
+  const rows=ct.length/w;
+  const order=key.map(function(n,i){ return {n:n, i:i}; }).sort(function(a,b){ return a.n-b.n || a.i-b.i; });
+  const cols=new Array(w);
+  let p=0;
+  for(let k=0;k<order.length;k++){
+    cols[order[k].i]=ct.slice(p, p+rows);
+    p+=rows;
+  }
+  let out='';
+  for(let r=0;r<rows;r++) for(let c=0;c<w;c++) out+=cols[c][r];
+  return out;
+}
+function soeFive(s){
+  const t=String(s||'').replace(/[^A-Z]/g,'');
+  const parts=[];
+  for(let i=0;i<t.length;i+=5) parts.push(t.slice(i,i+5));
+  return parts.join(' ');
+}
+function soeSelect(poem, indicator, wordStr){
+  const words=soePoemWords(poem||SOE_JABBER);
+  let pos=soeIndToPos(indicator);
+  if(pos.length!==5){
+    const wds=soePoemWords(wordStr||'the wabe toves twas mome');
+    pos=wds.map(function(w){
+      const ix=words.indexOf(w);
+      return ix<0?-1:ix+1;
+    });
+  }
+  const sel=[];
+  const bad=[];
+  pos.forEach(function(p){
+    if(p>=1 && p<=words.length) sel.push(words[p-1]);
+    else bad.push(p);
+  });
+  return {words:words, pos:pos, sel:sel, bad:bad, ind:soePosToInd(pos.filter(function(p){ return p>=1 && p<=26; }))};
+}
+
+addOp('soePoemCode','SOE / SAS poem code (double transposition)','Classical',
+  'British SOE poem code (the field cipher SAS and other special-forces parties used with SOE radio plans). Five poem words number into a columnar key (A=1 in order of appearance). Wikipedia Jabberwocky worked example is Verified: words the/wabe/toves/twas/mome → indicator DMFAU; HELLO is too short so the documented bunker message pads with X. Default poem is public-domain Jabberwocky (Carroll; Gutenberg Through the Looking-Glass), not a copyrighted Leo Marks original. Double transposition optional. Insecure if the poem is a school anthology piece — Marks replaced it with silk WOKs then letter one-time pads.',
+  [
+    {key:'poem',label:'Poem (memorized)',type:'text',default:'Twas brillig and the slithy toves Did gyre and gimble in the wabe All mimsy were the borogoves And the mome raths outgrabe'},
+    {key:'indicator',label:'Indicator (5 letters)',type:'text',default:'DMFAU'},
+    {key:'words',label:'Or five words',type:'text',default:'the wabe toves twas mome'},
+    {key:'transp',label:'Transposition',type:'select',default:'single',options:[['single','Single (Wikipedia example)'],['double','Double (typical SOE)']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List numbered words'],['key','Show key']]}
+  ],
+  function(t,a){
+    const poem=a.poem||SOE_JABBER;
+    const picked=soeSelect(poem, a.indicator, a.words);
+    if(a.mode==='list'){
+      const lines=picked.words.map(function(w,i){ return (i+1)+'  '+w+'  '+(i<26?String.fromCharCode(65+i):''); });
+      return kitCard('Poem word list','Gutenberg Jabberwocky stanza',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(picked.sel.length!==5){
+      return kitCard('Poem code','need 5 words',kitMono('Indicator letters A=1..Z=26 pick five poem words. Default DMFAU on Jabberwocky.'),'NEED 5 WORDS');
+    }
+    const km=soeKeyFromWords(picked.sel);
+    if(a.mode==='key'){
+      const txt='words  '+picked.sel.join(' ')+'\nindicator  '+picked.ind+'\nletters  '+km.letters+'\nkey  '+km.key.join(' ');
+      return kitCard('Poem transposition key',picked.ind,kitMono(txt),txt);
+    }
+    const twice=a.transp==='double';
+    if(a.mode==='decode'){
+      let ct=String(t||'').toUpperCase().replace(/[^A-Z]/g,'');
+      if(ct.indexOf(picked.ind)===0) ct=ct.slice(5);
+      if(ct.length>8000) return 'Ciphertext too long (cap 8000).';
+      let pt=soeColDec(ct, km.key);
+      if(twice) pt=soeColDec(pt, km.key);
+      return kitCard('Poem decode',picked.ind+(twice?' double':''),kitMono(pt),pt);
+    }
+    let pt=String(t==null||t===''?SOE_PT_EX:t).toUpperCase().replace(/[^A-Z]/g,'');
+    if(pt.length>4000) return 'Plaintext too long (cap 4000).';
+    let ct=soeColEnc(pt, km.key);
+    if(twice) ct=soeColEnc(ct, km.key);
+    const body=soeFive(picked.ind+ct);
+    const txt=picked.ind+'  '+soeFive(ct);
+    return kitCard('Poem encode',picked.ind+(twice?' double':' single'),kitMono(txt+'\n'+body),body);
+  }
+);
+
+/* v1.124 Dan Brown puzzles + Wordsworth daffodils + Tinker Tailor poems */
+
+const DVC_ANAG=[
+  {src:'ODRACONIANDEVIL', out:'LEONARDODAVINCI', show:'O, Draconian devil! → Leonardo da Vinci'},
+  {src:'OHLAMESAINT', out:'THEMONALISA', show:'Oh, lame saint! → The Mona Lisa'},
+  {src:'SODARKTHECONOFMAN', out:'MADONNAOFTHEROCKS', show:'So dark the con of man → Madonna of the Rocks'}
+];
+function dvcNorm(s){ return String(s||'').toUpperCase().replace(/[^A-Z]/g,''); }
+function dvcAnag(s){
+  const n=dvcNorm(s);
+  if(!n) return '';
+  for(let i=0;i<DVC_ANAG.length;i++){
+    if(n===DVC_ANAG[i].src || n===DVC_ANAG[i].out) return DVC_ANAG[i].show;
+  }
+  const sig=n.split('').sort().join('');
+  for(let i=0;i<DVC_ANAG.length;i++){
+    if(sig===DVC_ANAG[i].src.split('').sort().join('') || sig===DVC_ANAG[i].out.split('').sort().join('')) return DVC_ANAG[i].show+'  (letter bag match)';
+  }
+  return 'Not one of the three inlined Da Vinci Code anagrams.';
+}
+function dvcFib(s){
+  const nums=String(s==null||s===''?'13-3-2-21-1-1-8-5':s).match(/\d+/g);
+  if(!nums||!nums.length) return 'Need digits (Sauniere: 13-3-2-21-1-1-8-5).';
+  const vals=nums.map(Number);
+  const fib=[1,1,2,3,5,8,13,21,34,55,89];
+  const ok=vals.slice().sort(function(a,b){return a-b;});
+  const bank=ok.join('');
+  return 'tokens  '+vals.join(' ')+'\nsorted  '+ok.join(' ')+'\nbank-style concat  '+bank+'\nFibonacci set?  '+(ok.every(function(n){ return fib.indexOf(n)>=0; })?'yes':'not a subset of 1,1,2,3,5,8,13,21,...');
+}
+const DURER=[
+  [16,3,2,13],
+  [5,10,11,8],
+  [9,6,7,12],
+  [4,15,14,1]
+];
+function durerLines(){
+  const lines=DURER.map(function(r){ return r.map(function(n){ return String(n).padStart(2,' '); }).join(' '); });
+  lines.push('rows/cols/diags  34   bottom 15 14 = 1514');
+  return lines.join('\n');
+}
+
+addOp('danBrownCodes','Dan Brown puzzles (Da Vinci Code / Lost Symbol)','Classical',
+  'Documented puzzle mechanics from the novels, not a reprint of the books. Da Vinci Code: Fibonacci scramble 13-3-2-21-1-1-8-5, anagrams O Draconian devil / Oh lame saint / So dark the con of man, cryptex as a 5-letter word lock (demo passwords SOFIA and APPLE). English Atbash of BAPHOMET is YZKSLNVG — the novel uses Hebrew Atbash to Sophia; existing Atbash recipe is A-Z. Lost Symbol: Durer Melencolia I 4x4 square (sums 34; 1514). Kryptos K4 stays unsolved (notes only). Short puzzle strings only.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'anagram',options:[['anagram','Da Vinci anagrams'],['fib','Fibonacci scramble'],['cryptex','Cryptex word lock'],['durer','Durer magic square'],['list','List puzzles']]},
+    {key:'pass',label:'Cryptex password',type:'text',default:'SOFIA'}
+  ],
+  function(t,a){
+    if(a.mode==='list'){
+      const lines=[
+        '13-3-2-21-1-1-8-5  Fibonacci out of order; bank 1123581321',
+        'O, Draconian devil!  Leonardo da Vinci',
+        'Oh, lame saint!  The Mona Lisa',
+        'So dark the con of man  Madonna of the Rocks',
+        'Cryptex  5 letter rings; vinegar vial if forced; demo SOFIA / APPLE',
+        'Baphomet  Hebrew Atbash → Sophia (English Atbash ≠ Sofia)',
+        'Durer 4x4  every line 34; 1514 in the bottom row',
+        'Kryptos K4  still open — kitchen notes only'
+      ];
+      return kitCard('Dan Brown puzzles','novels, not a reprint',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='fib'){
+      const txt=dvcFib(t);
+      return kitCard('Fibonacci scramble','Da Vinci Code',kitMono(txt),txt);
+    }
+    if(a.mode==='durer'){
+      const txt=durerLines();
+      return kitCard('Durer Melencolia I square','sums 34',kitMono(txt),txt);
+    }
+    if(a.mode==='cryptex'){
+      const pw=dvcNorm(a.pass||'SOFIA').slice(0,5);
+      const guess=dvcNorm(t||'').slice(0,5);
+      const ok=(guess===pw && pw.length===5) || guess==='SOFIA' || guess==='APPLE';
+      const txt=ok?('Rings align on '+guess+'. Inner slip (demo): papyrus survives. Forced opening would smash the vinegar vial.'):('No match. Try a 5-letter password (demo SOFIA or APPLE). Guess='+(guess||'(empty)')+' lock='+pw);
+      return kitCard('Cryptex','Educational word lock',kitMono(txt),txt);
+    }
+    const txt=dvcAnag(t||'O Draconian devil');
+    return kitCard('Da Vinci anagrams','three inlined puzzles',kitMono(txt),txt);
+  }
+);
+
+const POEM_DAFF="I wandered lonely as a cloud That floats on high oer vales and hills When all at once I saw a crowd A host of golden daffodils Beside the lake beneath the trees Fluttering and dancing in the breeze Continuous as the stars that shine And twinkle on the milky way They stretched in never ending line Along the margin of a bay Ten thousand saw I at a glance Tossing their heads in sprightly dance The waves beside them danced but they Outdid the sparkling waves in glee A poet could not but be gay In such a jocund company I gazed and gazed but little thought What wealth the show to me had brought For oft when on my couch I lie In vacant or in pensive mood They flash upon that inward eye Which is the bliss of solitude And then my heart with pleasure fills And dances with the daffodils";
+const POEM_TINKER="Tinker tailor soldier sailor richman poorman beggarman thief";
+const CIRCUS_MOLE={TINKER:'Alleline',TAILOR:'Haydon',SOLDIER:'Bland',POORMAN:'Esterhase',BEGGARMAN:'Smiley'};
+
+addOp('britFieldPoems','Daffodils / Tinker Tailor poems (SOE keying)','Classical',
+  'Public-domain poems as SOE poem-code word lists (same numbering as the Jabberwocky recipe). Wordsworth 1807 I Wandered Lonely as a Cloud (host of golden daffodils). Traditional tinker-tailor counting rhyme; le Carre used five of those cover names in Tinker Tailor Soldier Spy (Educational mole table, not a novel reprint). Five-letter indicators only address the first 26 words — daffodils is word 27, so that line is keyed by the five words themselves. Default daffodils key words: I wandered lonely as a (ABCDE).',
+  [
+    {key:'poem',label:'Poem',type:'select',default:'daff',options:[['daff','Wordsworth daffodils'],['tinker','Tinker tailor counting rhyme']]},
+    {key:'words',label:'Five words',type:'text',default:'I wandered lonely as a'},
+    {key:'transp',label:'Transposition',type:'select',default:'single',options:[['single','Single'],['double','Double']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List numbered words'],['key','Show key'],['circus','Circus mole names']]}
+  ],
+  function(t,a){
+    if(a.mode==='circus'){
+      const lines=Object.keys(CIRCUS_MOLE).map(function(k){ return k+'  '+CIRCUS_MOLE[k]; });
+      lines.push('Nursery: tinker tailor soldier sailor rich man poor man beggar man thief');
+      lines.push('Novel cover names skip sailor / richman / thief. Educational, not a le Carre excerpt.');
+      return kitCard('Tinker Tailor cover names','Educational',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    const poem=a.poem==='tinker'?POEM_TINKER:POEM_DAFF;
+    const five=a.words|| (a.poem==='tinker'?'tinker tailor soldier poorman beggarman':'I wandered lonely as a');
+    const words=soePoemWords(poem);
+    const want=soePoemWords(five);
+    const sel=want.slice(0,5);
+    if(a.mode==='list'){
+      const lines=words.map(function(w,i){ return (i+1)+'  '+w+(i<26?('  '+String.fromCharCode(65+i)):''); });
+      return kitCard(a.poem==='tinker'?'Tinker tailor words':'Daffodils words','PD poem list',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(sel.length!==5){
+      return kitCard('Field poem','need 5 words',kitMono('Supply five words from the poem. Daffodils default: I wandered lonely as a.'),'NEED 5 WORDS');
+    }
+    const km=soeKeyFromWords(sel);
+    const pos=sel.map(function(w){ return words.indexOf(w)+1; });
+    const ind=soePosToInd(pos.map(function(p){ return (p>=1&&p<=26)?p:0; }).filter(Boolean));
+    if(a.mode==='key'){
+      const txt='words  '+sel.join(' ')+'\nfirst-hit positions  '+pos.join(' ')+'\nindicator (only 1-26)  '+(ind||'(none)')+'\nletters  '+km.letters+'\nkey  '+km.key.join(' ');
+      return kitCard('Poem key',sel.join(' '),kitMono(txt),txt);
+    }
+    const twice=a.transp==='double';
+    if(a.mode==='decode'){
+      let ct=String(t||'').toUpperCase().replace(/[^A-Z]/g,'');
+      if(ct.length>8000) return 'Ciphertext too long (cap 8000).';
+      let pt=soeColDec(ct, km.key);
+      if(twice) pt=soeColDec(pt, km.key);
+      return kitCard('Poem decode',sel.join(' '),kitMono(pt),pt);
+    }
+    let pt=String(t==null||t===''?'HELLO HOST OF GOLDEN DAFFODILS':t).toUpperCase().replace(/[^A-Z]/g,'');
+    if(pt.length>4000) return 'Plaintext too long (cap 4000).';
+    let ct=soeColEnc(pt, km.key);
+    if(twice) ct=soeColEnc(ct, km.key);
+    const body=soeFive(ct);
+    return kitCard('Poem encode',sel.join(' ')+(twice?' double':''),kitMono(body),body);
+  }
+);
+
+/* v1.125 typoglycemia: scramble letters between first and last of each word */
+
+const TYPO_EX='the quick brown fox jumps over the lazy log';
+
+function typoSeed(s){
+  let h=2166136261;
+  for(let i=0;i<s.length;i++) h^=s.charCodeAt(i), h=Math.imul(h,16777619);
+  return h>>>0;
+}
+function typoShuffle(mid, seed){
+  const a=mid.split('');
+  let x=seed||1;
+  for(let i=a.length-1;i>0;i--){
+    x=Math.imul(x,1664525)+1013904223>>>0;
+    const j=x%(i+1);
+    const t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a.join('');
+}
+function typoWord(w, mode){
+  const m=String(w).match(/^([^A-Za-z]*)([A-Za-z]+)([^A-Za-z]*)$/);
+  if(!m) return w;
+  const core=m[2];
+  if(core.length<4) return w;
+  const first=core.charAt(0), last=core.charAt(core.length-1), mid=core.slice(1,-1);
+  let inner=mid;
+  if(mode==='reverse') inner=mid.split('').reverse().join('');
+  else if(mode==='sort') inner=mid.split('').sort(function(a,b){ return a.toLowerCase().localeCompare(b.toLowerCase()); }).join('');
+  else inner=typoShuffle(mid, typoSeed(core.toLowerCase()));
+  if(inner===mid && mode==='shuffle' && mid.length>1){
+    inner=mid.slice(1)+mid.charAt(0);
+  }
+  return m[1]+first+inner+last+m[3];
+}
+function typoLine(s, mode){
+  return String(s).split(/(\s+)/).map(function(tok){
+    if(/^\s+$/.test(tok)) return tok;
+    return typoWord(tok, mode);
+  }).join('');
+}
+
+addOp('typoglycemia','Typoglycemia (inner-letter scramble)','Text',
+  'Psychological reading trick: keep the first and last letter of every word, scramble the letters in between. Words shorter than 4 letters stay put. Default pangram is the kitchen variant the quick brown fox jumps over the lazy log (classic ends in dog). The viral Cambridge email is not a real Cmabrigde study — the effect is real for short familiar words, not a license to typo everything. Shuffle is seeded from the word so Bake is repeatable; reverse-inner and sort-inner are fully deterministic.',
+  [
+    {key:'mode',label:'Inner letters',type:'select',default:'shuffle',options:[['shuffle','Seeded shuffle'],['reverse','Reverse inner'],['sort','Sort inner']]}
+  ],
+  function(t,a){
+    const src=(t==null||t==='')?TYPO_EX:String(t);
+    const mode=a.mode==='reverse'?'reverse':a.mode==='sort'?'sort':'shuffle';
+    const out=typoLine(src, mode);
+    const lines=['mode  '+mode, src, '→', out];
+    return kitCard('Typoglycemia','first+last fixed',kitMono(lines.join('\n')),out);
+  }
+);
+
+/* v1.126 French PD ciphers: Bazeries cylinder + Jacob PG 42297 glossary */
+
+const BAZ_DISK=[
+  '',
+  'ZWAXJGDLUBVIQHKYPNTCRMOSFE',
+  'KPBELNACZDTRXMJQOYHGVSFUWI',
+  'BDMAIZVRNSJUWFHTEQGYXPLOCK',
+  'RPLNDVHGFCUKTEBSXQYIZMJWAO',
+  'IHFRLABEUOTSGJVDKCPMNZQWXY',
+  'AMKGHIWPNYCJBFZDRUSLOQXVET',
+  'GWTHSPYBXIZULVKMRAFDCEONJQ',
+  'NOZUTWDCVRJLXKISEFAPMYGHBQ',
+  'XPLTDSRFHENYVUBMCQWAOIKZGJ',
+  'UDNAJFBOWTGVRSCZQKELMXYIHP'
+];
+function bazKey(s){
+  const nums=String(s||'7,9,5,10,1,6,3,8,2,4').match(/\d+/g);
+  if(!nums) return [7,9,5,10,1,6,3,8,2,4];
+  const k=nums.map(Number).filter(function(n){ return n>=1 && n<=10; });
+  const seen={};
+  const out=[];
+  k.forEach(function(n){ if(!seen[n]){ seen[n]=1; out.push(n); } });
+  for(let i=1;i<=10;i++) if(!seen[i]) out.push(i);
+  return out.slice(0,10);
+}
+function bazLetters(s){
+  return String(s||'').toUpperCase().replace(/[^A-Z]/g,'');
+}
+function bazShift(alph, ch, off){
+  const i=alph.indexOf(ch);
+  if(i<0) return ch;
+  const n=alph.length;
+  return alph[((i+off)%n+n)%n];
+}
+function bazEnc(pt, key, off){
+  const s=bazLetters(pt);
+  let out='';
+  for(let i=0;i<s.length;i++){
+    const alph=BAZ_DISK[key[i%key.length]];
+    out+=bazShift(alph, s[i], off);
+  }
+  return out;
+}
+function bazDec(ct, key, off){
+  return bazEnc(ct, key, -off);
+}
+
+addOp('bazeriesCylinder','Bazeries cylinder (French toy 10-disk)','Classical',
+  'Commandant Etienne Bazeries independently reinvented Jeffersons disk (20 disks). Kitchen ships the Wikipedia 10-disk toy: disk order is the key; offset is how many rows away the ciphertext sits. Verified: key 7,9,5,10,1,6,3,8,2,4 offset 6 turns RETREAT NOW into OMKEGWPDFN. US M-94 used 25 aluminum disks. Gaetan de Viaris solved the cylinder in 1893. French book Les Chiffres Secrets Devoiles (1901) is not inlined. Accents stripped to A-Z.',
+  [
+    {key:'key',label:'Disk order',type:'text',default:'7,9,5,10,1,6,3,8,2,4'},
+    {key:'offset',label:'Row offset',type:'number',default:'6'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt'],['list','List disks']]}
+  ],
+  function(t,a){
+    const key=bazKey(a.key);
+    const off=parseInt(a.offset,10)||6;
+    if(a.mode==='list'){
+      const lines=key.map(function(n,i){ return (i+1)+'  disk '+n+'  '+BAZ_DISK[n]; });
+      lines.unshift('order  '+key.join(','));
+      return kitCard('Bazeries disks','Wikipedia toy 10',kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    const src=bazLetters(t==null||t===''?'RETREAT NOW':t);
+    const out=a.mode==='decrypt'?bazDec(src,key,off):bazEnc(src,key,off);
+    const txt='key  '+key.join(',')+'  offset  '+off+'\n'+src+'  →  '+out;
+    return kitCard(a.mode==='decrypt'?'Bazeries decrypt':'Bazeries encrypt','RETREAT NOW → OMKEGWPDFN',kitMono(txt),out);
+  }
+);
+
+const JACOB_FR=[
+  ['Cryptographie','Art d ecrire de facon a derober a autrui la connaissance de ce qu on a trace. Jacob, La Cryptographie PG 42297.'],
+  ['Steganographie','Dissimuler l existence meme de l ecrit (encres sympathiques, cachettes). Jacob oppose cela au chiffre visible.'],
+  ['Brachygraphie','On abrege les mots d apres un systeme convenu (stenographie).'],
+  ['Scytale','Baton lacedemonien: ruban en helice. Cite par Jacob parmi les anciens.'],
+  ['Tritheme','Abbe de Saint-Jacques a Wurtzbourg, mort 1516. Polygraphie (1518) et Steganographia. Premier traite ex professo selon Jacob.'],
+  ['Porta','Giambattista della Porta, De furtivis literarum notis. Jacob le range parmi les auteurs du 16e siecle.'],
+  ['Vigenere','Blaise de Vigenere, Traite des chiffres, ~600 pages. Jacob: plus fecond que judicieux, trop de couleurs et de complication.'],
+  ['Nomenclateur','Mots et phrases auxquels on convient de donner un sens tout autre que le sens habituel.'],
+  ['Chiffre','Lettres, chiffres, signes de mathematiques ou de chimie, points, lignes, figures, couleurs.'],
+  ['Encres sympathiques','Encre invisible pour cacher l existence de l ecrit, distincte du chiffre.'],
+  ['Pangramme FR','Portez ce vieux whisky au juge blond qui fume — pangramme francais pour la recette typoglycemia.']
+];
+
+addOp('gutenbergJacobFr','Jacob PG 42297 (French crypto glossary)','Codebooks',
+  'Public-domain French treatise: P. L. Jacob, La Cryptographie, ou l art d ecrire en chiffres (Gutenberg #42297). Searchable glossary of terms from the book (Cryptographie, Tritheme, Porta, Vigenere, scytale). Excerpt catalog, not the full 235 KiB text. Many 19th-c. French cipher books never had an English edition — this is one that Gutenberg does ship. Accents folded in the index so search works without a French keyboard. Pangramme: Portez ce vieux whisky au juge blond qui fume.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'search',options:[['search','Search glossary'],['list','List entries']]}
+  ],
+  function(t,a){
+    const q=String(t==null?'':t).toLowerCase().replace(/[^a-z0-9]+/g,' ');
+    let rows=JACOB_FR;
+    if(a.mode==='search' && q.trim()){
+      rows=JACOB_FR.filter(function(r){
+        const hay=(r[0]+' '+r[1]).toLowerCase();
+        return q.trim().split(/\s+/).every(function(w){ return hay.indexOf(w)>=0; });
+      });
+    }
+    if(!rows.length) rows=[['Aucun','Pas d entree pour: '+q.trim()]];
+    const lines=rows.map(function(r){ return r[0]+'  —  '+r[1]; });
+    return kitCard('Jacob PG 42297','French PD glossary',kitMono(lines.join('\n')),lines.join('\n'));
+  }
+);
+
+/* v1.127 leftover: Chain pairs / Chain extras / Face it digits / Ballet extras */
+
+const CHAINP=azTok('CHAINP', false);
+function chainpEnc(s){
+  return symEnc(CHAINP, s==null||s===''?'HELLO':s);
+}
+
+const CHAINX={};
+'1234'.split('').forEach(function(k){ CHAINX[k]='CHAINX-'+k; });
+CHAINX.SOURCE='CHAINX-SOURCE';
+function chainxEnc(s){
+  return symEnc(CHAINX, s==null||s===''?'1234':s);
+}
+
+const FACEEX={};
+for(let i=0;i<=9;i++) FACEEX[String(i)]='FACEEX-'+i;
+function faceexEnc(s){
+  return symEnc(FACEEX, s==null||s===''?'12':s);
+}
+
+const BALLEX={};
+BALLEX['&']='BALLEX-AMP';
+BALLEX["'"]='BALLEX-APOS';
+BALLEX['$']='BALLEX-DOLLAR';
+BALLEX['!']='BALLEX-BANG';
+BALLEX['#']='BALLEX-HASH';
+BALLEX['(']='BALLEX-LPAREN';
+BALLEX[')']='BALLEX-RPAREN';
+BALLEX['%']='BALLEX-PCT';
+BALLEX['"']='BALLEX-QUOTE';
+function ballexEnc(s){
+  return symEnc(BALLEX, s==null||s===''?'&':s);
+}
+
+addOp('gcwChainpFaceBallet','Chain pairs / Chain extras / Face it digits / Ballet extras','GCWizard',
+  'Leftover GCWizard writings. Chain of Death pairs leftover A-Z as CHAINP- (existing CHAIN- direction alphabet not redeclared; extra _source skipped). Chain of Death direction extras 1-4 and SOURCE as CHAINX- (A-Z not redeclared). Face it leftover digits 0-9 as FACEEX- (existing FACE- A-Z not redeclared; extra _a skipped). Ballet leftover punctuation as BALLEX- (existing BAL- A-Z 1-9 not redeclared; extra _a skipped). Glyphs not embedded.',
+  [
+    {key:'table',label:'Table',type:'select',default:'chainp',options:[['chainp','Chain of Death pairs leftover'],['chainx','Chain of Death extras leftover'],['faceex','Face it digits leftover'],['ballex','Ballet extras leftover']]},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode'],['list','List']]}
+  ],
+  function(t,a){
+    const maps={chainp:CHAINP,chainx:CHAINX,faceex:FACEEX,ballex:BALLEX};
+    const titles={chainp:'Chain of Death pairs leftover',chainx:'Chain of Death extras leftover',faceex:'Face it digits leftover',ballex:'Ballet extras leftover'};
+    const notes={chainp:'CHAINP- not CHAIN-',chainx:'CHAINX- 1-4 SOURCE',faceex:'FACEEX- 0-9 not FACE- A-Z',ballex:'BALLEX- punct not BAL-'};
+    const encs={chainp:chainpEnc,chainx:chainxEnc,faceex:faceexEnc,ballex:ballexEnc};
+    const map=maps[a.table]||CHAINP;
+    const title=titles[a.table]||titles.chainp;
+    const note=notes[a.table]||notes.chainp;
+    if(a.mode==='list'){
+      const lines=Object.keys(map).map(function(k){ return k+'  '+map[k]; });
+      return kitCard(title,note,kitMono(lines.join('\n')),lines.join('\n'));
+    }
+    if(a.mode==='decode'){
+      const out=symDec(map, t||'');
+      return kitCard(title+' decode',note,kitMono(out),out);
+    }
+    const out=(encs[a.table]||chainpEnc)(t);
+    return kitCard(title+' encode',note,kitMono(out),out);
   }
 );
 
