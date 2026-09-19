@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADS-B Radar Scope</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --radar-primary: #00ff41;
+            --radar-secondary: #00aa2a;
+            --radar-bg: #001100;
+            --radar-grid: rgba(0, 255, 65, 0.15);
+            --radar-sweep: rgba(0, 255, 65, 0.08);
+            --radar-glow: rgba(0, 255, 65, 0.4);
+            --radar-military: #ff3344;
+            --radar-ground: #ffaa00;
+            --radar-peer: #00ccff;
+        }
+        body {
+            background: var(--radar-bg);
+            color: var(--radar-primary);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.5s;
+        }
+        .radar-container {
+            position: relative;
+            width: min(95vw, 95vh, 800px);
+            height: min(95vw, 95vh, 800px);
+        }
+        #radarCanvas { width: 100%; height: 100%; border-radius: 50%; cursor: crosshair; }
+        .hud-ring {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 20px); height: calc(100% + 20px);
+            border: 2px solid var(--radar-secondary);
+            border-radius: 50%; pointer-events: none;
+            transition: border-color 0.5s;
+        }
+        .hud-ring::before {
+            content: '';
+            position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid var(--radar-grid); border-radius: 50%;
+        }
+        .info-panel {
+            position: absolute; background: rgba(0, 10, 0, 0.9);
+            border: 1px solid var(--radar-secondary);
+            padding: 10px 14px; font-size: 11px;
+            pointer-events: none; opacity: 0;
+            transition: opacity 0.2s; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .info-panel.visible { opacity: 1; }
+        .top-left { top: 10px; left: 10px; }
+        .top-right { top: 10px; right: 10px; }
+        .bottom-left { bottom: 10px; left: 10px; }
+        .bottom-right { bottom: 10px; right: 10px; }
+        .info-panel h3 {
+            font-size: 10px; letter-spacing: 3px;
+            color: var(--radar-secondary);
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--radar-grid);
+            padding-bottom: 4px;
+        }
+        .info-row {
+            display: flex; justify-content: space-between;
+            gap: 16px; margin: 3px 0;
+        }
+        .info-label { color: var(--radar-secondary); }
+        .info-value {
+            color: var(--radar-primary);
+            text-shadow: 0 0 6px var(--radar-glow);
+            font-weight: bold;
+        }
+        .status-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 6px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        .status-dot.online { background: var(--radar-primary); box-shadow: 0 0 8px var(--radar-glow); }
+        .status-dot.offline { background: var(--radar-military); box-shadow: 0 0 8px rgba(255,51,68,0.4); animation: pulse 0.5s ease-in-out infinite; }
+        .status-dot.proxy { background: var(--radar-ground); box-shadow: 0 0 8px rgba(255,170,0,0.4); }
+        .status-dot.peer { background: var(--radar-peer); box-shadow: 0 0 8px rgba(0,204,255,0.4); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .feed-status-container {
+            display: flex; flex-direction: column; gap: 3px;
+            margin-top: 6px; padding-top: 6px;
+            border-top: 1px solid var(--radar-grid);
+            max-height: 120px; overflow-y: auto;
+        }
+        .feed-status-item {
+            display: flex; justify-content: space-between;
+            align-items: center; font-size: 9px; letter-spacing: 1px;
+        }
+        .feed-status-name { color: var(--radar-secondary); }
+        .feed-status-val { font-weight: bold; }
+        .feed-status-val.online { color: var(--radar-primary); }
+        .feed-status-val.offline { color: var(--radar-military); }
+        .feed-status-val.proxy { color: var(--radar-ground); }
+        .feed-status-val.peer { color: var(--radar-peer); }
+        .details-panel {
+            position: absolute; bottom: 70px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 10, 0, 0.95);
+            border: 1px solid var(--radar-primary);
+            padding: 12px 18px; font-size: 11px; display: none;
+            min-width: 300px; max-height: 60vh; overflow-y: auto;
+            box-shadow: 0 0 20px var(--radar-glow), inset 0 0 20px var(--radar-sweep);
+        }
+        .details-panel.active { display: block; }
+        .details-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--radar-secondary);
+        }
+        .details-callsign {
+            font-size: 18px; font-weight: bold;
+            text-shadow: 0 0 12px var(--radar-glow); letter-spacing: 2px;
+        }
+        .details-close {
+            background: none; border: 1px solid var(--radar-secondary);
+            color: var(--radar-secondary); padding: 2px 8px;
+            cursor: pointer; font-family: inherit;
+        }
+        .details-close:hover { border-color: var(--radar-primary); color: var(--radar-primary); }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+        .details-item { display: flex; flex-direction: column; gap: 2px; }
+        .details-item-label { font-size: 9px; color: var(--radar-secondary); letter-spacing: 1px; }
+        .details-item-value {
+            font-size: 13px; color: var(--radar-primary);
+            text-shadow: 0 0 4px var(--radar-glow);
+        }
+        .details-source-badge {
+            grid-column: 1 / -1;
+            text-align: center; margin-top: 8px; padding-top: 8px;
+            border-top: 1px solid var(--radar-grid);
+            font-size: 9px; letter-spacing: 1px;
+        }
+        .details-source-badge.web { color: var(--radar-peer); }
+        .details-source-badge.api { color: var(--radar-ground); }
+        .controls {
+            position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 200;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .ctrl-btn {
+            background: rgba(0, 20, 0, 0.9);
+            border: 1px solid var(--radar-secondary);
+            color: var(--radar-primary); padding: 6px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.2s;
+            text-transform: uppercase; white-space: nowrap;
+        }
+        .ctrl-btn:hover {
+            background: var(--radar-sweep);
+            border-color: var(--radar-primary);
+            box-shadow: 0 0 10px var(--radar-glow);
+        }
+        .ctrl-btn.active { background: rgba(0, 255, 65, 0.3); border-color: var(--radar-primary); }
+        .minimal-btn {
+            position: absolute; top: 8px; right: 10px; z-index: 900;
+            background: rgba(0, 15, 0, 0.8); border: 1px solid var(--radar-secondary);
+            color: var(--radar-secondary); width: 22px; height: 22px;
+            border-radius: 50%; font-size: 11px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; font-family: inherit; line-height: 1;
+        }
+        .minimal-btn:hover { border-color: var(--radar-primary); color: var(--radar-primary); box-shadow: 0 0 8px var(--radar-glow); }
+        .minimal-btn.active { background: var(--radar-sweep); border-color: var(--radar-primary); color: var(--radar-primary); }
+        .hud-overlay { transition: opacity 0.4s, visibility 0.4s; }
+        .hud-overlay.minimal { opacity: 0; visibility: hidden; pointer-events: none; }
+        .model-selector {
+            position: absolute; top: 10px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 6px; z-index: 200;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .feed-selector {
+            position: absolute; top: 40px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 5px; align-items: center; z-index: 200;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .feed-label {
+            font-size: 9px; letter-spacing: 2px;
+            color: var(--radar-secondary);
+            text-transform: uppercase; margin-right: 4px;
+        }
+        .feed-btn {
+            background: rgba(0, 15, 0, 0.9);
+            border: 1px solid var(--radar-secondary);
+            color: var(--radar-secondary); padding: 4px 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 8px; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.3s;
+            text-transform: uppercase; white-space: nowrap;
+        }
+        .feed-btn:hover { border-color: var(--radar-primary); color: var(--radar-primary); }
+        .feed-btn.active {
+            background: var(--radar-sweep); border-color: var(--radar-primary);
+            color: var(--radar-primary); box-shadow: 0 0 8px var(--radar-glow);
+        }
+        .feed-btn.combined { border-color: var(--radar-military); color: var(--radar-military); }
+        .feed-btn.combined.active {
+            background: rgba(255, 51, 68, 0.15); border-color: var(--radar-military);
+            color: var(--radar-military); box-shadow: 0 0 8px rgba(255, 51, 68, 0.3);
+        }
+        .feed-btn.peer { border-color: var(--radar-peer); color: var(--radar-peer); }
+        .feed-btn.peer.active {
+            background: rgba(0, 204, 255, 0.15); border-color: var(--radar-peer);
+            color: var(--radar-peer); box-shadow: 0 0 8px rgba(0, 204, 255, 0.3);
+        }
+        .model-btn {
+            background: rgba(0, 15, 0, 0.9);
+            border: 1px solid var(--radar-secondary);
+            color: var(--radar-secondary); padding: 5px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.3s;
+            text-transform: uppercase; white-space: nowrap;
+        }
+        .model-btn:hover { border-color: var(--radar-primary); color: var(--radar-primary); }
+        .model-btn.active {
+            background: var(--radar-sweep); border-color: var(--radar-primary);
+            color: var(--radar-primary); box-shadow: 0 0 10px var(--radar-glow);
+            font-weight: bold;
+        }
+        .ac-list { max-height: 150px; overflow-y: auto; margin-top: 6px; }
+        .ac-list-item {
+            padding: 4px 6px; cursor: pointer;
+            display: flex; justify-content: space-between;
+            gap: 8px; border-bottom: 1px solid var(--radar-grid);
+        }
+        .ac-list-item:hover { background: var(--radar-sweep); }
+        .ac-list-item .cs { color: var(--radar-primary); font-weight: bold; font-size: 11px; }
+        .ac-list-item .alt { color: var(--radar-secondary); font-size: 10px; }
+        .ac-list-item .src { color: var(--radar-secondary); font-size: 9px; opacity: 0.7; }
+        .ac-list-item .src.peer-src { color: var(--radar-peer); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 10, 0, 0.5); }
+        ::-webkit-scrollbar-thumb { background: var(--radar-secondary); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--radar-primary); }
+        .crt-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .proxy-badge {
+            font-size: 8px; color: var(--radar-ground); letter-spacing: 1px;
+            margin-top: 2px; padding: 2px 6px;
+            border: 1px solid rgba(255, 170, 0, 0.3); display: inline-block;
+        }
+        .peer-badge {
+            font-size: 8px; color: var(--radar-peer); letter-spacing: 1px;
+            margin-top: 2px; padding: 2px 6px;
+            border: 1px solid rgba(0, 204, 255, 0.3); display: inline-block;
+        }
+        .send-btn {
+            position: absolute; bottom: 55px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid var(--radar-peer);
+            color: var(--radar-peer); padding: 5px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px; letter-spacing: 1px;
+            cursor: pointer; transition: all 0.2s;
+            text-transform: uppercase; white-space: nowrap;
+        }
+        .send-btn:hover {
+            background: rgba(0, 204, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="radar-container">
+        <canvas id="radarCanvas"></canvas>
+        <div class="hud-ring"></div>
+        <div class="crt-overlay" id="crtOverlay"></div>
+
+        <button class="minimal-btn" onclick="toggleMinimal()" id="btnMinimal" title="Toggle minimal (M)">◉</button>
+
+        <div class="hud-overlay" id="hudOverlay">
+
+        <div class="feed-selector">
+            <span class="feed-label">FEED:</span>
+            <button class="feed-btn active" onclick="setFeed('opensky')" id="feedOpenSky">OPNSKY</button>
+            <button class="feed-btn" onclick="setFeed('adsbfi')" id="feedADSBfi">ADS.FI</button>
+            <button class="feed-btn" onclick="setFeed('airplaneslive')" id="feedAirplanes">AIRPLN</button>
+            <button class="feed-btn" onclick="setFeed('adsblol')" id="feedADSBloL">ADS.LOL</button>
+            <button class="feed-btn combined" onclick="setFeed('combined')" id="feedCombined">COMBO</button>
+            <button class="feed-btn peer" onclick="setFeed('peers')" id="feedPeers">PEERS</button>
+            <button class="feed-btn peer combined" onclick="setFeed('all')" id="feedAll">ALL</button>
+        </div>
+
+        <div class="model-selector">
+            <button class="model-btn active" onclick="setRadarModel('classic')" id="modelClassic">CLASSIC</button>
+            <button class="model-btn" onclick="setRadarModel('military')" id="modelMilitary">MILITARY</button>
+            <button class="model-btn" onclick="setRadarModel('atc')" id="modelATC">ATC</button>
+            <button class="model-btn" onclick="setRadarModel('retro')" id="modelRetro">RETRO</button>
+            <button class="model-btn" onclick="setRadarModel('stealth')" id="modelStealth">STEALTH</button>
+        </div>
+
+        <div class="info-panel top-left visible" id="statusPanel">
+            <h3>SYSTEM STATUS</h3>
+            <div class="info-row">
+                <span class="info-label"><span class="status-dot" id="statusDot"></span>FEED</span>
+                <span class="info-value" id="statusText">INIT</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">TRACKS</span>
+                <span class="info-value" id="trackCount">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">PEERS</span>
+                <span class="info-value" id="peerCount">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">RANGE</span>
+                <span class="info-value" id="rangeNm">100 NM</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">UTC</span>
+                <span class="info-value" id="utcTime">--:--:--</span>
+            </div>
+            <div id="feedStatusArea"></div>
+            <div id="proxyInfo"></div>
+        </div>
+
+        <div class="info-panel top-right" id="statsPanel">
+            <h3>TRAFFIC SUMMARY</h3>
+            <div class="info-row">
+                <span class="info-label">AIRBORNE</span>
+                <span class="info-value" id="airborneCount">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ON GROUND</span>
+                <span class="info-value" id="groundCount">0</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">HIGHEST</span>
+                <span class="info-value" id="highestAlt">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">FASTEST</span>
+                <span class="info-value" id="fastestSpd">---</span>
+            </div>
+        </div>
+
+        <div class="info-panel bottom-left" id="selectedPanel">
+            <h3>TARGET</h3>
+            <div class="info-row">
+                <span class="info-label">CALLSIGN</span>
+                <span class="info-value" id="selCallsign">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ALT</span>
+                <span class="info-value" id="selAlt">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">SPD</span>
+                <span class="info-value" id="selSpd">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">HDG</span>
+                <span class="info-value" id="selHdg">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">DIST</span>
+                <span class="info-value" id="selDist">---</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">SRC</span>
+                <span class="info-value" id="selSource">---</span>
+            </div>
+        </div>
+
+        <div class="info-panel bottom-right" id="listPanel">
+            <h3>NEAREST TRACKS</h3>
+            <div class="ac-list" id="acList"><div style="color: var(--radar-secondary); font-size: 10px;">Loading...</div></div>
+        </div>
+
+        <div class="details-panel" id="detailsPanel">
+            <div class="details-header">
+                <span class="details-callsign" id="detCallsign">---</span>
+                <button class="details-close" onclick="closeDetails()">CLOSE</button>
+            </div>
+            <div class="details-grid">
+                <div class="details-item"><span class="details-item-label">ICAO24</span><span class="details-item-value" id="detIcao">---</span></div>
+                <div class="details-item"><span class="details-item-label">COUNTRY</span><span class="details-item-value" id="detCountry">---</span></div>
+                <div class="details-item"><span class="details-item-label">BARO ALT</span><span class="details-item-value" id="detAlt">---</span></div>
+                <div class="details-item"><span class="details-item-label">GEO ALT</span><span class="details-item-value" id="detGeoAlt">---</span></div>
+                <div class="details-item"><span class="details-item-label">GND SPEED</span><span class="details-item-value" id="detSpeed">---</span></div>
+                <div class="details-item"><span class="details-item-label">TRUE HDG</span><span class="details-item-value" id="detHdg">---</span></div>
+                <div class="details-item"><span class="details-item-label">VERT RATE</span><span class="details-item-value" id="detVertRate">---</span></div>
+                <div class="details-item"><span class="details-item-label">SQUAWK</span><span class="details-item-value" id="detSquawk">---</span></div>
+                <div class="details-item"><span class="details-item-label">TYPE</span><span class="details-item-value" id="detType">---</span></div>
+                <div class="details-item"><span class="details-item-label">STATUS</span><span class="details-item-value" id="detStatus">---</span></div>
+                <div class="details-item"><span class="details-item-label">REG</span><span class="details-item-value" id="detReg">---</span></div>
+                <div class="details-item"><span class="details-item-label">SOURCE</span><span class="details-item-value" id="detSource">---</span></div>
+            </div>
+        </div>
+
+        <button class="send-btn" onclick="shareToPeers()" id="btnShare">📡 SHARE TO PEERS</button>
+
+        <div class="controls">
+            <button class="ctrl-btn active" onclick="togglePanel('stats')" id="btnStats">STATS</button>
+            <button class="ctrl-btn active" onclick="togglePanel('list')" id="btnList">LIST</button>
+            <button class="ctrl-btn active" onclick="togglePanel('target')" id="btnTarget">TARGET</button>
+            <button class="ctrl-btn" onclick="cycleRange()" id="btnRange">RANGE +</button>
+            <button class="ctrl-btn" onclick="refreshData()" id="btnRefresh">REFRESH</button>
+        </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // ============================================
+        // WEBXDC INITIALIZATION
+        // ============================================
+        let webxdc = null;
+        let myAddr = 0;
+        let myName = '';
+
+        try {
+            webxdc = window.webxdc;
+            const selfAddrInfo = webxdc.getInfo();
+            myAddr = selfAddrInfo.selfAddr || 0;
+            myName = selfAddrInfo.selfName || 'Me';
+        } catch (e) {
+            // Running outside webxdc — simulate
+            console.log('Not in webxdc, running standalone mode');
+            myAddr = Math.floor(Math.random() * 10000);
+            myName = 'Standalone User';
+            webxdc = {
+                sendUpdate: function(update, description) {
+                    console.log('[WebXDC Sim] sendUpdate:', description, update);
+                },
+                setUpdateListener: function(callback) {
+                    // No-op in standalone
+                    console.log('[WebXDC Sim] Update listener registered (standalone)');
+                },
+                getInfo: function() {
+                    return { selfAddr: myAddr, selfName: myName };
+                }
+            };
+        }
+
+        // ============================================
+        // CORS PROXY LAYER
+        // ============================================
+        const CORS_PROXIES = [
+            { name: 'direct',   fn: u => u,                                      priority: 1 },
+            { name: 'allorigins', fn: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, priority: 2 },
+            { name: 'corsproxy',  fn: u => `https://corsproxy.io/?${encodeURIComponent(u)}`,             priority: 3 },
+            { name: 'codetabs',   fn: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, priority: 4 },
+            { name: 'thingproxy', fn: u => `https://thingproxy.freeboard.io/fetch/${u}`,                  priority: 5 },
+        ];
+
+        const proxySuccessCount = {};
+        const proxyFailureCount = {};
+
+        async function fetchViaProxy(url, feedName, timeoutMs = 10000) {
+            const sorted = [...CORS_PROXIES].sort((a, b) => {
+                const aScore = (proxySuccessCount[feedName + '_' + a.name] || 0) - (proxyFailureCount[feedName + '_' + a.name] || 0) * 2;
+                const bScore = (proxySuccessCount[feedName + '_' + b.name] || 0) - (proxyFailureCount[feedName + '_' + b.name] || 0) * 2;
+                return (a.priority - aScore * 0.1) - (b.priority - bScore * 0.1);
+            });
+
+            let lastErr;
+            for (const proxy of sorted) {
+                const proxyUrl = proxy.fn(url);
+                try {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), timeoutMs);
+                    const res = await fetch(proxyUrl, {
+                        signal: controller.signal,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const text = await res.text();
+                    if (!text || text.trim().length < 10) throw new Error('Empty response');
+                    const data = JSON.parse(text);
+                    if (!data || Object.keys(data).length === 0) throw new Error('Empty JSON');
+                    proxySuccessCount[feedName + '_' + proxy.name] = (proxySuccessCount[feedName + '_' + proxy.name] || 0) + 1;
+                    return { data, proxyName: proxy.name };
+                } catch (err) {
+                    proxyFailureCount[feedName + '_' + proxy.name] = (proxyFailureCount[feedName + '_' + proxy.name] || 0) + 1;
+                    lastErr = err;
+                }
+            }
+            throw lastErr || new Error('All proxies exhausted');
+        }
+
+        // ============================================
+        // DATA NORMALIZERS
+        // ============================================
+        function normalizeAdsbFi(acList, bounds) {
+            return (acList || [])
+                .filter(ac => ac.lat != null && ac.lon != null)
+                .filter(ac => {
+                    if (!bounds) return true;
+                    return ac.lat >= bounds.south && ac.lat <= bounds.north &&
+                           ac.lon >= bounds.west && ac.lon <= bounds.east;
+                })
+                .map(ac => [
+                    ac.hex || '', ac.flight ? ac.flight.trim() : '', ac.r || '',
+                    ac.dbFlags || 0, ac.seen ?? ac.seen_pos ?? 0,
+                    ac.lon, ac.lat,
+                    ac.alt_baro != null ? ac.alt_baro * 0.3048 : (ac.altitude != null ? ac.altitude * 0.3048 : null),
+                    ac.on_ground || false, ac.gs || null, ac.track || null,
+                    ac.baro_rate ?? ac.vert_rate ?? null,
+                    ac.receiver_count != null ? [ac.receiver_count] : null,
+                    ac.alt_geom != null ? ac.alt_geom * 0.3048 : null,
+                    ac.squawk || null, ac.alert || false, ac.type ?? ac.t ?? null,
+                ]);
+        }
+
+        function normalizeAirplanesLive(acList) {
+            return (acList || [])
+                .filter(ac => ac.lat != null && ac.lon != null)
+                .map(ac => [
+                    ac.hex || '', ac.flight ? ac.flight.trim() : '', ac.r ?? '',
+                    ac.dbFlags ?? 0, ac.now ?? ac.seen ?? 0,
+                    ac.lon, ac.lat,
+                    ac.alt_baro != null ? ac.alt_baro * 0.3048 : null,
+                    ac.on_ground || false, ac.gs ?? ac.spd ?? null,
+                    ac.track ?? ac.heading ?? null,
+                    ac.baro_rate ?? ac.vert_rate ?? null,
+                    ac.rssi != null ? [ac.rssi] : null,
+                    ac.alt_geom != null ? ac.alt_geom * 0.3048 : null,
+                    ac.squawk || null, ac.alert || false, ac.t ?? ac.type ?? null,
+                ]);
+        }
+
+        function normalizeAdsbLol(acList) {
+            return (acList || [])
+                .filter(ac => ac.lat != null && ac.lon != null)
+                .map(ac => [
+                    ac.hex || '', ac.flight ? ac.flight.trim() : '', ac.r ?? '',
+                    ac.dbFlags ?? 0, ac.seen ?? ac.seen_pos ?? 0,
+                    ac.lon, ac.lat,
+                    ac.alt_baro != null ? ac.alt_baro * 0.3048 : (ac.altitude != null ? ac.altitude * 0.3048 : null),
+                    ac.on_ground || false, ac.gs ?? null, ac.track ?? null,
+                    ac.baro_rate ?? ac.vert_rate ?? null,
+                    ac.msgs != null ? [ac.msgs] : null,
+                    ac.alt_geom != null ? ac.alt_geom * 0.3048 : null,
+                    ac.squawk || null, ac.alert || false, ac.t ?? ac.type ?? null,
+                ]);
+        }
+
+        // ============================================
+        // FEED DEFINITIONS
+        // ============================================
+        const FEEDS = {
+            opensky: {
+                name: 'OpenSky Network', shortName: 'OPNSKY', refreshMs: 10000,
+                async fetch(bounds) {
+                    const url = `https://opensky-network.org/api/states/all?lamin=${bounds.south}&lomin=${bounds.west}&lamax=${bounds.north}&lomax=${bounds.east}`;
+                    const { data, proxyName } = await fetchViaProxy(url, 'opensky');
+                    if (!data.states || data.states.length === 0) throw new Error('No aircraft');
+                    return { states: data.states, source: 'opensky', proxy: proxyName };
+                }
+            },
+            adsbfi: {
+                name: 'ADSB.fi', shortName: 'ADS.FI', refreshMs: 8000,
+                async fetch(bounds) {
+                    const url = 'https://api.adsb.fi/api/aircraft/json';
+                    const { data, proxyName } = await fetchViaProxy(url, 'adsbfi');
+                    const states = normalizeAdsbFi(data.aircraft, bounds);
+                    if (states.length === 0) throw new Error('No aircraft in range');
+                    return { states, source: 'adsbfi', proxy: proxyName };
+                }
+            },
+            airplaneslive: {
+                name: 'Airplanes.live', shortName: 'AIRPLN', refreshMs: 8000,
+                async fetch(bounds) {
+                    const url = `https://api.airplanes.live/v2/points/${bounds.south}/${bounds.west}/${bounds.north}/${bounds.east}`;
+                    const { data, proxyName } = await fetchViaProxy(url, 'airplaneslive');
+                    const states = normalizeAirplanesLive(data.ac);
+                    if (states.length === 0) throw new Error('No aircraft in range');
+                    return { states, source: 'airplaneslive', proxy: proxyName };
+                }
+            },
+            adsblol: {
+                name: 'ADSB.lol', shortName: 'ADS.LOL', refreshMs: 10000,
+                async fetch(bounds) {
+                    const url = `https://api.adsb.lol/v2/ladd/${bounds.west.toFixed(2)}/${bounds.south.toFixed(2)}/${bounds.east.toFixed(2)}/${bounds.north.toFixed(2)}`;
+                    const { data, proxyName } = await fetchViaProxy(url, 'adsblol');
+                    const states = normalizeAdsbLol(data.ac);
+                    if (states.length === 0) throw new Error('No aircraft in range');
+                    return { states, source: 'adsblol', proxy: proxyName };
+                }
+            },
+            peers: {
+                name: 'Peer Network', shortName: 'PEERS', refreshMs: 5000,
+                async fetch() {
+                    // Peers are handled via webxdc messaging, not API calls
+                    return { states: [], source: 'peers', peerOnly: true };
+                }
+            },
+            combined: {
+                name: 'Combined (API Feeds)', shortName: 'COMBO', refreshMs: 12000,
+                async fetch(bounds) {
+                    const sources = [
+                        {
+                            key: 'opensky',
+                            url: `https://opensky-network.org/api/states/all?lamin=${bounds.south}&lomin=${bounds.west}&lamax=${bounds.north}&lomax=${bounds.east}`,
+                            normalize: (d) => d.states || []
+                        },
+                        {
+                            key: 'adsbfi',
+                            url: 'https://api.adsb.fi/api/aircraft/json',
+                            normalize: (d) => normalizeAdsbFi(d.aircraft, bounds)
+                        },
+                        {
+                            key: 'airplaneslive',
+                            url: `https://api.airplanes.live/v2/points/${bounds.south}/${bounds.west}/${bounds.north}/${bounds.east}`,
+                            normalize: (d) => normalizeAirplanesLive(d.ac)
+                        }
+                    ];
+
+                    const feedStatuses = {};
+                    const allStates = [];
+                    const proxiesUsed = [];
+
+                    await Promise.allSettled(sources.map(async (src) => {
+                        try {
+                            const { data, proxyName } = await fetchViaProxy(src.url, src.key);
+                            const states = src.normalize(data);
+                            feedStatuses[src.key] = { online: true, count: states.length, proxy: proxyName, type: 'api' };
+                            proxiesUsed.push(proxyName);
+                            states.forEach(s => { s._source = src.key; allStates.push(s); });
+                        } catch (err) {
+                            feedStatuses[src.key] = { online: false, count: 0, proxy: null, type: 'api' };
+                        }
+                    }));
+
+                    if (allStates.length === 0) throw new Error('All feeds failed');
+                    const unique = deduplicateAircraft(allStates);
+                    return { states: unique, source: 'combined', feedStatuses, proxiesUsed: [...new Set(proxiesUsed)] };
+                }
+            },
+            all: {
+                name: 'All Sources (API + Peers)', shortName: 'ALL', refreshMs: 12000,
+                async fetch(bounds) {
+                    // Fetch from combined APIs
+                    const result = await FEEDS.combined.fetch(bounds);
+                    // Add peer data
+                    const peerStates = state.peerAircraft || [];
+                    peerStates.forEach(s => {
+                        // Don't duplicate — only add if not already in result
+                        if (!result.states.some(existing => existing[0] === s[0])) {
+                            s._source = 'peer:' + (s._peerName || 'unknown');
+                            result.states.push(s);
+                        }
+                    });
+
+                    // Update feed statuses
+                    result.feedStatuses = result.feedStatuses || {};
+                    Object.entries(state.peerFeedStatuses).forEach(([key, info]) => {
+                        result.feedStatuses[key] = { ...info, type: 'peer' };
+                    });
+
+                    return result;
+                }
+            }
+        };
+
+        function deduplicateAircraft(allStates) {
+            const seen = new Map();
+            allStates.forEach(state => {
+                const icao = state[0];
+                if (!icao) return;
+                if (!seen.has(icao)) {
+                    seen.set(icao, state);
+                } else {
+                    const existing = seen.get(icao);
+                    const existingTime = existing[4] != null ? existing[4] : 999;
+                    const newTime = state[4] != null ? state[4] : 999;
+                    if (typeof existingTime === 'number' && typeof newTime === 'number' && newTime < existingTime) {
+                        state._source = existing._source || state._source;
+                        seen.set(icao, state);
+                    }
+                }
+            });
+            return [...seen.values()];
+        }
+
+        // ============================================
+        // DEMO DATA
+        // ============================================
+        const DEMO_DATA = [
+            { icao24: 'a8f3c1', callsign: 'UAL1234', country: 'United States', latitude: 37.77, longitude: -96.2, baroAlt: 10668, onGround: false, velocity: 250, heading: 270, vertRate: 0, squawk: '1200', typeCode: 'B738' },
+            { icao24: 'a12345', callsign: 'DAL456', country: 'United States', latitude: 37.5, longitude: -95.0, baroAlt: 9144, onGround: false, velocity: 220, heading: 180, vertRate: -2.5, squawk: '4521', typeCode: 'A320' },
+            { icao24: 'ae01ce', callsign: 'RCH345', country: 'United States', latitude: 37.2, longitude: -94.8, baroAlt: 12192, onGround: false, velocity: 300, heading: 90, vertRate: 0, squawk: '7700', typeCode: 'C17A' },
+            { icao24: 'a9b8c7', callsign: 'N123AB', country: 'United States', latitude: 36.8, longitude: -96.5, baroAlt: 3048, onGround: false, velocity: 150, heading: 45, vertRate: 1.5, squawk: '1200', typeCode: 'C172' },
+            { icao24: 'c0ffee', callsign: 'BAW117', country: 'United Kingdom', latitude: 37.4, longitude: -95.5, baroAlt: 10000, onGround: false, velocity: 280, heading: 135, vertRate: -1, squawk: '2000', typeCode: 'B77W' },
+            { icao24: 'd12345', callsign: 'DLH400', country: 'Germany', latitude: 37.1, longitude: -96.0, baroAlt: 11000, onGround: false, velocity: 290, heading: 315, vertRate: 0, squawk: '1000', typeCode: 'A359' },
+            { icao24: 'a45678', callsign: 'SWA2891', country: 'United States', latitude: 37.6, longitude: -95.3, baroAlt: 8000, onGround: false, velocity: 200, heading: 225, vertRate: -4, squawk: '3421', typeCode: 'B737' },
+            { icao24: 'ab1234', callsign: 'N456XY', country: 'United States', latitude: 36.9, longitude: -95.8, baroAlt: 0, onGround: true, velocity: 0, heading: 90, vertRate: 0, squawk: '1200', typeCode: 'GLF5' },
+            { icao24: 'ae5544', callsign: 'VIPER01', country: 'United States', latitude: 37.35, longitude: -95.15, baroAlt: 15000, onGround: false, velocity: 450, heading: 60, vertRate: 5, squawk: '4400', typeCode: 'F16' },
+            { icao24: 'a99887', callsign: 'EVAC22', country: 'United States', latitude: 37.85, longitude: -96.35, baroAlt: 2000, onGround: false, velocity: 120, heading: 200, vertRate: -3, squawk: '7700', typeCode: 'EC35' },
+        ];
+
+        // ============================================
+        // CONFIG
+        // ============================================
+        const CONFIG = {
+            RANGES_NM: [25, 50, 100, 150, 200],
+            DEFAULT_RANGE_IDX: 2,
+            CENTER_LAT: 37.0902,
+            CENTER_LON: -95.7129,
+            MAX_BLIPS: 200,
+            PEER_DATA_EXPIRY: 60000, // 60s — peer data expires after this
+        };
+
+        // ============================================
+        // RADAR MODELS
+        // ============================================
+        const RADAR_MODELS = {
+            classic: {
+                name: 'Classic Green', primary: '#00ff41', secondary: '#00aa2a', bg: '#001100',
+                grid: 'rgba(0, 255, 65, 0.15)', sweep: 'rgba(0, 255, 65, 0.08)',
+                glow: 'rgba(0, 255, 65, 0.4)', military: '#ff3344', ground: '#ffaa00', peer: '#00ccff',
+                selected: '#ffffff', sweepSpeed: 0.015, blipFade: 0.003, blipSize: 4,
+                hasScanlines: true, hasVignette: true, hasGrid: true, hasCrosshairs: true,
+                has45Lines: true, hasCardinal: true, hasSweepTrail: true, sweepTrailAngle: 0.6,
+                backgroundStyle: 'gradient', ringStyle: 'circle', blipStyle: 'dot', dataBoxStyle: 'classic',
+            },
+            military: {
+                name: 'Military Amber', primary: '#ffaa00', secondary: '#aa7700', bg: '#0a0a00',
+                grid: 'rgba(255, 170, 0, 0.1)', sweep: 'rgba(255, 170, 0, 0.06)',
+                glow: 'rgba(255, 170, 0, 0.3)', military: '#ff0000', ground: '#ff6600', peer: '#00ffcc',
+                selected: '#00ff00', sweepSpeed: 0.012, blipFade: 0.004, blipSize: 3,
+                hasScanlines: true, hasVignette: true, hasGrid: true, hasCrosshairs: true,
+                has45Lines: true, hasCardinal: true, hasSweepTrail: true, sweepTrailAngle: 0.8,
+                backgroundStyle: 'solid', ringStyle: 'circle', blipStyle: 'diamond', dataBoxStyle: 'military',
+            },
+            atc: {
+                name: 'Air Traffic Control', primary: '#00ddff', secondary: '#0088aa', bg: '#000a11',
+                grid: 'rgba(0, 200, 255, 0.12)', sweep: 'rgba(0, 200, 255, 0.06)',
+                glow: 'rgba(0, 200, 255, 0.3)', military: '#ff4466', ground: '#ffaa00', peer: '#ff8800',
+                selected: '#ffffff', sweepSpeed: 0.02, blipFade: 0.002, blipSize: 5,
+                hasScanlines: false, hasVignette: false, hasGrid: true, hasCrosshairs: true,
+                has45Lines: false, hasCardinal: true, hasSweepTrail: true, sweepTrailAngle: 0.4,
+                backgroundStyle: 'gradient', ringStyle: 'circle', blipStyle: 'circle', dataBoxStyle: 'atc',
+            },
+            retro: {
+                name: 'Retro CRT', primary: '#33ff33', secondary: '#22aa22', bg: '#050505',
+                grid: 'rgba(51, 255, 51, 0.1)', sweep: 'rgba(51, 255, 51, 0.1)',
+                glow: 'rgba(51, 255, 51, 0.5)', military: '#ff4444', ground: '#ffff00', peer: '#88ff88',
+                selected: '#ffffff', sweepSpeed: 0.008, blipFade: 0.002, blipSize: 5,
+                hasScanlines: true, hasVignette: true, hasGrid: true, hasCrosshairs: true,
+                has45Lines: true, hasCardinal: true, hasSweepTrail: true, sweepTrailAngle: 1.0,
+                backgroundStyle: 'solid', ringStyle: 'circle', blipStyle: 'dot', dataBoxStyle: 'retro',
+            },
+            stealth: {
+                name: 'Stealth Mode', primary: '#224422', secondary: '#113311', bg: '#000000',
+                grid: 'rgba(34, 68, 34, 0.15)', sweep: 'rgba(34, 68, 34, 0.03)',
+                glow: 'rgba(34, 68, 34, 0.2)', military: '#331111', ground: '#333300', peer: '#223344',
+                selected: '#446644', sweepSpeed: 0.01, blipFade: 0.005, blipSize: 3,
+                hasScanlines: false, hasVignette: false, hasGrid: false, hasCrosshairs: true,
+                has45Lines: false, hasCardinal: false, hasSweepTrail: false, sweepTrailAngle: 0.3,
+                backgroundStyle: 'solid', ringStyle: 'minimal', blipStyle: 'dot', dataBoxStyle: 'minimal',
+            },
+        };
+
+        // ============================================
+        // APP STATE
+        // ============================================
+        const state = {
+            rangeIdx: CONFIG.DEFAULT_RANGE_IDX,
+            rangeNm: CONFIG.RANGES_NM[CONFIG.DEFAULT_RANGE_IDX],
+            aircraft: new Map(),
+            peerAircraft: [],      // Aircraft received from peers
+            peerFeedStatuses: {},  // Status of each peer's data
+            blips: [],
+            selected: null,
+            sweepAngle: 0,
+            showStats: true,
+            showList: true,
+            showTarget: true,
+            connected: false,
+            lastUpdate: null,
+            demoMode: false,
+            model: 'classic',
+            feed: 'opensky',
+            feedStatuses: {},
+            refreshInterval: null,
+            proxiesUsed: [],
+        };
+
+        // ============================================
+        // CANVAS
+        // ============================================
+        const canvas = document.getElementById('radarCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const size = Math.min(container.clientWidth, container.clientHeight);
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // ============================================
+        // MODEL SWITCHING
+        // ============================================
+        window.setRadarModel = function(modelName) {
+            if (!RADAR_MODELS[modelName]) return;
+            state.model = modelName;
+            const m = RADAR_MODELS[modelName];
+            const root = document.documentElement.style;
+            root.setProperty('--radar-primary', m.primary);
+            root.setProperty('--radar-secondary', m.secondary);
+            root.setProperty('--radar-bg', m.bg);
+            root.setProperty('--radar-grid', m.grid);
+            root.setProperty('--radar-sweep', m.sweep);
+            root.setProperty('--radar-glow', m.glow);
+            root.setProperty('--radar-military', m.military);
+            root.setProperty('--radar-ground', m.ground);
+            root.setProperty('--radar-peer', m.peer);
+            updateCRTOverlay();
+            document.body.style.background = m.bg;
+            updateRingStyle();
+            document.querySelectorAll('.model-btn').forEach(btn => btn.classList.remove('active'));
+            const btnMap = { classic: 'modelClassic', military: 'modelMilitary', atc: 'modelATC', retro: 'modelRetro', stealth: 'modelStealth' };
+            const el = document.getElementById(btnMap[modelName]);
+            if (el) el.classList.add('active');
+            state.blips = [];
+        };
+
+        function updateCRTOverlay() {
+            const m = RADAR_MODELS[state.model];
+            const overlay = document.getElementById('crtOverlay');
+            let css = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;';
+            if (m.hasVignette) css += 'background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,0.4) 100%);';
+            if (m.hasScanlines) css += 'background-image:repeating-linear-gradient(0deg,rgba(0,0,0,0.15),rgba(0,0,0,0.15) 1px,transparent 1px,transparent 2px);';
+            overlay.style.cssText = css;
+        }
+
+        function updateRingStyle() {
+            const m = RADAR_MODELS[state.model];
+            const ring = document.querySelector('.hud-ring');
+            if (m.ringStyle === 'minimal') {
+                ring.style.borderWidth = '1px';
+                ring.style.borderColor = 'rgba(34, 68, 34, 0.3)';
+            } else {
+                ring.style.borderWidth = '2px';
+                ring.style.borderColor = m.secondary;
+            }
+        }
+
+        // ============================================
+        // FEED SWITCHING
+        // ============================================
+        window.setFeed = function(feedName) {
+            if (!FEEDS[feedName]) return;
+            state.feed = feedName;
+            document.querySelectorAll('.feed-btn').forEach(btn => btn.classList.remove('active'));
+            const btnMap = { opensky: 'feedOpenSky', adsbfi: 'feedADSBfi', airplaneslive: 'feedAirplanes', adsblol: 'feedADSBloL', combined: 'feedCombined', peers: 'feedPeers', all: 'feedAll' };
+            const el = document.getElementById(btnMap[feedName]);
+            if (el) el.classList.add('active');
+            state.aircraft.clear();
+            state.blips = [];
+            state.feedStatuses = {};
+            state.proxiesUsed = [];
+            if (state.refreshInterval) clearInterval(state.refreshInterval);
+            state.refreshInterval = setInterval(fetchAircraft, FEEDS[feedName].refreshMs);
+            fetchAircraft();
+        };
+
+        // ============================================
+        // COORD CONVERSION
+        // ============================================
+        function latLonToRadar(lat, lon) {
+            const R = 3440.065;
+            const range = state.rangeNm;
+            const latRad = lat * Math.PI / 180;
+            const lonRad = lon * Math.PI / 180;
+            const cLatRad = CONFIG.CENTER_LAT * Math.PI / 180;
+            const cLonRad = CONFIG.CENTER_LON * Math.PI / 180;
+            const dLat = latRad - cLatRad;
+            const dLon = lonRad - cLonRad;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(cLatRad) * Math.cos(latRad) * Math.sin(dLon / 2) ** 2;
+            const dist = 2 * R * Math.asin(Math.sqrt(a));
+            if (dist > range) return null;
+            const y = Math.sin(dLon) * Math.cos(latRad);
+            const x = Math.cos(cLatRad) * Math.sin(latRad) - Math.sin(cLatRad) * Math.cos(latRad) * Math.cos(dLon);
+            const bearing = Math.atan2(y, x);
+            const canvasSize = canvas.width / (window.devicePixelRatio || 1);
+            const center = canvasSize / 2;
+            const maxRadius = center - 20;
+            const scaledDist = (dist / range) * maxRadius;
+            return {
+                x: center + scaledDist * Math.sin(bearing),
+                y: center - scaledDist * Math.cos(bearing),
+                dist: dist,
+                bearing: ((bearing * 180 / Math.PI) + 360) % 360
+            };
+        }
+
+        // ============================================
+        // DATA FETCH
+        // ============================================
+        async function fetchAircraft() {
+            const feed = FEEDS[state.feed];
+            const bounds = {
+                north: CONFIG.CENTER_LAT + (state.rangeNm / 60),
+                south: CONFIG.CENTER_LAT - (state.rangeNm / 60),
+                east: CONFIG.CENTER_LON + (state.rangeNm / (60 * Math.cos(CONFIG.CENTER_LAT * Math.PI / 180))),
+                west: CONFIG.CENTER_LON - (state.rangeNm / (60 * Math.cos(CONFIG.CENTER_LAT * Math.PI / 180))),
+            };
+
+            try {
+                const result = await feed.fetch(bounds);
+                if (result.peerOnly) {
+                    // Peers-only mode: just use peer data
+                    processPeerAircraft();
+                    state.connected = Object.keys(state.peerFeedStatuses).length > 0;
+                    state.demoMode = !state.connected;
+                } else {
+                    processAircraftData(result.states);
+                    state.connected = true;
+                    state.demoMode = false;
+                    state.proxiesUsed = result.proxiesUsed || (result.proxy ? [result.proxy] : []);
+                    if (result.feedStatuses) {
+                        state.feedStatuses = result.feedStatuses;
+                    } else {
+                        state.feedStatuses = { [feed.shortName]: { online: true, count: result.states.length, proxy: result.proxy, type: 'api' } };
+                    }
+                }
+            } catch (err) {
+                console.warn(`Feed "${feed.name}" failed:`, err.message);
+                loadDemoData();
+                state.connected = false;
+                state.demoMode = true;
+                state.feedStatuses = { [feed.shortName]: { online: false, count: 0, proxy: null, type: 'api' } };
+            }
+            state.lastUpdate = new Date();
+            updateUI();
+        }
+
+        function processAircraftData(states) {
+            const newIcaos = new Set();
+            states.forEach(s => {
+                const icao24 = s[0];
+                const ac = {
+                    icao24,
+                    callsign: (s[1] || '').trim() || 'N/A',
+                    country: s[2] || 'Unknown',
+                    dbFlags: s[3] || 0,
+                    lastSeen: s[4],
+                    longitude: s[5],
+                    latitude: s[6],
+                    baroAlt: s[7],
+                    onGround: s[8],
+                    velocity: s[9],
+                    heading: s[10] || 0,
+                    vertRate: s[11],
+                    sensors: s[12],
+                    geoAlt: s[13],
+                    squawk: s[14],
+                    alert: s[15],
+                    typeCode: s[16],
+                    source: s._source || state.feed,
+                };
+                if (ac.latitude == null || ac.longitude == null) return;
+                newIcaos.add(icao24);
+                state.aircraft.set(icao24, ac);
+            });
+            for (const key of state.aircraft.keys()) {
+                if (!newIcaos.has(key)) state.aircraft.delete(key);
+            }
+        }
+
+        function loadDemoData() {
+            DEMO_DATA.forEach(ac => state.aircraft.set(ac.icao24, { ...ac, source: 'demo' }));
+        }
+
+        // ============================================
+        // PEER SHARING (webxdc messaging)
+        // ============================================
+        window.shareToPeers = function() {
+            // Collect current aircraft data and broadcast to all peers
+            const aircraftArray = [...state.aircraft.values()]
+                .filter(ac => ac.latitude != null && ac.longitude != null && ac.source !== 'peer')
+                .slice(0, 50) // Limit to avoid message size issues
+                .map(ac => ({
+                    icao24: ac.icao24,
+                    callsign: ac.callsign,
+                    country: ac.country,
+                    lat: ac.latitude,
+                    lon: ac.longitude,
+                    alt: ac.baroAlt,
+                    spd: ac.velocity,
+                    hdg: ac.heading,
+                    vr: ac.vertRate,
+                    squawk: ac.squawk,
+                    type: ac.typeCode,
+                    ground: ac.onGround,
+                    ts: Date.now()
+                }));
+
+            if (aircraftArray.length === 0) {
+                console.log('No aircraft to share');
+                return;
+            }
+
+            const update = {
+                payload: {
+                    type: 'aircraft_data',
+                    aircraft: aircraftArray,
+                    from: myAddr,
+                    fromName: myName,
+                    timestamp: Date.now()
+                },
+                info: `Shared ${aircraftArray.length} aircraft from ${myName}`
+            };
+
+            webxdc.sendUpdate(update, update.info);
+            console.log(`[Peer] Shared ${aircraftArray.length} aircraft`);
+        }
+
+        function receivePeerUpdate(update) {
+            const payload = update.payload;
+            if (!payload || payload.type !== 'aircraft_data') return;
+
+            const senderAddr = update.addr || payload.from;
+            const senderName = payload.fromName || 'Unknown Peer';
+
+            // Store peer aircraft
+            const peerAircraft = (payload.aircraft || []).map(ac => [
+                ac.icao24 || '',
+                ac.callsign || '',
+                ac.country || '',
+                0,
+                0,
+                ac.lon,
+                ac.lat,
+                ac.alt != null ? ac.alt : null,
+                ac.ground || false,
+                ac.spd || null,
+                ac.hdg || 0,
+                ac.vr || null,
+                null,
+                ac.alt != null ? ac.alt : null,
+                ac.squawk || null,
+                false,
+                ac.type || null,
+            ]).filter(s => s[5] != null && s[6] != null);
+
+            // Tag with source
+            peerAircraft.forEach(s => {
+                s._source = 'peer:' + senderName;
+                s._peerAddr = senderAddr;
+            });
+
+            // Update peer statuses
+            state.peerFeedStatuses[senderName] = {
+                online: true,
+                count: peerAircraft.length,
+                proxy: 'p2p',
+                type: 'peer',
+                lastUpdate: payload.timestamp
+            };
+
+            // Merge peer aircraft
+            if (state.feed === 'peers' || state.feed === 'all') {
+                state.peerAircraft = peerAircraft;
+                if (state.feed === 'peers') {
+                    state.aircraft.clear();
+                    processAircraftData(peerAircraft);
+                }
+                updateUI();
+            } else {
+                // Store for later
+                state.peerAircraft = peerAircraft;
+            }
+
+            console.log(`[Peer] Received ${peerAircraft.length} aircraft from ${senderName}`);
+        }
+
+        function processPeerAircraft() {
+            state.aircraft.clear();
+            // Merge all peer data
+            const allPeerStates = state.peerAircraft || [];
+            processAircraftData(allPeerStates);
+        }
+
+        // Listen for webxdc updates
+        webxdc.setUpdateListener((update, serial) => {
+            receivePeerUpdate(update);
+        });
+
+        // Auto-share periodically when in peer/all mode
+        let autoShareInterval = null;
+
+        function startAutoShare() {
+            if (autoShareInterval) clearInterval(autoShareInterval);
+            if (state.feed === 'peers' || state.feed === 'all' || state.feed === 'combined') {
+                autoShareInterval = setInterval(() => {
+                    if (state.aircraft.size > 0 && !state.demoMode) {
+                        window.shareToPeers();
+                    }
+                }, 15000); // Share every 15 seconds
+            }
+        }
+
+        // Override setFeed to start auto-share
+        const originalSetFeed = window.setFeed;
+        window.setFeed = function(feedName) {
+            originalSetFeed(feedName);
+            startAutoShare();
+        };
+
+        // ============================================
+        // RENDERING
+        // ============================================
+        function render() {
+            const m = RADAR_MODELS[state.model];
+            const canvasSize = canvas.width / (window.devicePixelRatio || 1);
+            const center = canvasSize / 2;
+            const maxRadius = center - 20;
+
+            ctx.fillStyle = m.bg;
+            ctx.fillRect(0, 0, canvasSize, canvasSize);
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center, center, maxRadius + 10, 0, Math.PI * 2);
+            ctx.clip();
+
+            if (m.backgroundStyle === 'gradient') {
+                const bgGrad = ctx.createRadialGradient(center, center, 0, center, center, maxRadius);
+                bgGrad.addColorStop(0, m.grid.replace(/[\d.]+\)$/, '0.05)'));
+                bgGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, canvasSize, canvasSize);
+            }
+
+            if (m.hasGrid) {
+                const numRings = 4;
+                for (let i = 1; i <= numRings; i++) {
+                    const r = (maxRadius / numRings) * i;
+                    ctx.beginPath();
+                    ctx.arc(center, center, r, 0, Math.PI * 2);
+                    ctx.strokeStyle = m.grid;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    const rangeLabel = Math.round((state.rangeNm / numRings) * i);
+                    ctx.fillStyle = m.secondary;
+                    ctx.font = '9px Courier New';
+                    ctx.fillText(rangeLabel + ' NM', center + r - 30, center - 4);
+                }
+            }
+
+            if (m.hasCrosshairs) {
+                ctx.strokeStyle = m.grid;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(center - maxRadius, center);
+                ctx.lineTo(center + maxRadius, center);
+                ctx.moveTo(center, center - maxRadius);
+                ctx.lineTo(center, center + maxRadius);
+                ctx.stroke();
+            }
+
+            if (m.has45Lines) {
+                ctx.strokeStyle = m.grid;
+                ctx.beginPath();
+                ctx.moveTo(center - maxRadius * 0.707, center - maxRadius * 0.707);
+                ctx.lineTo(center + maxRadius * 0.707, center + maxRadius * 0.707);
+                ctx.moveTo(center + maxRadius * 0.707, center - maxRadius * 0.707);
+                ctx.lineTo(center - maxRadius * 0.707, center + maxRadius * 0.707);
+                ctx.stroke();
+            }
+
+            if (m.hasCardinal) {
+                ctx.fillStyle = m.secondary;
+                ctx.font = 'bold 14px Courier New';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('N', center, center - maxRadius + 14);
+                ctx.fillText('S', center, center + maxRadius - 14);
+                ctx.fillText('E', center + maxRadius - 14, center);
+                ctx.fillText('W', center - maxRadius + 14, center);
+            }
+
+            if (m.hasSweepTrail) {
+                const sweepGrad = ctx.createConicGradient(state.sweepAngle - m.sweepTrailAngle, center, center);
+                sweepGrad.addColorStop(0, 'transparent');
+                sweepGrad.addColorStop(0.5, m.sweep);
+                sweepGrad.addColorStop(m.sweepTrailAngle, m.sweep.replace(/[\d.]+\)$/, '0.15)'));
+                sweepGrad.addColorStop(1, 'transparent');
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, maxRadius, state.sweepAngle - m.sweepTrailAngle, state.sweepAngle);
+                ctx.closePath();
+                ctx.fillStyle = sweepGrad;
+                ctx.fill();
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(center, center);
+            ctx.lineTo(center + maxRadius * Math.sin(state.sweepAngle), center - maxRadius * Math.cos(state.sweepAngle));
+            ctx.strokeStyle = m.primary;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.strokeStyle = m.glow;
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(center, center, 3, 0, Math.PI * 2);
+            ctx.fillStyle = m.primary;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(center, center, 6, 0, Math.PI * 2);
+            ctx.strokeStyle = m.glow;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            drawBlipTrails(center, m);
+            drawAircraftBlips(center, m);
+            if (state.selected) drawSelectedHighlight(center, m);
+
+            ctx.restore();
+
+            state.sweepAngle += m.sweepSpeed;
+            if (state.sweepAngle > Math.PI * 2) state.sweepAngle -= Math.PI * 2;
+
+            requestAnimationFrame(render);
+        }
+
+        function drawBlipTrails(center, m) {
+            state.aircraft.forEach(ac => {
+                const pos = latLonToRadar(ac.latitude, ac.longitude);
+                if (pos && !ac.onGround) {
+                    const angleDiff = Math.abs(((state.sweepAngle - pos.bearing * Math.PI / 180 + Math.PI) % (Math.PI * 2)) - Math.PI);
+                    if (angleDiff < 0.15) {
+                        state.blips.push({ x: pos.x, y: pos.y, icao: ac.icao24, alpha: 0.8, time: Date.now() });
+                    }
+                }
+            });
+            if (state.blips.length > CONFIG.MAX_BLIPS) state.blips = state.blips.slice(-CONFIG.MAX_BLIPS);
+            state.blips = state.blips.filter(b => b.alpha > 0.02);
+
+            state.blips.forEach(b => {
+                if (m.blipStyle === 'diamond') {
+                    ctx.beginPath();
+                    ctx.moveTo(b.x, b.y - 3);
+                    ctx.lineTo(b.x + 3, b.y);
+                    ctx.lineTo(b.x, b.y + 3);
+                    ctx.lineTo(b.x - 3, b.y);
+                    ctx.closePath();
+                    ctx.fillStyle = b.alpha > 0.3 ? m.secondary : m.primary;
+                    ctx.globalAlpha = b.alpha;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = m.primary;
+                    ctx.globalAlpha = b.alpha;
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = m.glow;
+                    ctx.globalAlpha = b.alpha * 0.3;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                b.alpha -= m.blipFade;
+            });
+        }
+
+        function drawAircraftBlips(center, m) {
+            const sorted = [...state.aircraft.values()].sort((a, b) => {
+                const pa = latLonToRadar(a.latitude, a.longitude);
+                const pb = latLonToRadar(b.latitude, b.longitude);
+                return (pa?.dist || 999) - (pb?.dist || 999);
+            });
+
+            sorted.forEach(ac => {
+                const pos = latLonToRadar(ac.latitude, ac.longitude);
+                if (!pos) return;
+
+                const isSelected = state.selected === ac.icao24;
+                const isMilitary = ac.country === 'United States' && (
+                    ac.typeCode?.match(/^(F1[56]|B52|B2|C17|C130|KC10|KC13|E3|E8|V22|E4|A400|C400)$/i) ||
+                    ac.callsign?.match(/^(RCH|REACH|EVAC|ARMY|NAVY|MARINE|GUARD|SPAR|COAST|VIPER)/i)
+                );
+                const isPeer = ac.source && ac.source.startsWith('peer:');
+
+                let color = m.primary;
+                if (isMilitary) color = m.military;
+                else if (ac.onGround) color = m.ground;
+                else if (isPeer) color = m.peer;
+                if (isSelected) color = m.selected;
+
+                const heading = (ac.heading || 0) * Math.PI / 180;
+                const size = isSelected ? 6 : m.blipSize;
+
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+                ctx.rotate(heading + Math.PI);
+                ctx.beginPath();
+                ctx.moveTo(0, -size);
+                ctx.lineTo(size * 0.6, size * 0.6);
+                ctx.lineTo(0, size * 0.3);
+                ctx.lineTo(-size * 0.6, size * 0.6);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.shadowColor = color;
+                ctx.shadowBlur = isSelected ? 12 : 6;
+                ctx.fill();
+                ctx.restore();
+
+                const distFromCenter = Math.sqrt((pos.x - center) ** 2 + (pos.y - center) ** 2);
+                const canvasSize = canvas.width / (window.devicePixelRatio || 1);
+
+                if (isSelected || distFromCenter < canvasSize * 0.35) {
+                    ctx.fillStyle = isSelected ? m.selected : (isPeer ? m.peer : m.primary);
+                    ctx.font = `${isSelected ? 'bold 10' : '9'}px Courier New`;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    const label = ac.callsign !== 'N/A' ? ac.callsign : ac.icao24.toUpperCase();
+                    ctx.fillText(label, pos.x + 10, pos.y + 3);
+
+                    if (isSelected || distFromCenter < canvasSize * 0.25) {
+                        ctx.fillStyle = m.secondary;
+                        ctx.font = '8px Courier New';
+                        const altFt = ac.baroAlt != null ? Math.round(ac.baroAlt * 3.281) : '---';
+                        ctx.fillText(altFt.toLocaleString() + 'ft', pos.x + 10, pos.y + 12);
+                    }
+                }
+
+                if (isSelected) {
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 12, 0, Math.PI * 2);
+                    ctx.strokeStyle = m.selected;
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([3, 3]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+        }
+
+        function drawSelectedHighlight(center, m) {
+            const ac = state.aircraft.get(state.selected);
+            if (!ac) return;
+            const pos = latLonToRadar(ac.latitude, ac.longitude);
+            if (!pos) return;
+
+            const canvasSize = canvas.width / (window.devicePixelRatio || 1);
+            const dataX = pos.x > canvasSize / 2 ? pos.x - 120 : pos.x + 20;
+            const dataY = pos.y - 40;
+            const boxW = 110;
+            const boxH = 60;
+
+            if (m.dataBoxStyle === 'military') {
+                ctx.fillStyle = 'rgba(10, 10, 0, 0.85)';
+                ctx.strokeStyle = m.secondary; ctx.lineWidth = 1;
+                ctx.fillRect(dataX, dataY, boxW, boxH);
+                ctx.strokeRect(dataX, dataY, boxW, boxH);
+                ctx.setLineDash([5, 5]);
+                ctx.strokeRect(dataX - 3, dataY - 3, boxW + 6, boxH + 6);
+                ctx.setLineDash([]);
+            } else if (m.dataBoxStyle === 'retro') {
+                ctx.fillStyle = 'rgba(5, 10, 5, 0.9)';
+                ctx.strokeStyle = m.primary; ctx.lineWidth = 2;
+                ctx.shadowColor = m.glow; ctx.shadowBlur = 10;
+                ctx.fillRect(dataX, dataY, boxW, boxH);
+                ctx.strokeRect(dataX, dataY, boxW, boxH);
+                ctx.shadowBlur = 0;
+            } else if (m.dataBoxStyle === 'minimal') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(dataX, dataY, boxW, boxH);
+                ctx.strokeStyle = m.secondary; ctx.lineWidth = 0.5;
+                ctx.strokeRect(dataX, dataY, boxW, boxH);
+            } else {
+                ctx.fillStyle = 'rgba(0, 15, 0, 0.85)';
+                ctx.strokeStyle = m.grid; ctx.lineWidth = 1;
+                ctx.fillRect(dataX, dataY, boxW, boxH);
+                ctx.strokeRect(dataX, dataY, boxW, boxH);
+                const cm = 6;
+                ctx.strokeStyle = m.primary; ctx.lineWidth = 2;
+                const corners = [
+                    [dataX, dataY + cm, dataX, dataY, dataX + cm, dataY],
+                    [dataX + boxW - cm, dataY, dataX + boxW, dataY, dataX + boxW, dataY + cm],
+                    [dataX, dataY + boxH - cm, dataX, dataY + boxH, dataX + cm, dataY + boxH],
+                    [dataX + boxW - cm, dataY + boxH, dataX + boxW, dataY + boxH, dataX + boxW, dataY + boxH - cm]
+                ];
+                corners.forEach(([x1, y1, x2, y2, x3, y3]) => {
+                    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x3, y3); ctx.stroke();
+                });
+            }
+
+            ctx.fillStyle = m.primary;
+            ctx.font = '10px Courier New';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+
+            const altFt = ac.baroAlt != null ? Math.round(ac.baroAlt * 3.281) : '---';
+            const spdKts = ac.velocity != null ? Math.round(ac.velocity * 1.944) : '---';
+
+            ctx.fillText(`ALT: ${altFt.toLocaleString()} ft`, dataX + 8, dataY + 6);
+            ctx.fillText(`SPD: ${spdKts} kts`, dataX + 8, dataY + 18);
+            ctx.fillText(`HDG: ${Math.round(ac.heading || 0)}°`, dataX + 8, dataY + 30);
+
+            const vertFpm = ac.vertRate != null ? Math.round(ac.vertRate * 196.85) : 0;
+            const vertStr = vertFpm > 0 ? `CLB: +${vertFpm}` : vertFpm < 0 ? `DSC: ${vertFpm}` : 'LVL';
+            ctx.fillText(vertStr, dataX + 8, dataY + 42);
+        }
+
+        // ============================================
+        // UI UPDATES
+        // ============================================
+        function updateUI() {
+            const dot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+
+            if (state.feed === 'peers' || state.feed === 'all') {
+                const hasPeers = Object.keys(state.peerFeedStatuses).length > 0;
+                dot.className = 'status-dot ' + (hasPeers ? 'peer' : 'offline');
+                statusText.textContent = hasPeers ? 'P2P' : 'NO PEERS';
+            } else {
+                dot.className = 'status-dot ' + (state.connected ? (state.proxiesUsed.length > 0 ? 'proxy' : 'online') : 'offline');
+                statusText.textContent = state.demoMode ? 'DEMO' : 'LIVE';
+            }
+
+            const now = state.lastUpdate || new Date();
+            document.getElementById('utcTime').textContent = now.toUTCString().split(' ')[4];
+
+            let airborne = 0, onGround = 0, highest = 0, fastest = 0;
+            state.aircraft.forEach(ac => {
+                if (ac.onGround) onGround++; else airborne++;
+                if (ac.baroAlt != null && ac.baroAlt > highest) highest = ac.baroAlt;
+                if (ac.velocity != null && ac.velocity > fastest) fastest = ac.velocity;
+            });
+
+            document.getElementById('trackCount').textContent = state.aircraft.size;
+            document.getElementById('rangeNm').textContent = state.rangeNm + ' NM';
+            document.getElementById('airborneCount').textContent = airborne;
+            document.getElementById('groundCount').textContent = onGround;
+            document.getElementById('highestAlt').textContent = highest ? Math.round(highest * 3.281).toLocaleString() + ' ft' : '---';
+            document.getElementById('fastestSpd').textContent = fastest ? Math.round(fastest * 1.944) + ' kts' : '---';
+
+            // Peer count
+            const peerCount = Object.keys(state.peerFeedStatuses).length;
+            document.getElementById('peerCount').textContent = peerCount;
+
+            // Feed status panel
+            const feedArea = document.getElementById('feedStatusArea');
+            const proxyInfo = document.getElementById('proxyInfo');
+            let html = '<div class="feed-status-container">';
+
+            // API feeds
+            if (state.feed !== 'peers') {
+                Object.entries(state.feedStatuses).forEach(([name, info]) => {
+                    const cls = info.online ? (info.proxy !== 'direct' ? 'proxy' : 'online') : 'offline';
+                    const label = info.online ? info.count + ' ac' : 'OFFLINE';
+                    html += `<div class="feed-status-item">
+                        <span class="feed-status-name">${name}</span>
+                        <span class="feed-status-val ${cls}">${label}</span>
+                    </div>`;
+                });
+            }
+
+            // Peer feeds
+            Object.entries(state.peerFeedStatuses).forEach(([name, info]) => {
+                html += `<div class="feed-status-item">
+                    <span class="feed-status-name">👤 ${name}</span>
+                    <span class="feed-status-val peer">${info.count} ac</span>
+                </div>`;
+            });
+
+            html += '</div>';
+            feedArea.innerHTML = html;
+
+            // Proxy/peer badges
+            const proxies = state.proxiesUsed.filter(Boolean);
+            const badgeHtml = proxies.map(p => `<span class="proxy-badge">via ${p}</span>`).join(' ');
+            proxyInfo.innerHTML = badgeHtml;
+
+            // Aircraft list
+            const listEl = document.getElementById('acList');
+            const nearest = [...state.aircraft.values()]
+                .map(ac => {
+                    const pos = latLonToRadar(ac.latitude, ac.longitude);
+                    return { ...ac, radarDist: pos?.dist || 9999 };
+                })
+                .filter(ac => ac.radarDist < 9999)
+                .sort((a, b) => a.radarDist - b.radarDist)
+                .slice(0, 15);
+
+            if (nearest.length === 0) {
+                listEl.innerHTML = '<div style="color: var(--radar-secondary); font-size: 10px;">No tracks in range</div>';
+            } else {
+                listEl.innerHTML = nearest.map(ac => {
+                    const isPeer = ac.source && ac.source.startsWith('peer:');
+                    return `<div class="ac-list-item" onclick="window.__select('${ac.icao24}')">
+                        <span class="cs">${ac.callsign !== 'N/A' ? ac.callsign : ac.icao24.toUpperCase()}</span>
+                        <span class="alt">${Math.round(ac.radarDist)} NM</span>
+                        <span class="src ${isPeer ? 'peer-src' : ''}">${ac.source || state.feed}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            if (state.selected && state.showTarget) {
+                const ac = state.aircraft.get(state.selected);
+                if (ac) {
+                    const pos = latLonToRadar(ac.latitude, ac.longitude);
+                    document.getElementById('selectedPanel').classList.add('visible');
+                    document.getElementById('selCallsign').textContent = ac.callsign !== 'N/A' ? ac.callsign : ac.icao24.toUpperCase();
+                    document.getElementById('selAlt').textContent = ac.baroAlt != null ? Math.round(ac.baroAlt * 3.281).toLocaleString() + ' ft' : '---';
+                    document.getElementById('selSpd').textContent = ac.velocity != null ? Math.round(ac.velocity * 1.944) + ' kts' : '---';
+                    document.getElementById('selHdg').textContent = Math.round(ac.heading || 0) + '°';
+                    document.getElementById('selDist').textContent = pos ? Math.round(pos.dist) + ' NM' : '---';
+                    document.getElementById('selSource').textContent = (ac.source || state.feed).toUpperCase();
+                }
+            }
+        }
+
+        // ============================================
+        // INTERACTION
+        // ============================================
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            let closest = null, closestDist = 20;
+            state.aircraft.forEach(ac => {
+                const pos = latLonToRadar(ac.latitude, ac.longitude);
+                if (pos) {
+                    const d = Math.sqrt((pos.x - x) ** 2 + (pos.y - y) ** 2);
+                    if (d < closestDist) { closestDist = d; closest = ac; }
+                }
+            });
+            if (closest) window.__select(closest.icao24);
+            else window.__deselect();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            let hovered = false;
+            state.aircraft.forEach(ac => {
+                const pos = latLonToRadar(ac.latitude, ac.longitude);
+                if (pos && Math.sqrt((pos.x - x) ** 2 + (pos.y - y) ** 2) < 15) hovered = true;
+            });
+            canvas.style.cursor = hovered ? 'pointer' : 'crosshair';
+        });
+
+        window.__select = function(icao) {
+            state.selected = icao;
+            const ac = state.aircraft.get(icao);
+            if (!ac) return;
+            document.getElementById('detailsPanel').classList.add('active');
+            document.getElementById('detCallsign').textContent = ac.callsign !== 'N/A' ? ac.callsign : ac.icao24.toUpperCase();
+            document.getElementById('detIcao').textContent = ac.icao24.toUpperCase();
+            document.getElementById('detCountry').textContent = ac.country;
+            document.getElementById('detAlt').textContent = ac.baroAlt != null ? Math.round(ac.baroAlt * 3.281).toLocaleString() + ' ft' : '---';
+            document.getElementById('detGeoAlt').textContent = ac.geoAlt != null ? Math.round(ac.geoAlt * 3.281).toLocaleString() + ' ft' : '---';
+            document.getElementById('detSpeed').textContent = ac.velocity != null ? Math.round(ac.velocity * 1.944) + ' kts' : '---';
+            document.getElementById('detHdg').textContent = Math.round(ac.heading || 0) + '°';
+            const vr = ac.vertRate != null ? Math.round(ac.vertRate * 196.85) : 0;
+            document.getElementById('detVertRate').textContent = vr + ' ft/min';
+            document.getElementById('detSquawk').textContent = ac.squawk || '---';
+            document.getElementById('detType').textContent = ac.typeCode || '---';
+            document.getElementById('detStatus').textContent = ac.onGround ? 'ON GROUND' : 'AIRBORNE';
+            document.getElementById('detReg').textContent = (ac.country && ac.country !== 'Unknown') ? ac.country : '---';
+            document.getElementById('detSource').textContent = (ac.source || state.feed).toUpperCase();
+
+            const isPeer = ac.source && ac.source.startsWith('peer:');
+            const sourceEl = document.getElementById('detSource');
+            if (isPeer) {
+                sourceEl.className = 'details-item-value web';
+            } else {
+                sourceEl.className = 'details-item-value api';
+            }
+
+            if (state.showTarget) document.getElementById('selectedPanel').classList.add('visible');
+            updateUI();
+        };
+
+        window.__deselect = function() {
+            state.selected = null;
+            document.getElementById('detailsPanel').classList.remove('active');
+            document.getElementById('selectedPanel').classList.remove('visible');
+            updateUI();
+        };
+
+        window.closeDetails = function() {
+            document.getElementById('detailsPanel').classList.remove('active');
+        };
+
+        window.toggleMinimal = function() {
+            document.getElementById('hudOverlay').classList.toggle('minimal');
+            document.getElementById('btnMinimal').classList.toggle('active');
+        };
+
+        window.togglePanel = function(panel) {
+            switch (panel) {
+                case 'stats':
+                    state.showStats = !state.showStats;
+                    document.getElementById('btnStats').classList.toggle('active', state.showStats);
+                    document.getElementById('statsPanel').classList.toggle('visible', state.showStats);
+                    break;
+                case 'list':
+                    state.showList = !state.showList;
+                    document.getElementById('btnList').classList.toggle('active', state.showList);
+                    document.getElementById('listPanel').classList.toggle('visible', state.showList);
+                    break;
+                case 'target':
+                    state.showTarget = !state.showTarget;
+                    document.getElementById('btnTarget').classList.toggle('active', state.showTarget);
+                    if (!state.showTarget) document.getElementById('selectedPanel').classList.remove('visible');
+                    else if (state.selected) document.getElementById('selectedPanel').classList.add('visible');
+                    break;
+            }
+        };
+
+        window.cycleRange = function() {
+            state.rangeIdx = (state.rangeIdx + 1) % CONFIG.RANGES_NM.length;
+            state.rangeNm = CONFIG.RANGES_NM[state.rangeIdx];
+            document.getElementById('btnRange').textContent = `RANGE ${state.rangeNm}`;
+            updateUI();
+        };
+
+        window.refreshData = function() {
+            Object.keys(proxySuccessCount).forEach(k => proxySuccessCount[k] = 0);
+            Object.keys(proxyFailureCount).forEach(k => proxyFailureCount[k] = 0);
+            fetchAircraft();
+            // Also share to peers
+            window.shareToPeers();
+        };
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'r': case 'R': window.cycleRange(); break;
+                case 'Escape': window.__deselect(); window.closeDetails(); break;
+                case 's': case 'S': window.togglePanel('stats'); break;
+                case 'l': case 'L': window.togglePanel('list'); break;
+                case 't': case 'T': window.togglePanel('target'); break;
+                case '1': window.setRadarModel('classic'); break;
+                case '2': window.setRadarModel('military'); break;
+                case '3': window.setRadarModel('atc'); break;
+                case '4': window.setRadarModel('retro'); break;
+                case '5': window.setRadarModel('stealth'); break;
+                case '6': window.setFeed('opensky'); break;
+                case '7': window.setFeed('adsbfi'); break;
+                case '8': window.setFeed('airplaneslive'); break;
+                case '9': window.setFeed('adsblol'); break;
+                case '0': window.setFeed('combined'); break;
+                case 'p': case 'P': window.setFeed('peers'); break;
+                case 'a': case 'A': window.setFeed('all'); break;
+                case 'm': case 'M': window.toggleMinimal(); break;
+                case ' ': e.preventDefault(); window.shareToPeers(); break;
+            }
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.getElementById('btnRange').textContent = `RANGE ${CONFIG.RANGES_NM[CONFIG.DEFAULT_RANGE_IDX]}`;
+        updateCRTOverlay();
+        fetchAircraft();
+        state.refreshInterval = setInterval(fetchAircraft, FEEDS[state.feed].refreshMs);
+        render();
+        startAutoShare();
+        setInterval(() => {
+            document.getElementById('utcTime').textContent = new Date().toUTCString().split(' ')[4];
+        }, 1000);
+
+        console.log(`[webxdc] Radar Scope initialized — addr: ${myAddr}, name: ${myName}`);
+    })();
+    </script>
+</body>
+</html>

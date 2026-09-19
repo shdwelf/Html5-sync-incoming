@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Root ignore. Consolidates the four near-identical `__pycache__/ + *.pyc`
+# .gitignore files that used to be scattered through presskit-reassembler/.
+# A committed cypher-decode/__pycache__/*.pyc was removed in this change.
+# ---------------------------------------------------------------------------
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Build staging (presskit-reassembler/dist/make_packages.sh works here)
+.stage/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# ---------------------------------------------------------------------------
+# webxdc build policy
+#
+# `.xdc` packages ARE committed here on purpose: this repo is a distribution
+# drop, so the installable artifact ships next to its source. What must NOT be
+# committed is a second copy of the same bytes under a different extension.
+# The container spec defines `.xdc` only; the old build scripts also emitted a
+# byte-identical `.webxdc` twin, which is now ignored so it cannot creep back.
+# ---------------------------------------------------------------------------
+*.webxdc
+
+# The webxdc JS API shim is injected by the messenger at runtime. Per spec it
+# "must not be added to your .xdc file", so it is a dev-only artifact.
+webxdc/*/webxdc.js
+projects/*/webxdc.js

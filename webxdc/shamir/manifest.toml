@@ -1,0 +1,6 @@
+# webxdc manifest — spec keys are `name` and `source_code_url`
+# (https://webxdc.org/docs/spec/format.html). `entry` / `version` / `summary`
+# were non-standard and have been folded into `description`.
+name = "Shamir Secret Sharing"
+source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/shamir"
+description = "Split & reconstruct secrets with Shamir's Secret Sharing over GF(256)."

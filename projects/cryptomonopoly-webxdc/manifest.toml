@@ -1,0 +1,9 @@
+# webxdc manifest.
+# The container spec only reads `name` and `source_code_url` from this file
+# (https://webxdc.org/docs/spec/format.html). `description` and `icon` are
+# widely honoured by messenger UIs; anything else is ignored, so the previous
+# non-standard `type` / `version` keys were dropped — the revision lives in git.
+name = "Cryptomonopoly"
+source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/projects/cryptomonopoly-webxdc"
+description = "A crypto-flavoured original trading-board game. Runs as a webxdc app in Delta Chat (one device per player) or as a local hot-seat game in any browser. Original game; no copyrighted game assets."
+icon = "icon.png"
