@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shamir Secret Sharing</title>
+<style>
+  :root{--bg:#0f1115;--card:#171a21;--line:#2a2e37;--fg:#e6e8ee;--mut:#9aa3b2;--acc:#7aa2ff;--grn:#5ce4a0;--yel:#e0af68;--red:#f7768e;--pur:#bb9af7;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg);padding:16px;line-height:1.5;}
+  .wrap{max-width:520px;margin:0 auto;}
+  h1{font-size:22px;margin:0 0 2px;}
+  h1 span{color:var(--acc);}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 16px;}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .tab{flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid var(--line);cursor:pointer;font-size:14px;background:var(--card);color:var(--mut);font-weight:600;}
+  .tab.active{background:var(--acc);color:#0a0c10;border-color:var(--acc);}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  label{display:block;font-size:12px;color:var(--mut);margin:12px 0 4px;}
+  input[type=text],input[type=number],textarea{
+    width:100%;padding:10px;background:#0a0c10;border:1px solid var(--line);border-radius:8px;color:var(--fg);font-size:14px;outline:none;font-family:Consolas,Menlo,monospace;}
+  input:focus,textarea:focus{border-color:var(--acc);}
+  textarea{min-height:130px;resize:vertical;}
+  .row{display:flex;gap:10px;}
+  .row>div{flex:1;}
+  button{width:100%;margin-top:14px;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;background:var(--grn);color:#06281a;}
+  button.sec{background:var(--acc);color:#0a0c10;}
+  .out{display:none;margin-top:12px;background:#0a0c10;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:Consolas,Menlo,monospace;font-size:12px;word-break:break-all;white-space:pre-wrap;max-height:260px;overflow:auto;}
+  .out.show{display:block;}
+  .share-line{color:var(--grn);margin:2px 0;}
+  .small{font-size:12px;color:var(--mut);}
+  .foot{margin-top:16px;color:var(--mut);font-size:11px;text-align:center;}
+  .badge{display:inline-block;background:#0e3a2a;color:var(--grn);border:1px solid #1d6a49;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">WebXDC</div>
+  <h1>Shamir <span>Secret Sharing</span></h1>
+  <p class="sub">Split a secret into N shares — any <b>K</b> of them reconstruct it; K−1 reveal nothing. Polynomial interpolation over GF(256).</p>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-split">Split secret</div>
+    <div class="tab" id="tab-combine">Combine shares</div>
+  </div>
+
+  <div class="panel" id="panel-split">
+    <label>Secret (text or hex)</label>
+    <textarea id="secret">my super secret passphrase</textarea>
+    <div class="row">
+      <div><label>Shares (N)</label><input type="number" id="n" value="5" min="2" max="255"></div>
+      <div><label>Threshold (K)</label><input type="number" id="k" value="3" min="2"></div>
+    </div>
+    <button id="btn-split">Generate Shares</button>
+    <div id="share-row" style="display:none;margin-top:10px;">
+      <button id="btn-broadcast" style="background:var(--acc);color:#0a0c10;margin-top:0;">Broadcast to this chat</button>
+      <button id="btn-sendchat" style="background:var(--yel);color:#2a1d05;margin-top:8px;">Send to another chat</button>
+      <div class="small" id="share-status" style="margin-top:6px;"></div>
+    </div>
+    <div class="out" id="split-out"></div>
+  </div>
+
+  <div class="panel" id="panel-combine" style="display:none">
+    <label>Paste share hex (one per line)</label>
+    <textarea id="shares" placeholder="paste your shares here…"></textarea>
+    <button class="sec" id="btn-combine">Reconstruct Secret</button>
+    <div class="out" id="combine-out"></div>
+  </div>
+
+  <div class="foot">Runs entirely on this device — no data leaves your phone. Shares are hex: first byte = share index, rest = polynomial values.</div>
+</div>
+
+<script>
+/* ---- Shamir's Secret Sharing over GF(2^8), poly 0x11b, generator 3 ---- */
+const GF_POLY=0x11b;
+function gfMulBrute(a,b){let r=0;while(b){if(b&1)r^=a;b>>=1;a=(a<<1)^((a&0x80)?GF_POLY:0);}return r&0xff;}
+const EXP=new Array(510),LOG=new Array(256);
+(function(){let x=1;for(let i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x=gfMulBrute(x,3);}for(let i=255;i<510;i++)EXP[i]=EXP[i-255];})();
+function gmul(a,b){if(!a||!b)return 0;return EXP[LOG[a]+LOG[b]];}
+function gdiv(a,b){if(!b)throw new Error('divide by zero');if(!a)return 0;return EXP[(LOG[a]-LOG[b]+255)%255];}
+function randByte(){const b=new Uint8Array(1);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(b);else b[0]=Math.floor(Math.random()*256);return b[0];}
+function bytesToHex(b){return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function hexToBytes(h){h=h.replace(/[^0-9a-fA-F]/g,'');const o=[];for(let i=0;i<h.length;i+=2)o.push(parseInt(h.substr(i,2),16));return o;}
+function utf8ToBytes(s){return Array.from(new TextEncoder().encode(s));}
+function bytesToUtf8(b){try{return new TextDecoder().decode(new Uint8Array(b));}catch(e){return '(binary)';}}
+
+function splitSecret(secretBytes,n,k){
+  if(k<2||k>n)throw new Error('Need 2 ≤ K ≤ N');
+  if(n>255)throw new Error('N must be ≤ 255');
+  const used=new Set(),xs=[];
+  for(let i=0;i<n;i++){let x;do{x=1+Math.floor(Math.random()*255);}while(used.has(x));used.add(x);xs.push(x);}
+  const polys=[];
+  for(let bi=0;bi<secretBytes.length;bi++){const c=new Array(k);c[0]=secretBytes[bi];for(let i=1;i<k;i++)c[i]=randByte();polys.push(c);}
+  const shares=[];
+  for(let s=0;s<n;s++){const x=xs[s];const y=new Array(secretBytes.length);
+    for(let bi=0;bi<secretBytes.length;bi++){const c=polys[bi];let v=c[k-1];for(let i=k-2;i>=0;i--)v=gmul(v,x)^c[i];y[bi]=v;}
+    shares.push({x,y});}
+  return shares;
+}
+function combineShares(shares,k){
+  if(shares.length<k)throw new Error('Need at least '+k+' shares');
+  const sel=shares.slice(0,k),len=sel[0].y.length,secret=new Array(len);
+  for(let bi=0;bi<len;bi++){let result=0;
+    for(let j=0;j<k;j++){const xj=sel[j].x,yj=sel[j].y[bi];let li=1;
+      for(let m=0;m<k;m++){if(m===j)continue;li=gmul(li,gdiv(sel[m].x,(xj^sel[m].x)));}
+      result^=gmul(yj,li);}
+    secret[bi]=result;}
+  return secret;
+}
+function shareHex(sh){return bytesToHex([sh.x].concat(Array.from(sh.y)));}
+function parseShareHex(h){const b=hexToBytes(h);return {x:b[0],y:b.slice(1)};}
+
+/* ---- UI ---- */
+const $=id=>document.getElementById(id);
+$('tab-split').onclick=()=>{setTab('split');};
+$('tab-combine').onclick=()=>{setTab('combine');};
+function setTab(t){
+  const split=t==='split';
+  $('tab-split').classList.toggle('active',split);
+  $('tab-combine').classList.toggle('active',!split);
+  $('panel-split').style.display=split?'block':'none';
+  $('panel-combine').style.display=split?'none':'block';
+}
+$('btn-broadcast').onclick=broadcastShares;
+$('btn-sendchat').onclick=sendToChat;
+$('btn-split').onclick=()=>{
+  const out=$('split-out');out.classList.remove('show');out.textContent='';
+  try{
+    const n=parseInt($('n').value)||5,k=parseInt($('k').value)||3;
+    const sec=$('secret').value;
+    const bytes=utf8ToBytes(sec);
+    const shares=splitSecret(bytes,n,k);
+    lastShares=shares;lastN=n;lastK=k;
+    $('share-row').style.display='block';$('share-status').textContent='';
+    let txt='Secret: '+bytes.length+' bytes  →  '+n+' shares (need '+k+')\n\n';
+    shares.forEach((sh,i)=>txt+='Share '+(i+1)+':  '+shareHex(sh)+'\n');
+    txt+='\nKeep shares separate. Paste any '+k+' into Combine.';
+    out.textContent=txt;out.classList.add('show');
+  }catch(e){out.textContent='Error: '+e.message;out.classList.add('show');}
+};
+$('btn-combine').onclick=()=>{
+  const out=$('combine-out');out.classList.remove('show');out.textContent='';
+  try{
+    const lines=$('shares').value.split(/\r?\n/).map(s=>s.trim()).filter(s=>s&&!/^Share \d/.test(s));
+    const tokens=[];for(const ln of lines){const m=ln.match(/\b([0-9a-fA-F]{2,})\b/g);if(m)tokens.push(...m);}
+    if(tokens.length<2)throw new Error('Paste at least 2 share hex values');
+    const shares=tokens.map(parseShareHex);
+    const secret=combineShares(shares,shares.length);
+    let txt='Recovered secret ('+shares.length+' shares):\n\n'+bytesToUtf8(secret)+'\n\nHex: '+bytesToHex(secret);
+    out.textContent=txt;out.classList.add('show');
+  }catch(e){out.textContent='Error: '+e.message;out.classList.add('show');}
+};
+
+/* ---- Delta Chat WebXDC interop ---- */
+const WX = window.webxdc || null;
+let lastShares = []; let lastN = 0, lastK = 0;
+function setStatus(el, txt){ el.textContent = txt; }
+
+/* ---- ArcaneChat/DeltaChat webxdc capability probe ----
+   Not every webxdc host exposes all functions (ArcaneChat is a
+   modified DeltaChat with some inoperable APIs). We detect each
+   capability and degrade gracefully. */
+const WXCAPS = {connected:false, sendUpdate:false, setUpdateListener:false, sendToChat:false, selfName:null};
+function probeWebxdc(){
+  if(!WX) return WXCAPS;
+  // connected if window.webxdc exists at all
+  try{ if(WX && typeof WX==='object') WXCAPS.connected=true; }catch(e){}
+  // self identity
+  try{ if(WX.selfName) WXCAPS.selfName=WX.selfName; else if(WX.selfAddr) WXCAPS.selfName=WX.selfAddr.split('@')[0]; }catch(e){}
+  // sendUpdate
+  try{ WXCAPS.sendUpdate = (typeof WX.sendUpdate==='function'); }catch(e){ WXCAPS.sendUpdate=false; }
+  // setUpdateListener
+  try{ WXCAPS.setUpdateListener = (typeof WX.setUpdateListener==='function'); }catch(e){ WXCAPS.setUpdateListener=false; }
+  // sendToChat
+  try{ WXCAPS.sendToChat = (typeof WX.sendToChat==='function'); }catch(e){ WXCAPS.sendToChat=false; }
+  return WXCAPS;
+}
+// run probe; if host later injects webxdc (some hosts add it asynchronously), re-probe
+probeWebxdc();
+if(WX && window.addEventListener){ window.addEventListener('webxdc:ready', probeWebxdc); }
+
+// Show an availability banner with the ACTIVE capabilities
+function renderCapBanner(){
+  const wrap=document.querySelector('.wrap');
+  let old=document.getElementById('wxcap');
+  if(old) old.remove();
+  const b=document.createElement('div');
+  b.id='wxcap';
+  b.style.cssText='text-align:center;font-size:11px;margin-bottom:8px;padding:4px 8px;border-radius:8px;';
+  if(!WXCAPS.connected){
+    b.style.cssText+='color:var(--mut);background:#10131a;border:1px solid var(--line);';
+    b.textContent='Standalone mode — sharing features off.';
+  }else{
+    const caps=[];
+    if(WXCAPS.sendUpdate) caps.push('broadcast');
+    if(WXCAPS.setUpdateListener) caps.push('receive');
+    if(WXCAPS.sendToChat) caps.push('send-to-chat');
+    b.style.cssText+='color:var(--grn);background:#0e3a2a;border:1px solid #1d6a49;';
+    b.textContent='WebXDC'+(WXCAPS.selfName?' ('+WXCAPS.selfName+')':'')+' · active: '+(caps.length?caps.join(', '):'(none)');
+  }
+  wrap.insertBefore(b, wrap.firstChild);
+}
+renderCapBanner();
+
+// broadcast the last generated shares to all peers in this chat
+function broadcastShares(){
+  if(!lastShares.length) return;
+  if(!WXCAPS.sendUpdate){ setStatus($('share-status'),'Broadcast not available in this host — use "Send to chat" or copy shares manually.'); return; }
+  try{
+    WX.sendUpdate({payload:{type:'shamir_shares', shares: lastShares, n: lastN, k: lastK, from: (WXCAPS.selfName||'peer')}}, 'Sending shares…');
+    setStatus($('share-status'),'Sent '+lastShares.length+' shares to peers in this chat.');
+  }catch(e){ setStatus($('share-status'),'Broadcast failed: '+(e.message||e)+' — copy shares manually.'); }
+}
+// send the share batch as a normal chat message (to another chat)
+function sendToChat(){
+  if(!lastShares.length) return;
+  const txt='Shamir shares (N='+lastN+', K='+lastK+'):\n'+lastShares.map((s,i)=>'Share '+(i+1)+': '+shareHex(s)).join('\n');
+  if(WXCAPS.sendToChat){
+    try{ WX.sendToChat({ text: txt, text_filename:'shamir-shares.txt' }); setStatus($('share-status'),'Sent shares to the selected chat.'); return; }
+    catch(e){ /* fall through */ }
+  }
+  // Fallback: copy to clipboard / show text
+  setStatus($('share-status'),'sendToChat unavailable — shares copied to clipboard.');
+  try{ navigator.clipboard.writeText(txt); }catch(e){}
+  try{ const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }catch(e2){}
+}
+
+// receive shares from peers and auto-fill the combine box
+if(WX && WXCAPS.setUpdateListener){
+  try{
+    WX.setUpdateListener(function(update){
+      try{
+        const p=(update && update.payload)||{};
+        if(p.type==='shamir_shares' && Array.isArray(p.shares) && p.shares.length){
+          const lines=p.shares.map(s=>shareHex(s));
+          if(p.from) setStatus($('share-status'),'Received shares from '+p.from+' — pasted into Combine.');
+          const cur=$('shares').value.trim();
+          $('shares').value = cur? cur+'\n'+lines.join('\n') : lines.join('\n');
+        }
+      }catch(e){}
+    });
+  }catch(e){ WXCAPS.setUpdateListener=false; renderCapBanner(); }
+}
+
+</script>
+</body>
+</html>

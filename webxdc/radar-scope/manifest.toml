@@ -1,0 +1,12 @@
+# webxdc manifest — spec keys are `name` and `source_code_url`
+# (https://webxdc.org/docs/spec/format.html).
+#
+# Rebuilt from the mis-packaged `radar_scope_webxdc.zip`, which was invalid on
+# three counts: it used a `.zip` extension, it nested every entry under a
+# `webxdc-radar/` directory so `index.html` was not at the ZIP root (the app
+# would not load), and its manifest used a non-existent `init` key plus an empty
+# `source_code_url`. The original is kept for provenance at
+# incoming/exports/radar-scope-webxdc-INVALID.zip.
+name = "ADS-B Radar Scope"
+source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/radar-scope"
+description = "ADS-B flight-radar HUD: aircraft plot, sweep and ground/military/peer tracks."

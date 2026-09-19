@@ -1,0 +1,7 @@
+# webxdc manifest — spec keys are `name` and `source_code_url`
+# (https://webxdc.org/docs/spec/format.html). The previous `entry`, `version`
+# and `summary` keys are read by no implementation; `entry` restated what the
+# spec already mandates (index.html) and the revision now lives in git.
+name = "CyberChef Kitchen"
+source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/cyberchef"
+description = "Offline HTML5 CyberChef build — 416 recipes (Sheikah extras leftover)."
