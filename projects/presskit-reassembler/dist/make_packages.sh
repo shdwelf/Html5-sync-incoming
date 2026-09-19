@@ -20,7 +20,14 @@ cp "$icon" "$wx/icon.png"
 # also emit manifest.json plus a `cp manifest.json manifest.xml` "classic
 # manifest" -- which put JSON inside a file named .xml. Neither file is read by
 # any implementation, so both are gone.
-cat > "$wx/manifest.toml" <<TOML
+# The delimiter is QUOTED ('TOML'), which disables expansion inside the heredoc.
+# It used to be unquoted, and the manifest comment contains backticks, so bash
+# ran them as command substitutions: every build printed
+# "source_code_url: command not found" on stderr and shipped a manifest whose
+# first line read "# webxdc manifest -- the spec reads  and ". `set -e` does not
+# catch a failing command substitution in a heredoc, so the corruption was
+# silent. Never let shipped text go through the shell unquoted.
+cat > "$wx/manifest.toml" <<'TOML'
 # webxdc manifest -- the spec reads `name` and `source_code_url`
 # (https://webxdc.org/docs/spec/format.html).
 name = "Press Kit Reassembler"
@@ -58,7 +65,7 @@ PY
 wa="$staging/war"; mkdir -p "$wa/WEB-INF"
 cp "$app" "$wa/index.html"
 cp "$icon" "$wa/icon.png"
-cat > "$wa/WEB-INF/web.xml" <<XML
+cat > "$wa/WEB-INF/web.xml" <<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -96,6 +103,32 @@ PY
 # ---------- 3) copy ascii intro text for qbasic ----------
 mkdir -p "$here/qbasic"
 cp "$here/gfx/intro.txt" "$here/qbasic/INTRO.TXT" 2>/dev/null || true
+
+# ---------- 4) verify what was just built ----------
+# This script used to end with `ls` and trust its own output. Two things to
+# prove before calling a build good: the generator still writes a complete
+# manifest (see the quoted-heredoc note above -- an unquoted one silently ate
+# the backticked key names), and the container passes the spec validator that
+# webxdc/build-all.sh already gates on.
+root="$(cd "$here/../../.." && pwd)"
+python3 - "$root/webxdc" "$wx/manifest.toml" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[1])
+# parse_manifest, not tomllib: a build step that only works on Python 3.11+ is the
+# mistake REVIEW.md PY-9 just removed from webxdc_tool.py.
+from webxdc_tool import ManifestSyntaxError, parse_manifest
+with open(sys.argv[2], "rb") as fh:
+    raw = fh.read()
+try:
+    man = parse_manifest(raw)
+except ManifestSyntaxError as exc:
+    sys.exit("manifest.toml does not parse: %s" % exc)
+missing = [k for k in ("name", "source_code_url", "description", "icon") if not man.get(k)]
+if missing:
+    sys.exit("manifest.toml is missing: " + ", ".join(missing) + " -- generator broken")
+print("manifest.toml ok: %s | icon = %s" % (man["name"], man["icon"]))
+PY
+python3 "$root/webxdc/webxdc_tool.py" validate "$here/webxdc/presskit-reassembler.xdc"
 
 echo
 echo "Built packages:"

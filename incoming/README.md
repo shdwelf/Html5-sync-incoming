@@ -12,7 +12,7 @@ holds 302 HTML files.
 |------|----------|
 | `workspaces/` | 19 Arena workspace snapshots. Filename UUIDs kept verbatim — the UUID is the only stable id the sync source provides. ZIP timestamps are normalised to 1980-01-02 (machine-generated). What is inside each is tabulated in [../INVENTORY.md](../INVENTORY.md#incomingworkspaces--19-arena-workspace-snapshots). |
 | `exports/` | 31 named app-export ZIPs, internal timestamps 2015-11-19 → 2026-09-14. |
-| `internal-storage.7z` | 6.24 MB, 302 HTML entries. The largest object in the repo and the only 7z. |
+| `internal-storage.7z` | 6.24 MB, 302 entries. The largest object in the repo and the only 7z. Classified: see [INTERNAL_STORAGE.md](INTERNAL_STORAGE.md) + [internal-storage.index.tsv](internal-storage.index.tsv). |
 
 ## Two things worth knowing
 
@@ -24,12 +24,13 @@ key. It was rebuilt as `webxdc/radar-scope/dist/radar-scope.xdc`; this copy stay
 as evidence. The `-INVALID` suffix keeps it findable and stops anyone shipping it
 by accident.
 
-**`internal-storage.7z` is still unclassified** (open item REPO-3). It overlaps
-heavily with files that used to sit loose at the repo root — `index (1).html`
-through `index (58).html`, twenty `seize_quartiers_quine_<timestamp>.html`
-builds, nine `generator.offline.repaired (N).html`, an `index.html.old` — so it
-looks like the working directory the root-level exports were downloaded *from*.
-Unpacking needs `py7zr`, which is not a declared dependency of anything here.
+**`internal-storage.7z` is indexed, not unpacked** (REPO-3, closed 2026-09-19).
+[INTERNAL_STORAGE.md](INTERNAL_STORAGE.md) says what the 302 entries are: 20 of
+them are byte-identical to files already in `apps/` — which is what proves this
+archive is the working directory the root-level `index (1).html` … `index (58).html`
+and `seize_quartiers_quine_<timestamp>.html` downloads came from. The rest are
+superseded builds and 120 titles that were never promoted. Reading the archive
+needs `py7zr` (dev-only, `pip install py7zr`); the checked-in TSV needs nothing.
 
 ## The validator skips this directory
 

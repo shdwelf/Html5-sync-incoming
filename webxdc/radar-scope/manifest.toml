@@ -7,6 +7,11 @@
 # would not load), and its manifest used a non-existent `init` key plus an empty
 # `source_code_url`. The original is kept for provenance at
 # incoming/exports/radar-scope-webxdc-INVALID.zip.
+# Peer sharing needs the webxdc API, so index.html references webxdc.js (the
+# messenger injects the file; it must never be packaged). Live ADS-B feeds go out
+# over plain fetch() plus public CORS proxies, which a webxdc host does not grant:
+# inside a messenger the app runs on its built-in demo traffic by design.
 name = "ADS-B Radar Scope"
 source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/radar-scope"
 description = "ADS-B flight-radar HUD: aircraft plot, sweep and ground/military/peer tracks."
+icon = "icon.png"
