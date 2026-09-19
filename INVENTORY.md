@@ -34,7 +34,7 @@ All five packages in the repo now pass [`webxdc_tool.py validate`](webxdc/webxdc
 | `webxdc/shamir/dist/shamir.xdc` | `webxdc/shamir/index.html` (Shamir Secret Sharing over GF-256) | rebuilt, manifest normalised |
 | `webxdc/radar-scope/dist/radar-scope.xdc` | `webxdc/radar-scope/index.html` (ADS-B flight-radar HUD) | **repacked from an invalid package** |
 | `projects/cryptomonopoly-webxdc/dist/Cryptomonopoly.xdc` | full source tree + test suite | rebuilt after logic and API fixes |
-| `projects/presskit-reassembler/dist/webxdc/presskit-reassembler.xdc` | `projects/presskit-reassembler/presskit-reassembler.html` | rebuilt; 1 icon WARN outstanding |
+| `projects/presskit-reassembler/dist/webxdc/presskit-reassembler.xdc` | `projects/presskit-reassembler/presskit-reassembler.html` | rebuilt; icon regenerated to 256×256 |
 
 `radar-scope` is the one that was broken: the original `radar_scope_webxdc.zip`
 nested everything under `webxdc-radar/`, so `index.html` was not at the ZIP root
@@ -42,8 +42,12 @@ and no messenger could run it. The invalid original is kept at
 `incoming/exports/radar-scope-webxdc-INVALID.zip`. Its source workspace is
 `incoming/workspaces/workspace-019f130a-…zip` ("Flight Radar HUD - ADS-B Tracker").
 
-Three packages ship no icon (XDC-8) and the presskit icon is 96×96 (XDC-7) —
-both open items in [REVIEW.md](REVIEW.md).
+All five now validate with **zero warnings**: the three missing icons
+(XDC-8) are drawn by [`webxdc/gen_icons.py`](webxdc/gen_icons.py) — 256×256
+RGBA, stdlib only, no binary asset in git that cannot be rebuilt — and the
+96×96 presskit icon (XDC-7) was regenerated at 256×256 by its own
+`gen_gfx.py`. `build-all.sh` refuses to pack unless
+`python3 webxdc/gen_icons.py --check` still reproduces the committed PNGs.
 
 ---
 
@@ -126,6 +130,30 @@ similar, disjoint function sets) — both were kept and named for what they are.
 
 ---
 
+### Runtime dependencies
+
+`apps/` are single *files*, so nothing here lost a sibling `assets/` or `wordlist.js`
+when the tree was classified — every local `src`/`href` in all 20 documents resolves
+(swept with a link checker over `apps/**` and `webxdc/*`). Five of them do reach out
+to the internet, and six carry a Cloudflare Insights beacon that was injected by the
+site they were downloaded from, not written by the app:
+
+| file | needs the network for | third-party payload |
+|---|---|---|
+| `misc/hacker-dice-8ball-3d.html` | Tailwind CDN, three.js r128 (guarded by `typeof THREE !== 'undefined'`, so it renders without) | — |
+| `crypto/banano-paper-wallet-generator.html` | Tailwind CDN, Google Fonts | — |
+| `crypto/banano-paper-wallet-generator-offline.html` | as above **plus** the `monkey.banano.cc` image API — despite the name, "offline" means self-contained UI, not no-network | — |
+| `crypto/crypto-recovery-os-{offline,standalone-r1,standalone-r2}.html` | `monkey.banano.cc` | Cloudflare Insights beacon; a `<link rel="manifest" href="./manifest.json">` that has never had a target |
+| `genealogy/gedcom-tsp-visualizer-r2.html` | geocoding APIs, user-supplied keys | Cloudflare Insights beacon |
+| `genealogy/greeran-resume-portfolio.html`, `media/image-format-encyclopedia-quine.html` | — | Cloudflare Insights beacon |
+| `network/netscope-v2.html` | 7 probes (Cloudflare trace, `captive.apple.com`, ipify…) — that *is* the app | Cloudflare email-protection markup around one obfuscated address |
+
+Left exactly as received, on purpose: 20 of these files are byte-identical to entries
+in `incoming/internal-storage.7z`, and that identity is the proof that what is in
+`apps/` is the artifact as it arrived. See
+[REVIEW.md APP-1](REVIEW.md#app-1--med--recorded-deliberately-not-patched--apps-is-not-uniformly-offline)
+for what stripping the beacon would cost and why it was not done here.
+
 ## `retro-dos/` — DOS shareware corpus
 
 Ten archives with internal timestamps from 1980 to 2008, i.e. genuine period
@@ -149,9 +177,18 @@ All ten were named `.zip.xml` or had no classification at all; seven of them
 carried the bogus `.xml` extension while containing ZIP data.
 
 **Read [`retro-dos/NOTICE.md`](retro-dos/NOTICE.md) before redistributing this
-directory.** `projects/tbfence-re/.gitignore` states that this class of artifact
-must *not* be committed; it was committed anyway, outside that directory's scope.
-That conflict is open item REPO-2 and needs an owner decision.
+directory** — it now records what each archive's *own* text says about
+redistribution, quoted from the `LICENSE.DOC` / `FILE_ID.DIZ` / `README` inside
+each one, with a SHA-256 per file. REPO-2 is resolved as "keep and document":
+TbFence's licence expressly permits free distribution of the complete unaltered
+evaluation package (which is what is committed here), Turtle Identd is GPL with
+its sources in the archive, TOPSECRET/TinyFish/TinyAES/TinyCrypt are freeware or
+public domain by their own statement, and the two archives that assert copyright
+while granting nothing — `thecoder.zip` (Cold_Ice, 1999) and
+`cypher-operation-wildlife-dos-en.zip` (no licence text at all) — are named as
+removal candidates with the exact command, deliberately not executed on their
+behalf. `projects/tbfence-re/.gitignore` was corrected to say what it actually
+enforces instead of a blanket prohibition its own sibling directory contradicts.
 
 ---
 
@@ -218,17 +255,24 @@ Fourteen further exports already had meaningful slugs and were moved unchanged (
 
 ### `incoming/internal-storage.7z`
 
-6,236,510 bytes, 302 HTML entries, 1980-normalised timestamps. The largest
-single object in the repo and the only 7z. Contents overlap heavily with the
-loose files that used to sit at root — including `index (1).html` through
-`index (58).html`, twenty `seize_quartiers_quine_<timestamp>.html` builds, nine
-`generator.offline.repaired (N).html`, and an `index.html.old`. It looks like the
-working directory these exports were downloaded *from*.
+6,236,510 bytes packed / 104,024,159 unpacked, 302 flat entries (301 `.html`,
+one `.old`), 265 distinct payloads. The largest single object in the repo and the
+only 7z.
 
-Left packed and unclassified — open item **REPO-3**. Unpacking needs `py7zr`
-(installed ad hoc for this review, not added as a dependency) and a decision
-about whether the repo wants 302 more classified files or one archive standing in
-for them.
+**Classified 2026-09-19 — see
+[incoming/INTERNAL_STORAGE.md](incoming/INTERNAL_STORAGE.md)** and its
+[302-row index](incoming/internal-storage.index.tsv)
+(`sha256 bytes mtime path title`, regenerable with
+`incoming/index_internal_storage.py`). It is the working directory these exports
+were downloaded *from*: 20 entries are byte-identical to files now in `apps/`
+(`index (56).html` → `apps/crypto/banano-paper-wallet-generator.html`,
+`netscope (2).html` → `apps/network/netscope-v5.html`, …), which also confirms the
+rename map below was resolved the right way round. The remaining 282 are
+superseded builds — 68 of them still named `index (N).html` across 43 different
+apps — plus 120 titles that were never promoted, 2 empty files and 2 non-HTML
+fragments. Kept packed: unpacking would add 302 loose files and 17× the bytes for
+no new information. `py7zr` is only needed to *regenerate* the index, never to use
+this repo.
 
 ---
 

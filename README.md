@@ -9,8 +9,12 @@ Until 2026-09-19 every file sat loose in the repo root with browser-download
 collision names (`index (1).html`, `foo (3).zip`), seven ZIPs carried a bogus
 `.zip.xml` extension, and three unrelated apps were all called `index*.html`.
 The tree is now classified — see [INVENTORY.md](INVENTORY.md) for what every
-artifact is and where it came from, and [REVIEW.md](REVIEW.md) for the code
-review that went with the reorganisation.
+artifact is and where it came from, and [REVIEW.md](REVIEW.md) for the code review
+that went with it. Two review passes ran: the first classified the tree and fixed
+30 defects, the second closed everything it left open and fixed nine more. 39
+findings, 37 fixed, one resolved by documenting evidence instead of guessing
+(`retro-dos/`), one deliberately recorded and not patched (`apps/` — see
+[REVIEW.md APP-1](REVIEW.md#app-1--med--recorded-deliberately-not-patched--apps-is-not-uniformly-offline)).
 
 ## Layout
 
@@ -29,14 +33,17 @@ projects/    real source trees with their own build scripts
   cypher-decode/           .CMB animal-list decoder for CYPHER Operation Wildlife
   tbfence-re/              DOS reverse-engineering scripts + notes
 webxdc/      installable .xdc packages that have no separate source project
-  webxdc_tool.py           spec validator + deterministic packer
-  build-all.sh             rebuild cyberchef, shamir, radar-scope
-  cyberchef/ shamir/ radar-scope/     index.html + manifest.toml + dist/*.xdc
+  webxdc_tool.py           spec validator + deterministic packer + selftest
+  gen_icons.py             draws the three icon.png files from source
+  build-all.sh             selftest -> icon-reproducibility check -> rebuild all three
+  cyberchef/ shamir/ radar-scope/     index.html + manifest.toml + icon.png + dist/*.xdc
 docs/        Greeran family-research notes and heraldry
 retro-dos/   1980s-2000s DOS shareware corpus — analysis INPUT, see its NOTICE
 incoming/    unprocessed sync payload, kept for provenance
   workspaces/  Arena workspace snapshots (UUID is the canonical id)
   exports/     named app-export ZIPs
+  INTERNAL_STORAGE.md + internal-storage.index.tsv + index_internal_storage.py
+               the classification of the 302-entry 7z, indexed rather than unpacked
 ```
 
 ## Validate and rebuild the webxdc packages
@@ -45,13 +52,35 @@ incoming/    unprocessed sync payload, kept for provenance
 # check every .xdc in the repo against the container spec — exits non-zero on failure
 python3 webxdc/webxdc_tool.py validate
 
+# check the checker: 23 assertions over synthetic bad packages (run by build-all.sh)
+python3 webxdc/webxdc_tool.py selftest
+
+# the three icons must still be reproducible from gen_icons.py (also run by build-all.sh)
+python3 webxdc/gen_icons.py --check
+
 # rebuild the packages that live in webxdc/ (deterministic: unchanged sources -> identical bytes)
 ./webxdc/build-all.sh
 
 # rebuild the ones owned by a source project
 bash projects/cryptomonopoly-webxdc/build.sh
-bash projects/presskit-reassembler/dist/make_packages.sh
+bash projects/presskit-reassembler/dist/make_packages.sh   # ends by validating its own output
+
+# re-verify that the committed internal-storage index matches the 7z (needs py7zr)
+python3 incoming/index_internal_storage.py --check
 ```
+
+Current state: **5/5 packages spec-valid with zero warnings**, on Python 3.8+
+(no `tomllib` needed — the validator has a fallback manifest reader).
+
+## CI
+
+[`.github/workflows/verify.yml`](.github/workflows/verify.yml) runs exactly the
+commands above on every push and PR, plus the step that makes the whole
+"deterministic builds" claim worth something: after rebuilding all five packages it
+runs `git diff --exit-code`, so a committed `.xdc` that no longer matches its own
+sources fails CI instead of drifting. It also re-runs `gen_icons.py --check`, the
+validator's selftest and the Cryptomonopoly suite. No third-party actions and no
+extra dependencies — every check is a command that works from a bare checkout.
 
 `.xdc` artifacts are committed on purpose (this repo is the distribution drop),
 but only ever one copy per app: the container spec defines `.xdc`, so the
@@ -83,14 +112,41 @@ Applied when the tree was classified, and worth keeping:
 - **Workspace snapshots keep their UUID.** It is the only stable id the sync
   source gives them; the app inside is recorded in the inventory instead.
 
-## Known open items
+## Status of the open items
 
-Tracked with severity and evidence in [REVIEW.md](REVIEW.md#open-items):
+Nothing in the tree is unclassified or unfixed any more; what is left is two
+decisions that belong to the owner, each with the command that makes it.
 
-- `retro-dos/` holds 1990s commercial shareware that `projects/tbfence-re/.gitignore`
-  explicitly says must not be redistributed. Needs an owner decision.
-- `incoming/internal-storage.7z` (6.2 MB, 302 HTML files) is still an
-  unclassified bulk dump.
-- Three `.xdc` packages ship no icon, so messengers fall back to a default.
-- `projects/presskit-reassembler/dist/gfx/icon.png` is 96×96; the spec suggests
-  128–512. Regenerating needs `pyfiglet` + `Pillow`, which are not installed here.
+- **`retro-dos/` (REPO-2) — resolved by reading the archives.** The license text
+  *inside* `tbfence4.zip` grants exactly what this repo does:
+  *"The evaluation package of the TbFence software may be distributed freely
+  without charge in evaluation form only"*, complete and unaltered. Turtle Identd
+  is GPL with its sources in the archive, TOPSECRET says *"freely distributable"*,
+  TinyFish is public-domain source. Two archives carry a copyright assertion with
+  no grant — `thecoder.zip` (Cold_Ice, 1999) and
+  `cypher-operation-wildlife-dos-en.zip` (no licence text at all) — and are named as
+  removal candidates in [`retro-dos/NOTICE.md`](retro-dos/NOTICE.md) with the
+  one-line `git rm` to run if you agree. They were not deleted here: this is someone
+  else's research input, and the bytes stay in git history either way.
+- **`apps/` third-party payload (APP-1) — recorded, deliberately not patched.** Five
+  apps load Tailwind/three.js from CDNs, six carry a Cloudflare Insights beacon
+  injected by the host they were downloaded from, and three reference a
+  `./manifest.json` that has never existed. Stripping the beacon is safe and
+  one line; it was not done because 20 of these files are byte-identical to entries
+  in `incoming/internal-storage.7z`, and that hash identity is the only proof the
+  repo has that a classified artifact is the artifact as received.
+- `retro-media-doc/js/nav.js` and `tbfence-re/ghidra_decompile_all.py` were "left
+  alone, cannot be tested here". Both are now fixed and both are exercised — nav.js
+  against a stub DOM, the Ghidra post-script against a stubbed `DecompInterface`.
+- The presskit `.jar` still needs a JDK (`java/build.sh` anywhere on OpenJDK 17+);
+  no prebuilt jar ships here because the sandbox could not reach a JDK host.
+
+## Conventions worth keeping
+
+- Deterministic packing is not cosmetic: `git status` staying clean after a rebuild
+  is what makes "did this change alter the shipped bytes?" a question you can ask.
+- Any generated asset must have a generator in the tree, and the build must check it
+  (`gen_icons.py --check` inside `build-all.sh`). A committed PNG with no source is
+  how `boot.gif` grew a progress bar in a comment and never in the file.
+- Shipped text never goes through an unquoted heredoc. See
+  [REVIEW.md SH-3](REVIEW.md#sh-3--med--fixed--make_packagessh-ran-its-own-manifest-through-the-shell).

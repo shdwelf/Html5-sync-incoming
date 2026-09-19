@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- The webxdc API only exists if the app references webxdc.js: "To activate the webxdc API you need to use a script reference for webxdc.js in your HTML5 app." The messenger injects that file, so it is never packaged (see build-all.sh / webxdc_tool.py). Opened straight from disk this request 404s and the app falls back to standalone mode. -->
+<script src="webxdc.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADS-B Radar Scope</title>
@@ -426,16 +428,19 @@
         // ============================================
         // WEBXDC INITIALIZATION
         // ============================================
-        let webxdc = null;
+        let webxdc = window.webxdc || null;
         let myAddr = 0;
         let myName = '';
 
-        try {
-            webxdc = window.webxdc;
-            const selfAddrInfo = webxdc.getInfo();
-            myAddr = selfAddrInfo.selfAddr || 0;
-            myName = selfAddrInfo.selfName || 'Me';
-        } catch (e) {
+        // Identity in the webxdc API is a pair of PROPERTIES — selfAddr /
+        // selfName (https://webxdc.org/docs/spec/api.html). There is no
+        // getInfo(): this used to call webxdc.getInfo(), which threw on a real
+        // host and dropped into the standalone branch below, so peer sharing
+        // was dead even when window.webxdc was present.
+        if (webxdc) {
+            myAddr = webxdc.selfAddr || 'unknown';
+            myName = webxdc.selfName || 'Me';
+        } else {
             // Running outside webxdc — simulate
             console.log('Not in webxdc, running standalone mode');
             myAddr = Math.floor(Math.random() * 10000);
@@ -447,9 +452,6 @@
                 setUpdateListener: function(callback) {
                     // No-op in standalone
                     console.log('[WebXDC Sim] Update listener registered (standalone)');
-                },
-                getInfo: function() {
-                    return { selfAddr: myAddr, selfName: myName };
                 }
             };
         }

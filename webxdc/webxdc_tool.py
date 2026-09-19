@@ -22,13 +22,19 @@ hook:
 from __future__ import annotations
 
 import argparse
+import ast
+import contextlib
 import io
 import os
+import re
 import struct
-import subprocess
 import sys
-import tomllib
 import zipfile
+
+try:                                    # tomllib is Python 3.11+
+    import tomllib as _tomllib
+except ImportError:                     # pragma: no cover - version dependent
+    _tomllib = None
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -44,6 +50,87 @@ SPEC_MANIFEST_KEYS = {"name", "source_code_url"}
 EXTRA_MANIFEST_KEYS = {"description", "icon", "min_api"}
 ALLOWED_COMPRESSION = {zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED}
 ICON_RANGE = (128, 512)
+
+
+# --------------------------------------------------------------------------
+# manifest.toml
+# --------------------------------------------------------------------------
+class ManifestSyntaxError(Exception):
+    """The package really does carry a manifest that cannot be read."""
+
+
+class ManifestReaderUnavailable(Exception):
+    """The *tool* cannot read it: no `tomllib` before Python 3.11 and the
+    manifest uses TOML the fallback below will not guess at. Reported as a
+    warning about this script, never as a failure of the package."""
+
+
+def _strip_toml_comment(line: str) -> str:
+    out, quote, i = [], None, 0
+    while i < len(line):
+        ch = line[i]
+        if quote:
+            out.append(ch)
+            if ch == "\\" and i + 1 < len(line):
+                out.append(line[i + 1])
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+        elif ch in "\"'":
+            quote = ch
+            out.append(ch)
+        elif ch == "#":
+            break
+        else:
+            out.append(ch)
+        i += 1
+    if quote:
+        raise ManifestSyntaxError(f"unterminated string: {line!r}")
+    return "".join(out).strip()
+
+
+def _toml_min(text: str) -> dict:
+    """Reader for exactly what a webxdc manifest is: top-level `key = literal`
+    lines and `#` comments (https://toml.io).
+
+    Anything else raises, because a silently-wrong value here would be worse
+    than a refusal: sections, dotted keys, inline tables, multi-line strings and
+    TOML datetimes all parse to something other than what the spec means."""
+    out = {}
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        line = _strip_toml_comment(raw)
+        if not line:
+            continue
+        if line.startswith("["):
+            raise ManifestReaderUnavailable(f"line {lineno}: tables are beyond the fallback reader")
+        m = re.match(r"^([A-Za-z0-9_.-]+)\s*=\s*(.+)$", line)
+        if not m:
+            raise ManifestSyntaxError(f"line {lineno}: not a `key = value` line")
+        key, val = m.group(1), m.group(2).strip()
+        if val.lower() in ("true", "false"):
+            val = val.capitalize()
+        if val.endswith(","):
+            val = val[:-1]
+        try:
+            parsed = ast.literal_eval(val)
+        except (ValueError, SyntaxError) as exc:
+            raise ManifestSyntaxError(f"line {lineno}: cannot parse {val!r} ({exc})") from exc
+        if not isinstance(parsed, (str, int, float, bool, list)):
+            raise ManifestSyntaxError(f"line {lineno}: unsupported value {type(parsed).__name__}")
+        out[key] = parsed
+    return out
+
+
+def parse_manifest(raw: bytes) -> dict:
+    """`manifest.toml` bytes -> dict, via tomllib when it exists."""
+    text = raw.decode("utf-8", "replace")
+    if _tomllib is not None:
+        try:
+            return _tomllib.loads(text)
+        except Exception as exc:                       # tomllib.TOMLDecodeError
+            raise ManifestSyntaxError(str(exc)) from exc
+    return _toml_min(text)
 
 
 # --------------------------------------------------------------------------
@@ -170,9 +257,12 @@ def validate(path: str):
         if "manifest.toml" in names:
             raw = zf.read("manifest.toml")
             try:
-                man = tomllib.loads(raw.decode("utf-8"))
-            except Exception as e:
+                man = parse_manifest(raw)
+            except ManifestSyntaxError as e:
                 err.append(f"`manifest.toml` does not parse: {e}")
+                man = None
+            except ManifestReaderUnavailable as e:
+                warn.append(f"`manifest.toml` not checked (needs Python 3.11+): {e}")
                 man = None
             if isinstance(man, dict):
                 if not man.get("name"):
@@ -255,6 +345,147 @@ def pack(src_dir: str, out_path: str):
 
 
 # --------------------------------------------------------------------------
+# selftest
+# --------------------------------------------------------------------------
+def selftest():
+    """Run the validator against packages built to be right and to be wrong.
+
+    This tool is the only thing standing between the repo and another package
+    that cannot load (REVIEW.md XDC-1), and it had no test of its own. Stdlib
+    only, no network, no fixtures committed: every case is constructed in a
+    temp directory, so `python3 webxdc_tool.py selftest` is safe to run from CI
+    or from a pre-push hook — `build-all.sh` runs it before it packs anything."""
+    import tempfile
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from gen_icons import png_encode
+
+    checks = {"pass": 0, "fail": []}
+
+    def check(cond, label):
+        if cond:
+            checks["pass"] += 1
+        else:
+            checks["fail"].append(label)
+
+    manifest = (b'name = "Selftest App"\n'
+                b'source_code_url = "https://example.invalid/webxdc/selftest"\n'
+                b'description = "built by selftest"\n'
+                b'icon = "icon.png"\n')
+    icon128 = png_encode(128, bytes((10, 20, 30, 255)) * (128 * 128))
+    icon96 = png_encode(96, bytes((10, 20, 30, 255)) * (96 * 96))
+    index = b"<!doctype html><title>selftest</title>"
+
+    def package(tmp, name, entries, compression=zipfile.ZIP_DEFLATED):
+        path = os.path.join(tmp, name)
+        with zipfile.ZipFile(path, "w", compression) as z:
+            for arc, data in entries:
+                zi = zipfile.ZipInfo(arc, date_time=(1980, 1, 1, 0, 0, 0))
+                zi.compress_type = compression
+                zi.external_attr = 0o644 << 16
+                z.writestr(zi, data)
+        return path
+
+    good = [("index.html", index), ("manifest.toml", manifest), ("icon.png", icon128)]
+
+    with tempfile.TemporaryDirectory(prefix="xdc-selftest-") as tmp:
+        # --- the happy path: zero errors AND zero warnings -----------------
+        err, warn, info = validate(package(tmp, "good.xdc", good))
+        check(not err and not warn, f"a conformant package must be silent, got {err} {warn}")
+        check(any("3 entries" in m for m in info), "info should report the entry count")
+
+        # --- every failure mode this repo has actually shipped -------------
+        err, _, _ = validate(package(tmp, "nested.xdc", [("webxdc-app/index.html", index)]))
+        check(any("not at the ZIP root" in e for e in err), "nested index.html must FAIL (XDC-1)")
+
+        err, _, _ = validate(package(tmp, "shim.xdc", good + [("webxdc.js", b"window.webxdc={}")]))
+        check(any("webxdc.js" in e for e in err), "a packaged webxdc.js must FAIL (XDC-2)")
+
+        err, warn, _ = validate(package(tmp, "xml.xdc", good + [("manifest.xml", b'{"name":1}')]))
+        check(any("contains JSON, not XML" in e for e in err), "manifest.xml holding JSON must FAIL (XDC-3)")
+        err, warn, _ = validate(package(tmp, "json.xdc", good + [("manifest.json", manifest)]))
+        check(not err and any("not part of the webxdc container spec" in w for w in warn),
+              "a stray manifest.json is a WARN (dead weight), not a failure")
+        err, _, _ = validate(package(tmp, "wrongext.zip", good))
+        check(any("requires `.xdc`" in e for e in err), "a .zip extension must FAIL (SH-2)")
+
+        err, _, _ = validate(package(tmp, "noname.xdc",
+                                      [("index.html", index), ("manifest.toml", b'description = "x"\n')]))
+        check(any("no `name`" in e for e in err), "a manifest without `name` must FAIL (XDC-6)")
+
+        err, warn, info = validate(package(tmp, "junk.xdc", good[:1] + [("manifest.toml", manifest + b'version = "3"\n')]))
+        check(not err and any("no implementation reads" in m for m in info),
+              "non-spec manifest keys are INFO, never a failure")
+
+        err, warn, _ = validate(package(tmp, "tiny.xdc", [("index.html", index), ("icon.png", icon96)]))
+        check(not err and any("96x96" in w for w in warn), "an undersized icon must WARN, not fail (XDC-7)")
+
+        err, _, _ = validate(package(tmp, "traversal.xdc", good + [("../evil.txt", b"nope")]))
+        check(any("unsafe or non-portable entry path" in e for e in err), "path traversal must FAIL")
+
+        err, _, _ = validate(package(tmp, "bzip.xdc", good, compression=zipfile.ZIP_BZIP2))
+        check(any("Deflate or Store" in e for e in err), "non-spec compression must FAIL")
+
+        err, warn, info = validate(package(tmp, "store.xdc", good, compression=zipfile.ZIP_STORED))
+        check(not err and not warn, "Store compression is allowed by the spec")
+
+        err, warn, info = validate(package(tmp, "nomanifest.xdc", [("index.html", index)]))
+        check(not err and any("no `manifest.toml`" in m for m in info), "a bare package is legal, and says so")
+
+        # --- pack() refuses what the spec forbids, and is reproducible -----
+        src = os.path.join(tmp, "src")
+        os.makedirs(src)
+        for arc, data in good:
+            with open(os.path.join(src, arc), "wb") as fh:
+                fh.write(data)
+        a = os.path.join(tmp, "pack", "a.xdc")
+        b = os.path.join(tmp, "pack", "b.xdc")
+        quiet = contextlib.redirect_stdout(io.StringIO())
+        with quiet:                                   # pack() is chatty; tests are not
+            pack(src, a)
+            pack(src, b)
+        check(open(a, "rb").read() == open(b, "rb").read(), "packing must be deterministic (SH-2)")
+        with open(os.path.join(src, "webxdc.js"), "wb") as fh:
+            fh.write(b"window.webxdc={}")
+        try:
+            with quiet:
+                pack(src, os.path.join(tmp, "pack", "c.xdc"))
+            check(False, "pack() must refuse a source dir containing webxdc.js")
+        except SystemExit as e:
+            check("must not be packaged" in str(e), "pack() refusal should explain itself")
+
+        # --- the manifest reader itself ------------------------------------
+        check(_toml_min(manifest.decode()) == {"name": "Selftest App",
+                                               "source_code_url": "https://example.invalid/webxdc/selftest",
+                                               "description": "built by selftest",
+                                               "icon": "icon.png"},
+              "the fallback TOML reader must agree with tomllib on a real manifest")
+        check(_toml_min('a = "b"  # trailing comment\nc = true\n') == {"a": "b", "c": True},
+              "fallback reader: comments and booleans")
+        try:
+            _toml_min("[section]\nname = \"x\"\n")
+            check(False, "fallback reader must refuse tables, not mis-parse them")
+        except ManifestReaderUnavailable:
+            check(True, "fallback reader refuses tables with the right exception")
+        try:
+            _toml_min('name = "unterminated\n')
+            check(False, "fallback reader must refuse an unterminated string")
+        except ManifestSyntaxError:
+            check(True, "fallback reader reports unterminated strings as a syntax error")
+        check(parse_manifest(manifest).get("name") == "Selftest App", "parse_manifest works end to end")
+
+        # --- image sniffing --------------------------------------------------
+        check(png_size(b"not a png") is None and jpeg_size(b"not a jpeg") is None,
+              "size sniffers return None rather than guessing")
+        check(png_size(icon128) == (128, 128), "png_size reads IHDR")
+
+    total = checks["pass"] + len(checks["fail"])
+    for f in checks["fail"]:
+        print(f"  FAIL  {f}")
+    print(f"selftest: {checks['pass']}/{total} checks passed")
+    return 1 if checks["fail"] else 0
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 def main(argv=None):
@@ -271,6 +502,8 @@ def main(argv=None):
     p_pack.add_argument("src")
     p_pack.add_argument("out")
 
+    sub.add_parser("selftest", help="verify this validator against synthetic packages")
+
     p_list = sub.add_parser("list", help="list every webxdc package found")
     p_list.add_argument("paths", nargs="*")
     p_list.add_argument("--all", action="store_true", help="also scan excluded dirs")
@@ -279,6 +512,8 @@ def main(argv=None):
 
     if args.cmd == "pack":
         return pack(args.src, args.out)
+    if args.cmd == "selftest":
+        return selftest()
 
     roots = args.paths or [REPO_ROOT]
     # `dist` is excluded from the *walk* only when scanning the repo root, so

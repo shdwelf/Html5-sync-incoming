@@ -1,0 +1,62 @@
+name: verify
+
+# Everything in this workflow is a check the repo already documents and that was
+# run by hand while it was being classified (REVIEW.md XDC-1, SH-1, SH-2, PY-9).
+# It exists so those guarantees stop being a habit:
+#
+#   * a package that no messenger can load can never be committed again
+#   * a committed build artifact must always equal what its build script produces
+#   * a generated asset must always be reproducible from its generator
+#   * the game's regression tests must keep failing when a fixed defect comes back
+#
+# No third-party actions, no network beyond apt/setup, and no new dependencies:
+# the validator deliberately falls back to its own manifest reader on Python < 3.11,
+# and gen_icons.py is stdlib-only.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  packages:
+    name: webxdc packages, build artifacts, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the checker
+        run: python3 webxdc/webxdc_tool.py selftest
+
+      - name: Validate every .xdc against the container spec
+        run: python3 webxdc/webxdc_tool.py validate
+
+      - name: Generated icons must match their generator
+        run: python3 webxdc/gen_icons.py --check
+
+      - name: Rebuild all five packages
+        run: |
+          ./webxdc/build-all.sh
+          bash projects/cryptomonopoly-webxdc/build.sh
+          bash projects/presskit-reassembler/dist/make_packages.sh
+
+      - name: Builds must be deterministic (committed artifacts == fresh build)
+        run: git diff --exit-code -- '*.xdc' '*.war' 'projects/*/dist' 'webxdc/*/icon.png'
+
+      - name: Game engine tests
+        working-directory: projects/cryptomonopoly-webxdc
+        run: node --test test/*.test.js
+
+      - name: Syntax-check everything else
+        run: |
+          set -e
+          for f in $(git ls-files '*.sh'); do bash -n "$f"; done
+          for f in $(git ls-files '*.py'); do python3 -c "import ast,sys;ast.parse(open(sys.argv[1]).read())" "$f"; done
+          for f in $(git ls-files '*.js'); do node --check "$f"; done
