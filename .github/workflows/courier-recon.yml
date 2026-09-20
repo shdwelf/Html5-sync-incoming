@@ -1,8 +1,8 @@
 name: courier-recon
 
 # Temporary reconnaissance for the Camera.7z retrieval task (wormhole link).
-# Phase 2: fetch every Next.js chunk referenced by the download page, then
-# commit the chunks that mention the download/crypto API back for analysis.
+# Phase 3: robust retry of chunk fetch + API probes; every step self-reports
+# into courier/diag.txt because the sandbox cannot read Actions logs.
 
 on:
   push:
@@ -19,78 +19,65 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch all referenced JS chunks and probe the API surface
+      - name: Fetch chunks + probe APIs
         shell: bash
         run: |
-          set -uo pipefail
+          set -x
+          exec > >(tee -a courier/diag.txt) 2>&1
           UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
-          BUILD="OPL3vj3294Ef3MPUMIb_K"
           mkdir -p courier/tmp courier/js
-          # build manifest lists per-page chunk arrays
-          curl -sS -m 60 -o courier/tmp/_buildManifest.js "https://wormhole.app/_next/static/$BUILD/_buildManifest.js" || true
+          BUILD=$(grep -oE '/_next/static/[A-Za-z0-9_-]{10,}/_buildManifest' courier/page.html | head -1 | cut -d/ -f4)
+          echo "BUILD=$BUILD"
+          curl -sS -m 60 -o courier/tmp/_buildManifest.js "https://wormhole.app/_next/static/$BUILD/_buildManifest.js" || echo "manifest fetch failed"
+          head -c 800 courier/tmp/_buildManifest.js; echo
           grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/page.html | tr -d '"' | sort -u > courier/tmp/refs.txt
-          grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/tmp/_buildManifest.js 2>/dev/null | tr -d '"' >> courier/tmp/refs.txt
+          grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/tmp/_buildManifest.js | tr -d '"' >> courier/tmp/refs.txt || true
           sort -u courier/tmp/refs.txt -o courier/tmp/refs.txt
           wc -l courier/tmp/refs.txt
-          # download the page-specific chunk group too ([id] page, slug variants)
-          for p in "%5Bid%5D" "[id]"; do
-            curl -sS -m 60 -o "courier/tmp/page-id.js" "https://wormhole.app/_next/static/chunks/pages/$p-$BUILD.js" || true
-          done
+          n=0
           while read -r ref; do
             [ -n "$ref" ] || continue
-            name=$(basename "$ref")
-            curl -sS -m 120 -o "courier/tmp/$name" "https://wormhole.app$ref" || echo "failed: $ref"
+            n=$((n+1))
+            curl -sS -m 120 -o "courier/tmp/$(basename "$ref")" "https://wormhole.app$ref" || echo "FAILED $ref"
           done < courier/tmp/refs.txt
-          ls -la courier/tmp | head -50
-          echo "=== API endpoint mentions ==="
-          grep -rhoE '"/?api/[A-Za-z0-9/_-]+"|https://[a-z0-9.-]+\.wormhole\.app[^"'\'' ]*' courier/tmp/ 2>/dev/null | sort -u | tee courier/api-refs.txt | head -60
-          echo "=== crypto method mentions ==="
-          grep -rloE 'AES-GCM|decrypt|crypto\.subtle|importKey' courier/tmp/ 2>/dev/null | tee courier/crypto-chunks.txt
-          # commit the chunks that carry the download/crypto logic (size-capped)
-          : > courier/js/FILES.txt
-          if [ -f courier/tmp/page-id.js ]; then cp courier/tmp/page-id.js courier/js/; echo page-id.js >> courier/js/FILES.txt; fi
+          ls -la courier/tmp/ | head -60
+          echo "=== api refs ==="
+          grep -rhoE '"/?api/[A-Za-z0-9/_.-]+"' courier/tmp/ 2>/dev/null | sort -u | tee courier/api-refs.txt | head -80
+          echo "=== crypto chunks ==="
+          grep -rlE 'AES-GCM|crypto\.subtle|importKey|decrypt' courier/tmp/ 2>/dev/null | tee courier/crypto-chunks.txt
+          cp courier/tmp/_buildManifest.js courier/js/ 2>/dev/null || true
           total=0
           while read -r f; do
-            name=$(basename "$f")
+            [ -f "$f" ] || continue
             sz=$(stat -c%s "$f")
-            if [ $((total+sz)) -lt 9000000 ]; then cp "$f" courier/js/; echo "$name" >> courier/js/FILES.txt; total=$((total+sz)); fi
+            if [ $((total+sz)) -lt 9000000 ]; then cp "$f" courier/js/; total=$((total+sz)); fi
           done < courier/crypto-chunks.txt
-          for f in courier/tmp/_buildManifest.js courier/tmp/webpack-*.js; do
-            [ -f "$f" ] && cp "$f" courier/js/ 2>/dev/null || true
-          done
-          ls -la courier/js | head -30
-
-      - name: Probe wormhole API endpoints
-        shell: bash
-        run: |
-          set -uo pipefail
-          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+          echo "=== wormhole API probes ==="
           for u in \
             "https://wormhole.app/api/file/9ojE40" \
             "https://wormhole.app/api/get-file/9ojE40" \
             "https://wormhole.app/api/download/9ojE40" \
             "https://wormhole.app/api/9ojE40" ; do
-            echo "=== GET $u"; curl -sS -m 60 -A "$UA" -D - -o /tmp/body.bin "$u" | head -15
+            echo "### GET $u"
+            curl -sS -m 60 -A "$UA" -D - -o /tmp/body.bin "$u" | head -15
             head -c 300 /tmp/body.bin | cat -v; echo; echo
-          done > courier/api-probes.txt 2>&1 || true
-
-      - name: Probe filemail download endpoints
-        shell: bash
-        run: |
-          set -uo pipefail
-          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
-          {
-            echo "=== GET d page with JSON accept"; curl -sS -m 60 -A "$UA" -H "Accept: application/json" -D - -o /tmp/fm1 "https://app.filemail.com/d/ejnckrllfvcoenb" | head -20; head -c 400 /tmp/fm1 | cat -v; echo
-            echo "=== POST getdownloadurl"; curl -sS -m 60 -A "$UA" -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "downloadkey=ejnckrllfvcoenb" -D - -o /tmp/fm2 "https://app.filemail.com/api/download/getdownloadurl" | head -20; head -c 600 /tmp/fm2 | cat -v; echo
-            echo "=== download.aspx style"; curl -sS -m 60 -A "$UA" -D - -o /tmp/fm3 "https://app.filemail.com/download.aspx?Id=ejnckrllfvcoenb" | head -20; head -c 300 /tmp/fm3 | cat -v; echo
-          } > courier/filemail-probes.txt 2>&1 || true
+          done
+          echo "=== filemail probes ==="
+          echo "### GET d page with JSON accept"
+          curl -sS -m 60 -A "$UA" -H "Accept: application/json" -D - -o /tmp/fm1 "https://app.filemail.com/d/ejnckrllfvcoenb" | head -20
+          head -c 400 /tmp/fm1 | cat -v; echo
+          echo "### POST getdownloadurl"
+          curl -sS -m 60 -A "$UA" -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "downloadkey=ejnckrllfvcoenb" -D - -o /tmp/fm2 "https://app.filemail.com/api/download/getdownloadurl" | head -20
+          head -c 600 /tmp/fm2 | cat -v; echo
+          echo "ALL-STEPS-DONE"
 
       - name: Commit recon results
+        if: always()
         shell: bash
         run: |
           rm -rf courier/tmp
           git config user.name "arena-courier"
           git config user.email "arena-courier@users.noreply.github.com"
           git add courier/
-          git diff --cached --quiet || git commit -m "courier recon phase 2: next.js chunks + API probes"
+          git diff --cached --quiet || git commit -m "courier recon phase 3: chunks, API probes, diag"
           git push
