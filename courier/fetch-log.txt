@@ -1,26 +1,31 @@
 salt response: {"salt":"sWz7aj8dY0k1MkwLnmln8w=="}
-room: {"cloudState":"uploaded","lifetime":86400,"maxDownloads":100,"remainingDownloads":100,"expires":"2026-09-21T15:21:12.057Z","multiFile":false,"etfLen":1072}
+room: {"cloudState":"uploaded","lifetime":86400,"maxDownloads":100,"remainingDownloads":99,"expires":"2026-09-21T15:21:12.057Z","multiFile":false,"etfLen":1072}
 torrent decrypted: 771 bytes
-pieceLength: 5013504 pieces: 23 total plaintext bytes: 111695467
- file: Camera.7z 111695467
+pieceLength: 5013504 pieces: 23 total ENCRYPTED bytes: 111695467
+ file (encrypted length): Camera.7z 111695467
 b2 downloadUrl: https://api000.backblazeb2.com
-node:internal/crypto/util:453
-    return reject(lazyDOMException(
-                  ^
-
-DOMException [OperationError]: The operation failed for an operation-specific reason
-    at AESCipherJob.onDone (node:internal/crypto/util:453:19) {
-  [cause]: [Error: Cipher job failed]
-}
-
-Node.js v22.23.2
-node exit: 1
-total 16
-drwxr-xr-x 2 runner runner 4096 Sep 20 16:47 .
-drwxr-xr-x 5 runner runner 4096 Sep 20 16:47 ..
--rw-r--r-- 1 runner runner    0 Sep 20 16:47 Camera.7z
--rw-r--r-- 1 runner runner   60 Sep 20 16:47 files.json
--rw-r--r-- 1 runner runner  771 Sep 20 16:47 recovered.torrent
-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  courier/out/Camera.7z
+ECE header: rs=65536, file=Camera.7z, plaintext size=111666461
+piece 1/23  encrypted 5013504/111695467  1s
+piece 3/23  encrypted 15040512/111695467  1s
+piece 5/23  encrypted 25067520/111695467  2s
+piece 7/23  encrypted 35094528/111695467  2s
+piece 9/23  encrypted 45121536/111695467  3s
+piece 11/23  encrypted 55148544/111695467  4s
+piece 13/23  encrypted 65175552/111695467  4s
+piece 15/23  encrypted 75202560/111695467  5s
+piece 17/23  encrypted 85229568/111695467  5s
+piece 19/23  encrypted 95256576/111695467  6s
+piece 21/23  encrypted 105283584/111695467  7s
+file complete: Camera.7z (111666461 bytes, expected 111666461)
+piece 23/23  encrypted 111695467/111695467  7s
+ALL FILES WRITTEN
+node exit: 0
+total 109068
+drwxr-xr-x 2 runner runner      4096 Sep 20 16:52 .
+drwxr-xr-x 5 runner runner      4096 Sep 20 16:52 ..
+-rw-r--r-- 1 runner runner 111666461 Sep 20 16:52 Camera.7z
+-rw-r--r-- 1 runner runner        60 Sep 20 16:52 files.json
+-rw-r--r-- 1 runner runner       771 Sep 20 16:52 recovered.torrent
+0a5028468a3d2bca224b9b7dff2458d9e6a36a46ede899b47d818b4607365fec  courier/out/Camera.7z
 f67a2c58a9a7245bc117c2040b7d80ea7a13a4dff7f6319e1e1e13f431683de4  courier/out/files.json
 115773964009a7c9bad1126d9ad7b21b4314d7538226d4654d71b2bc3d363018  courier/out/recovered.torrent
