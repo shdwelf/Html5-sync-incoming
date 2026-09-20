@@ -1,8 +1,8 @@
 name: courier-recon
 
-# Temporary reconnaissance for the Camera.7z retrieval task (wormhole link).
-# Phase 5: fetch the nine dynamically-imported webpack chunks (from the
-# webpack runtime chunk map) that carry the room/transfer client.
+# Phase 6: the actual retrieval. Runs courier/fetch.mjs on the runner (full
+# internet), recovers the plaintext archive from the wormhole room, and pushes
+# it back split into <100 MB parts on the orphan branch courier/camera7z-payload.
 
 on:
   push:
@@ -14,42 +14,54 @@ permissions:
   contents: write
 
 jobs:
-  recon:
+  fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch dynamic chunks
+      - name: Recover the archive from the wormhole room
         shell: bash
         run: |
           set +e
-          exec > >(tee -a courier/diag.txt) 2>&1
-          mkdir -p courier/js2
-          base="https://wormhole.app/_next/static/chunks"
-          for c in \
-            "297.eedd867e90026c71" \
-            "1379.b98a43266ca92e2c" \
-            "fec483df.e9e3445d650f7fdd" \
-            "fb7d5399.d366e817b93124a7" \
-            "5626.8e8fff96c110de2f" \
-            "5892.142b55654e839fb6" \
-            "9060.59325fcbfe21e0d7" \
-            "9361.afdadd55cb17aa3b" \
-            "9894.15572e540f824c31" ; do
-            curl -sS -m 180 -o "courier/js2/$c.js" "$base/$c.js" || echo "FAILED $c"
-          done
-          ls -la courier/js2
-          echo "=== url-ish strings ==="
-          grep -rhoE '"/[a-z][a-z0-9/_-]{2,40}"|`/[a-z][^`]{2,60}`' courier/js2 | sort -u | head -60
-          echo DONE5
+          mkdir -p courier/out
+          node courier/fetch.mjs 9ojE40 rqgHxFpCRf1cIhMKFA_ebA courier/out 2>&1 | tee courier/fetch-log.txt
+          echo "node exit: ${PIPESTATUS[0]}" | tee -a courier/fetch-log.txt
+          ls -la courier/out | tee -a courier/fetch-log.txt
+          sha256sum courier/out/* >> courier/fetch-log.txt 2>/dev/null
 
-      - name: Commit
+      - name: Publish log on the working branch
         if: always()
         shell: bash
         run: |
           set +e
           git config user.name "arena-courier"
           git config user.email "arena-courier@users.noreply.github.com"
-          git add courier/
-          git diff --cached --quiet || git commit -m "courier recon phase 5: dynamic webpack chunks"
+          git add courier/fetch-log.txt courier/out/recovered.torrent courier/out/files.json 2>/dev/null
+          git diff --cached --quiet || git commit -m "courier phase 6: fetch log"
           git push
+
+      - name: Push recovered files as parts on scratch branch
+        shell: bash
+        run: |
+          set -e
+          cd courier/out
+          rm -f recovered.torrent files.json fetch-log.txt
+          # anything under 100 MB can go to git directly; bigger files get split
+          mkdir -p parts
+          for f in *; do
+            [ -f "$f" ] || continue
+            sz=$(stat -c%s "$f")
+            if [ "$sz" -lt 99000000 ]; then
+              cp "$f" "parts/$f"
+            else
+              split -b 95m --numeric-suffixes=1 --suffix-length=2 "$f" "parts/$f.part-"
+            fi
+          done
+          ls -la parts
+          git checkout --orphan courier-camera7z-payload
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          find . -mindepth 1 -maxdepth 1 ! -name parts ! -name .git -exec rm -rf {} +
+          git add parts/
+          git commit -m "courier payload: recovered wormhole archive parts"
+          git push -f origin courier-camera7z-payload
