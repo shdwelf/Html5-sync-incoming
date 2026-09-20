@@ -25,7 +25,7 @@ jobs:
         run: |
           set +e
           mkdir -p courier/out
-          node courier/fetch.mjs 9ojE40 rqgHxFpCRf1cIhMKFA_ebA courier/out 2>&1 | tee courier/fetch-log.txt
+          node courier/fetch.mjs 0vXlpp AH0b0r1FXmt7ZE9ranwgag courier/out 2>&1 | tee courier/fetch-log.txt
           echo "node exit: ${PIPESTATUS[0]}" | tee -a courier/fetch-log.txt
           ls -la courier/out | tee -a courier/fetch-log.txt
           sha256sum courier/out/* >> courier/fetch-log.txt 2>/dev/null
