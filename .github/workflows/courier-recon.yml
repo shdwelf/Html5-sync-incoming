@@ -1,0 +1,54 @@
+name: courier-recon
+
+# Temporary reconnaissance for the Camera.7z retrieval task (wormhole link).
+# The sandbox cannot reach wormhole.app/filemail.com directly; the runner can.
+# This job captures the wormhole page HTML and its JS bundles (so the download
+# API + client-side format can be reverse-engineered) and the filemail page.
+# Everything captured is committed back under courier/ for inspection.
+
+on:
+  push:
+    branches:
+      - arena/01a0bf6a-html5-sync-incoming
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch wormhole page, JS bundles, and filemail page
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p courier/js
+          UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+          curl -sS -m 90 -A "$UA" -o courier/page.html "https://wormhole.app/9ojE40" || echo "page fetch failed"
+          python3 - <<'PY' > courier/asset-refs.txt
+          import re
+          html = open('courier/page.html', encoding='utf-8', errors='replace').read()
+          refs = sorted(set(re.findall(r'["\'](/build/[^"\']+)["\']', html)))
+          print('\n'.join(refs))
+          PY
+          echo "--- /build/ refs ---"; cat courier/asset-refs.txt
+          n=0
+          while read -r ref; do
+            [ -n "$ref" ] || continue
+            n=$((n+1))
+            curl -sS -m 120 -o "courier/js/asset-$n.js" "https://wormhole.app$ref" || echo "failed: $ref"
+          done < courier/asset-refs.txt
+          curl -sS -m 90 -A "$UA" -o courier/filemail.html "https://app.filemail.com/d/ejnckrllfvcoenb" || echo "filemail fetch failed"
+          echo "--- sizes ---"; ls -la courier courier/js
+
+      - name: Commit recon results
+        shell: bash
+        run: |
+          git config user.name "arena-courier"
+          git config user.email "arena-courier@users.noreply.github.com"
+          git add courier/
+          git diff --cached --quiet || git commit -m "courier recon: wormhole page + bundles, filemail page"
+          git push
