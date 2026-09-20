@@ -21,7 +21,9 @@ words, `[...]` marks illegible spans. Pages are in photo order.
 The file contains TWO independent reading passes: Pass 1 covers every page in photo
 order; Pass 2 (after the separator near the end) is a verification re-read of pages
 160508–161259. Where the passes differ, both readings are retained — treat
-disagreements as low-confidence text.
+disagreements as low-confidence text. Pass 3 (final section) is a full-resolution
+deep-dive re-read of the six densest pages (160649, 160655, 160700, 161236,
+161241, 161251) and supersedes earlier passes where they conflict.
 
 ## 20260919_160440 — printed "CLASS SCHEDULE" form (filled in by hand)
 
@@ -1185,3 +1187,90 @@ Bottom: "NEST: MONTAUK ISLE? / EAGLES NEST / TIGERS NEST / SWALLOWS NEST / MASCO
 - FRACTION / DECIMAL / PERCENT table: 1/16 .0625 6.25% / 1/8 .125 12.5% / 3/16 .1875 18.75% / 1/4 .25 25% / 5/16 .3125 31.25% / 1/3 .3333 33.33% / 3/8 .375 37.5% / 1/2 .5 50.0% / 9/16 .5625 56.25% / 5/8 .625 62.5% / 2/3 .6667 66.67% / 3/4 .75 75.0% / 13/16 .8125 81.25%
 - Right column: same METRIC UNIT CONVERSIONS tables as 161255 (Length/Distance, Surface or Area, Volume and Capacity (Liquid), Weight and Mass)
 - Handwritten signature in blue ink on the card ("... J. ...")
+
+---
+
+# Pass 3 — deep-dive revisions (1600px full-resolution re-read; supersedes earlier passes where they conflict)
+
+## 20260919_160649 — dense list page (improved)
+
+Top-right block: "SLITHERS IN IA 130X GATES / FOO DOUS GUARDING THE EAT GATINE REBOX / ZOOL WEAVER ALONE"; "WEAVE AS ORITHYGUR FREAM A / TOO DOUG GUARD THE BUNBULE 72 / THIS-STS CHOICHTENSTERS".
+Left margin: "HATMAU = / pool / [HURLES PORS] / WOLCATS".
+Rows (best effort):
+- "YOUTH GETS EVERYTHING / FREUDIAN OTER FAN TO YOU / FOO BAR KING BI? PRODUCTION" | "GATEKEEPERS HELLHOUNDS S'NAIL / KIRKMASTERS FREIDEK GAPEN TOLL (MAUNT-2) / HELLHOUNDS SMALL GATEKEEPERS ZOOL" | "HELLHOUNDS GUARD COOLS FREDGE / PARTY TO GO-SHEES FREDGE / ZOOL OPENS DO GOES EATS FREEBOX"
+- "KEYMASTER RAILS FREDGE / FOO DOES SHELL WEAVERS LEFTENARS / GATE-GERMS FRECIDE CONNRED OTCHIEVE" | "PACIFIC KEYMASTER / 2001-S MEZIDUNDS GUTXED GO SHEES FREDGE / GATEKEEPERS NOT NONE" | "KEY MASTER IS ESS BOX / PAGE MASTER IN BOPHONE / GOSHERL WORSHIPPER" | "ABOVE THE WORLD / TWINKLE TWINKLE LITTLE BAT / UP HIGH WHERE YOU ARE"
+- "REPLY'S BELIEVE IT / LIKE A LE MOND IN THE SKY / TWINKLE LITTLE STAR" | "LITTLE STAR HOW I / WONDER WHAT YOU ARE / WONDER WHERE YOU ARE" | "LITTLE STAR HOW I / DFGENG HOLBS ENTHEEREBANT / REPLY'S BELIEVE IT"
+- "ROYAL THAI FLOWERS / CALAVEDAS RAIED FROG LEGS / PEKING CENTURY EGG" | "ADVICE FROM A TREE / STANTOU-STAYO PRUD HEGERA / LEBANON CEDARS" | "S'MORE A CALUMET / DO NOT CALUMINATE DOB ON / FRIDAY AFTERNEAT"
+- "TETRIS BLOCKS GO DOWN / THEY WILL FALL DOWN THE / RIGHT SIDE" | "DO AT SIAL WANTED / HOLK'S THUNDERIN PARADISE / SURVIVE AS SLOLGE ES" | "WANHD DO DOWNCANTETDOS / ITSY BITSY SPIDER CRANED / UPING WATER SPOUT"
+- "THE BLOCKS DISSAPPEARED" | "STREEZDIAWALS / MONKS CANT WEENLIE / TANGLCD WE JIHU AA"
+- "ACME CORPORATE / ROAD RUNNER PELLETS WILEY / COYOTE FALL UP" | "KELLY S?MPBOS DREAX / CLERMONT BEHIND NARCIS BANA / CRAGAG AIN TANK ODD JOB" | "SUPER DULLS CLEEK / HURRICANE FERAL'S / NITRACLES RAMSTER"
+- "GON ON A DRINKENBUD" | "FREE OIL VENICE CANAL / TEMPLAR CATACOMBS" | "MALTA KNIGHTS AND DAMES / OLIVE OIL POPEYE BROTUS / SPINACH JEEP JEEP GOLD" | "ATENDIER RAVENWOOD / DISCOVER THINGS MINT REORA / HEAD PIECE STAFF OF C4"
+- "AMBER MOSQUITOES / JURASSIC PARK COMPUTER / VELOCERAPTOR" | "GROUNDHOG DAY ALADD / HOUSES AFRAID OF A CLOCK / CLOCK TWO MORE BULBS"
+- "PRETTY WOMAN WALK / AWAY MEDEVAL WOMAN / AMERICAN WOMAN" | "JOUST AMERICAN / MEDEVAL WOMAN PRETTY / KNIGHT TONIGHT BRIGHTS MS" | "MEDIEVAL WOMAN / PRETTY WOMAN US WAT THE STREET / AMERICANS WALK"
+- "PRETTY WOMAN WALK / AMERICAN WALKING DUN / MEDEVAL WOMAN" | "HORNED TOAD DESERT ROSE / OBO?IAN JUNGLE DIRT / BORAX GEODES ROCKS" | "KNIGHT'S TALE JEST LAUGH / JOUST WALK AWAY AMERICAN / YANKEE KING ARTHUR'S"
+- "OLIVE OIL SWEETPEA / WIMPY BURGERS POPEYE JEEP / SPINACH ORCHIDS FRIES" | "OLIVE OIL SWEETPEA / POPEYES JEEP WIMPYS BURGER JEEP BOX ACTS / POPEYES JEEPS SPINACH" | "OLIVE OIL SWEET PEA / POPEYE SPINACH JEEP PRAVADO / WIMPY BURGER FRIES"
+
+## 20260919_160655 — improved
+
+Left margin: "HAIKU = POET"; "I TOOK ME TOO / THAT'S PRIME TALE"; "COUNTY MAYO / GLENNS"; "1 COCONUT / 2 EGGS / STRAINED PUMPKIN POG"; "STFFE NDDL THE DRINK"; "SOLILOQUEZE / SOLILOQUY / SOLNNG"; "MAR CESSEN BONHOMIE"; "ALLISONBENUG"; "WEBEBS PROVERBIAL".
+Rows:
+- "SWEETPEAS OLIVE OIL / POPEYES SPINACH JEEDUS GIRL / JEEP JEEPS JEEP HERDS SPINACH GED" | "WIMPS BURGERS AWAY / POPEYES SPINACH HUNGRY / SWEETPEAS OLIVE OIL" | "ROUTE 66 OD BURGERS PUP / SOMETHING SILVERGIRL CHARM IN / JEEP JEEP FLAMINGOS DEVALF"
+- "DEAD HORSE TOWN TALES / CARDINALS PARIES SNAKES PECANIES / DAVY JONES LOCKER" | "ONE EGGS EIGHT NUTS HULL / DEEHORS NORT MALT LUTO / HOTC DOX AIT SALIGU" | "STUDS IN STUPID / KEEP IT SIMPLY SCHLUDN / PARSIMONY BOB"
+- "STUDIES STUPID / KEEP IT STUPID SIMPLE / PARSIMONY DOBS" | "ROSE IS ROSES NET / RED VICE IN A RED BLUE / SCHIZOPHRENIC TEL" | "STUDIES IS STUPID / KEEP IT SIMPLE STUPID DOES / PARSIMONY TOO" | "METOO ALSO / HURRICANE HAUT / THAI HYPNOTIC GOMS"
+- "TWOSAT MAYE / KATSAT NIGHT VPOU ASTAR / TONES NT WERE GIANTS" | "METOO ALSO / TWEEN HAI TIAMIHT / HIGH BEE GIANT STAND" | "IGHT ME TOO I ALSO / KETCHU FULL LITTER" | "ICEMAN BALLOON KAT / BALOR THE THIGHBONE AND / CAESAR BONE KATSUOSE"
+- "MAYONNAISE KETCHUP / CAESAR RELISH RANCH DRESSING / LETTUCE IN CHEESES" | "LETTUCE IN THE COCONUT / STRAWBERRY MY GREENS / STA TUESDAY MY GREENS" | "DRINK RESPONSIBLY / TIMELINE THE COCONUT / SMINTHES ST MY GREENS"
+- "WHY DOS EGUTS DROP / THE LEME IN THE COCONUT / STIR KAYALACONIES" | "LIARMS SPIT IN IT / WIN APPARENTLY WRAPS THE AS / KAVA ROOT SOLDERIERS" | "HOREGCA OFF THE HOCK / LOST IKKOS MY HEAD IT MOST / RAZOR ND BOLABETIBOW"
+- "ROLL ON THE ROOF LEAKS / PHANTOM PHREAKS GARBAGE ZERO / COOL HACK THE PLANET" | "RAZOR AND BLADE TV BET / PANTON PHREAKS GARBAGE DINKS / POOL ON THE ROOF LEAKS" | "GUNS VERSUS BUTTER / RANDOM LOTTERY QUICK PICK / SCRATCH OFF TWO DOLLARS"
+- "VERUCA SALT MIKE / CHARLIE BUT I WANT NOW / CANDY FACTORY" | "GLASS ELEVATOR / UNPA LOMPA DOON O2 / CANDY FACTORY" | "DIAMOND IN THE ROUGH / PUBLIC LANDS DIAMOND HENGE / THERE TO BE PICKED UP"
+- "HAPPY HOLIDAYS / WISH YOU AMERICY CHRISTMAS / TO YOU AND YOUR FREDENDS" | "HAPPY NEW YEAR BALL / FROZEN TIMES SAUSAGE IT CONGESTIONG / FATHER TIME AS MEN" | "HAPPY NEW YEARS BALL / GOT NO TO WATCH TIMES SQUARE CALL / CONFETTI SNOW GLOBE"
+- "JAMES DEFENSE WEEKLY / PLAQUE JEFFERSONS WHITE RABBIT / YOUR KEYS FOR GOOD LUCK" | "BRASS SKELETON KEYS / FOOL'S GOLD ALCMYST METAL / PEWTER POISON CHARMS" | "CHARMING LEPREKAUN RUBS / CRECHILLAS FOOT FOR TRADERS / SHAMROCK FANG CLOVAR"
+- "COLD WAR COLORING BOOK / NUCLEAR MELT HOLOCAUST / PROLIFERATION" | "HELEN OF TROY'S HORSE / JOAN OF ARCS BREAST TUME AWKWORD / LADY LIBERTY" | "GREIB BOZITAN UTA / MORGAN LE FEY'S SILVER WAND / JOHN OF ARC SBUKG BANGE"
+- "MIST JOAN OF ARC MAID / CANADECAN WATERFALLS / LADY GREEK BEHEADED" | "JOAN OF ARC MAID MIST / RIDE NIAGRA WATERFALLS / IN A BASSEL ROLL" | "CATERPILLAR ROLL / YELLOWTAIL BLUN FIN TUNA / UNAGI SPECIAL"
+- "DRAGON ROLLS SPECIAL / ALL YOU CAN BATT VENTY / SOY SAUCE SASAFRATZ" | "WOOD CHOPSTICK HOLDER / RED DE AHMS SOUPSPECIAL / SOY SAUCE GREEN TEA MINT" | "PLASTIC CHOPSTICK SSAND / YELLOWTAIL SPREEN TUNEG HT / RAINBOW ROLLS DY SAUCE"
+
+## 20260919_160700 — improved
+
+Left margin "HAIKU / POET". Facing-page margin codes ([YPTAW] / ETC / E-477 / E-7751 / E-143) belong to the 160705 board page.
+Rows:
+- "BAND ?ARET PEN / CLOTON ? / BROWN ? HAMMO" | "ROCK SUGAR JANSEN KOTO RAIN / JETH BANDU SINE SATAVE / TON CONG WATER" | "ZITHER PIANO DUO / PIANOFORTE CHORD / RAINBOW MAN STEEL DRUMS / MORE PALO ALTO SEEDS"
+- "SNOW WALK CUBES / ? / BUBBLE WRAP SCULPT" | "THE SMELL SMELL BAD BUT / NO WAKE I AM YOUR FATHER / BUT IT NOTHING YOU CLUT" | "EMPTY AGNIS STOVE / KLP ERS DREAMS THE REESES / LAUGHING MAN FLOWERS"
+- "CARN ? RINGS 101 / YOG ? / WALNUTS HAZELNUTS" | "ROLLING PEPPERS GHOST / PINK FLUTE WREN OWENS KOTO DREO / BAZL IS NUT OIL TROUBLE" | "NU GANG GAMBE KLANG / MOZART SIGNS ER LIFE / PEPPERS EROT FADO"
+- "BLOWN AWAY DAD / BOURBON BETTY PARTY POP / CARDOMBS AT THE BAR" | "PESANKA THE FLIES A / AMAZON QUEEN BEVERRIDES / CANOPY ZEP LINES" | "OVERGROWTH GOOD / FERNAND MARIGOLDS / PALEO L COMPOST"
+- "KOREAN SAUCE FIRE / MAITAI CYFER AFTER PIECES / SALSA DANCE TONIGHT" | "VAGINA NINE BELS / HAPPY DONUT BOMBAY / ALE YOU WET OR DRY" | "SCHULTZ WORK KOTERS / PEPPERMINT NUT RICK NUT RICK / LINUS HAS BLANKET"
+- "SPECIAL NURSES MOM / SPECIAL NURS PASTAS DOOR / MOTHER EVEN NOICE"
+
+## 20260919_161236 — corrections
+
+- Left recipes confirmed: HUMMUS (1 C dried garbanzos soaked overnight, 1 bay leaf, ½c vegetable stock, ¼c fresh lemon juice, 2 cloves garlic roasted, 1 clove chopped, zest 1 lemon, ½ tsp cumin, ½ tsp coriander, ⅛ tsp cayenne, ½ tsp black pepper, ½c parsley minced, salt to taste; "simmer 2½ hours ... to blender add lemon juice"); shortbread-style (1 cup flour / ½ cup powdered sugar / ¼ cup vegetable oil / knead into balls split 4 ways into flower, add dough to center / bake 350°-450° until browned); ANGEL FOOD CAKE (1¼ c cake flour, 1½ c sugar, 2 c egg whites, 1 tsp cream of tartar, ¼ tsp almond extract, ¼ tsp salt; bake 40-45 @ 350°).
+- "Richard's father's the black knight of the round table [13th tribe of ELF who is blind; father's the other]".
+- Main: "our coming from sushi to babylon to study the code of Hammurabi, and hitch from antioch ... you study in damascus its end up err of heshbon because, you have paper [mile long] from ... in exchange for tall cedars from Lebanon ... it's your Stargate the fountains to water gate but only 1.5 volts to abydos unless to mars but only when the planets align the extra gravity allows going to mars you draw a happy face took a spaceship to water planet 40 light years away brought back fishermen [the 5th element] then from Krypton but the sun hadn't engulfed the inner planets you parked your spaceship [Prometheus] on mars ... venus bred out the [kermaphrodite] and [ALIEN'S EGGS] the genesis planet on the 3rd rock from the sun — men are from CHICAGO [inserted word, ?FASCINATING] — women are from venus — then neptune is plagiary w/ gills — *NO but a buck fifty to rent for a day because the queen are telepathic by 3"2"1" — the 300 spartans w/ the omega logo on the spear got lit it's xenon — then according to stones in fine print it says because you buy only sort apply ...".
+- "root with a oil lamp / slipped broke his ankles and killed the sheep raped mary and she took it to elizabeth and he drinks coffee from the candlestick before the last supper because he was drinking beer because only the greeks left instructions a trojan? hermeticism → hermetically sealed".
+- "EDPLUS COMPLEX because UNDA MUHAMMAD they tied off the ball not EDGES".
+- "early Olympics the bay leaf the laurel for the champion for whoever he got pregnant at the orgy / you weren't invited to / for her to have a miscarriage".
+- KEY CORRECTION: "your BOAZ is the one JACHIN off outside the temple of hera" (Boaz/Jachin pillars; earlier passes misread as YAHWEH/LACHED). "a bastard form of English slang they don't speak english so on the ? 3rd crusade they hold the queen for ransom who got payed ransom for king richard, might because, robin of locksley didn't do a tour of duty and the sheriff didn't pardon him but king richard did hence the pub 'ye olde trip to jerusalem' at Nottingham castle."
+- Squiggle band: "*they married the Bedouin, she's from abu dhabi / sun cup dubai".
+- Bottom confirmed: "Right with 79 English families and 54 THAI families from Anna and the king. King Alfred but, Charlemange raised alpacas [wool] for suits. Where is the silk then the [SIAM]" / "Because to settle the anglo norman / saxon feud ceded to the POPE — UTHER PENDRAGON / ESARAMUS / MERLIN".
+- Top-right: "Because they filled beverage at my brother's table the last supper it's [dano/James?] table"; side note "Mendel? ... because though has a bleeding mary a lack of platelets and medium cautiously explain one ...".
+
+## 20260919_161241 — corrections
+
+- Header: "CODES & CIPHERS / CICADA3301 / OUTGUESS.ORG / SMITH'S CODE / HILL CIPHER / 92586 / PRESS@ WHERENTRESOLVE.MIL".
+- "ANDREW CUNNINGHAM (310) 375-3727 — 3812 SEPULVEDA BLVD, TORRANCE, CA / www.cbinlaw...com (562) 861-CIBC DOWNEY, CA 90237"
+- "JOURNAL@CENTELAUNDRY.ORG / NEW ERA MAGAZINE (714) 962-1351 42236 / CLNEWS@ENLAND.NET (404) 701-7644 26836 CHERRY HILLS BLVD. SUN CITY, CA / HMAUEL@GMAIL.COM / WWW.AANCACER.COM (530) 531-3787 / www.cherokeemuseum.org (828) 447-3481 / Cherokee Visitor center (828) 497-9945"
+- "ATLANTA POST OFFICE 2300 CROWN RD. ATLANTA, GA 30321 (404) 765-7476 / SAVANNAH POST OFFICE 3601 MONTGOMERY ST. (912) 234-8135 RIVER FOREST RD SAVANNAH ROAD MONROE GA / DENTES (912) 925-9190 / TERRY AND GARY MILWOOD / WWW GETCAUGHTREADINGATSEA.COM (877) ADV-NTGE / GERARD C. CETRAN (202) 234-6683"
+- "RAND C (2) 393-0911 / STREET YARD (626) 963-0411 / 914-0411 / ACLU (212) 444-7800 / (888) 567-2255 / AEP (202) 862-5600 / (202) 789-7419 / iaff (202) 737-8484 / CATO"
+- "MIND AND HEART RESEARCH LAB (CAL POLY) ALANE DAUGHERTY / CENTER FOR ... CLAREMONT SCHOOL OF THEOLOGY / www.hachettespeakersbureau.com (866) 376-6591 / ROCKEFELLER BROTHERS FOUNDATION / ROCKEFELLERS FOUNDATION"
+- "FOUNDATION.ORG GOP.COM"; "2201 C ST. NW, 20520 [STATE.GOV] CONDOLEEZZA RICE / 1600 PENNSYLVANIA AVE. NW, 20500 [WHITEHOUSE.GOV] VICE.PRESIDENT@ / COMMENTS@ / QUESTIONS...?"
+- "REWARDS FOR JUSTICE 1(800) 877-3127 / 1(800) 877-3927" boxed.
+- .gov column adds: FEDERALRESERVE.GOV / MONEYFACTORY.GOV / NGR.MIL / NSA.MIL / OAK RIDGE / TN 37830 / ATF.GOV / MDA.MIL / JOBCORPS.DOL.GOV / DEA.MIL.
+- Bottom: "HAMMER USC TITLE 50 §456? / FLEMING TRANSPORT & TRADING (360) 778-9160 / SAINT CROIX 778,773,778 / [AREACODE 504] SAINT THOMAS 774,775,776,777,779 / POLICE 915 / AMBULANCE 922 / 774-MB USC 773-6014 / 778-2642 / 778-8185 / 773-7403 / 772-2744 VIEMA FGE 773-7422 / [ATR ANGUELLA] 776-5789 778-1880 / VIEQUES 778-9858 / UNDERWATER MARINE RANGE 772-8612 / 10755 GEORGE RADAR / 778-6311 / GEETHA PORI 1(760) 843 7183 / STARBUCK JAFFREE OFFICE (703) 551-2853 / White Sands Missile Range Public Affairs Office (505) 678-1134 / (575) 678-1700 / MELVIN H. EVANS V. HOPSEC / MARQUE RHODIO TELEPAKUG 776-8282 WAH OPER CABLES / (800) 243-0322 / 776-8588 / 773-9996 COLLENS DAY".
+
+## 20260919_161251 — corrections
+
+- Top phones: "+53 7 8335558-51 / +11 ? 7 972869 / +53 7 242516 / +53 7 841771" boxed; "233022 - Jack Weeks / direct action / direct relief / EGO ERGO ED"; "+53 2470148 / +53 226 25 / +53 7685614 / +53 56677277 / 554326402"; "www.alphacor...org / medicine San foundation / info@airpeace...org / doctors w/o borders"; "Cuban Tourism Board (416) 362-0700 MULDER".
+- E-mail column corrections: psinfo@iupui.edu / amler@leprosy.org / info@actionagainsthunger.org / Peacemakers@cpt.org / crwrcc@crcna.org / ahughes@chn.org / info@directrelief.org / een@creationcare.org / ronsider@esi-online.org / info@fairtraderesource.org / welcome@first8.org / laurie@...bank.org / dsh@freedomfromfear.org.uk / info@freefromhunger.org / info@genocideintervention... / mail@charity.org / info@volunteer.org.nz / publicinfo@habitat.org / info@oxfamamerica.org / icc@persecution.org / contact@ijm.org / relief@...org / coard@jubileeusa.org / info@lifewater.org / mbce@lutheranworld.org / map.org / info@medair.org / data@data.org / incommunion@rcs.org / onc@data.org / info@paxchristi.net / rcws@rca.org / info@restoringeden.org / info@samaritan.org / marketing@agcentergift.org / Walmanac@waregroup.com / questions@serveyourworld.com / service@simpleliving.net / sojourners@sojo... / info@takingitglobal.org / info@targetearth.org / inquiry.us@tenthousandvillages.org / nutrition@unicefusa.org / organize@usasnet.org / usft@usft.org / een@creationcare.org / witness@witnessforpeace.org / www.c-i-a.com / worldrelief@wr.org / info@worldvision.org / ourdocuments.gov
+- Scripture grid corrections: PROVERBS 28:27 (not 25:27); MATTHEW 6:1-4 and 25:31-45; LUKE 14:12-14; ROMANS 13:9.
+- Left margin: "Former Jesuit monastery / Poughkeepsie constellation / CYGNUS SBX / JACK WEEKS / BEER: BABYLON / MILO / BITTER / FRESH / LAGER / Modern Day BEER"; "JIM WALLIS editor@sojo.net / jwallis@sojo.net / Sojourners@sojo.net"; "RELEVANT MEDIA GROUP, INC. 100 SOUTHLAKE ... ORLANDO, FL 32810 (407) 660-1411 / ISLE DE ... / FOX ISLAND / CAT ISLAND / SNAKE ISLAND / SKULL ISLAND? / HOUND ISLAND??".
+- Milk list: CAMEL / EGG NOG / CANNED EVAPORATED / MALTED / POWDERED MILK / NONFAT DRY / SOY / ALMOND / HALF & HALF / WHOLE MILK / CONDENSED MILK / FAT FREE / SKIM / GOAT / RICE / CHOCOLATE / "MUDDER IS SORT OF...".
+- MOTTOS: GREYSKULL / WOLFENTEEN? / DRACULA / TRANSYLVANIA / MT. ST. MICHAEL / CAMELOT; "SEA TO SHINNING SEA / EVERY MAN FOR HIMSELF / FEW AND FAR BETWEEN / FIAT LUX / QUIS CUSTODIET IPSOS CUSTODES / OUT OF THE BLACK INTO THE BLUE / TOWARDS THE UNKNOWN"; "LATTER: B-1 / B-2 / B-52 ...".
+- Bottom-left towns: "WATERTOWN [MOOSE NEST] / FIGHTERTOWN [MONTANA] / TINSELTOWN [IMMORTAL?] / DUALINTOWN? [?BOOMTOWN]".
