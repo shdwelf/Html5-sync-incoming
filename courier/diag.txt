@@ -1,0 +1,170 @@
++ UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
++ mkdir -p courier/tmp courier/js
+++ grep -oE '/_next/static/[A-Za-z0-9_-]{10,}/_buildManifest' courier/page.html
+++ head -1
+++ cut -d/ -f4
++ BUILD=OPL3vj3294Ef3MPUMIb_K
++ echo BUILD=OPL3vj3294Ef3MPUMIb_K
+BUILD=OPL3vj3294Ef3MPUMIb_K
++ curl -sS -m 60 -o courier/tmp/_buildManifest.js https://wormhole.app/_next/static/OPL3vj3294Ef3MPUMIb_K/_buildManifest.js
++ head -c 800 courier/tmp/_buildManifest.js
+self.__BUILD_MANIFEST=function(s,e,t,a,c,i,r,o,u,n,b,d,f,h,k,j){return{__rewrites:{beforeFiles:[],afterFiles:[],fallback:[]},"/":[e,o,u,s,t,a,c,n,b,d,k,i,f,h,j,"static/chunks/pages/index-b0acf88696bc5f2a.js"],"/_error":[e,s,t,a,c,i,"static/chunks/pages/_error-a4e9e85bb1d3d130.js"],"/about":[e,s,t,a,c,r,i,"static/chunks/pages/about-9cca7d84bb28e6fe.js"],"/faq":[e,s,t,a,c,r,i,"static/chunks/pages/faq-80a9104e00bac749.js"],"/legal":[e,s,t,a,c,r,i,"static/chunks/pages/legal-9250014f37729f0a.js"],"/roadmap":[e,s,t,a,c,r,i,"static/chunks/pages/roadmap-8311cce9cb46bc34.js"],"/security":[e,s,t,a,c,r,i,"static/chunks/pages/security-80d140f3b6a8c9b3.js"],"/security/disclosure":[e,s,t,a,c,r,i,"static/chunks/pages/security/disclosure-21fc6fb420dbec05.js"],"/stories":[e,s,t,a,c,i,"static/chunks/pages/s+ echo
+
++ tr -d '"'
++ grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/page.html
++ sort -u
++ grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/tmp/_buildManifest.js
++ tr -d '"'
++ true
++ sort -u courier/tmp/refs.txt -o courier/tmp/refs.txt
++ wc -l courier/tmp/refs.txt
+21 courier/tmp/refs.txt
++ n=0
++ read -r ref
++ '[' -n /_next/static/chunks/1485-dafc8cbe8d5e45fb.js ']'
++ n=1
+++ basename /_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ curl -sS -m 120 -o courier/tmp/1485-dafc8cbe8d5e45fb.js https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ read -r ref
++ '[' -n /_next/static/chunks/1577-df667458441d461f.js ']'
++ n=2
+++ basename /_next/static/chunks/1577-df667458441d461f.js
++ curl -sS -m 120 -o courier/tmp/1577-df667458441d461f.js https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
++ read -r ref
++ '[' -n /_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js ']'
++ n=3
+++ basename /_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ curl -sS -m 120 -o courier/tmp/17007de1-39a13d3cbd6eb7c1.js https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ read -r ref
++ '[' -n /_next/static/chunks/2814-717ef478de385955.js ']'
++ n=4
+++ basename /_next/static/chunks/2814-717ef478de385955.js
++ curl -sS -m 120 -o courier/tmp/2814-717ef478de385955.js https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
++ read -r ref
++ '[' -n /_next/static/chunks/31664189-131032d266cbea8f.js ']'
++ n=5
+++ basename /_next/static/chunks/31664189-131032d266cbea8f.js
++ curl -sS -m 120 -o courier/tmp/31664189-131032d266cbea8f.js https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
++ read -r ref
++ '[' -n /_next/static/chunks/3403-32514a3b6f231b48.js ']'
++ n=6
+++ basename /_next/static/chunks/3403-32514a3b6f231b48.js
++ curl -sS -m 120 -o courier/tmp/3403-32514a3b6f231b48.js https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
++ read -r ref
++ '[' -n /_next/static/chunks/5932-fc5e26ba7537d40f.js ']'
++ n=7
+++ basename /_next/static/chunks/5932-fc5e26ba7537d40f.js
++ curl -sS -m 120 -o courier/tmp/5932-fc5e26ba7537d40f.js https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
++ read -r ref
++ '[' -n /_next/static/chunks/605-165ef35b0279bd39.js ']'
++ n=8
+++ basename /_next/static/chunks/605-165ef35b0279bd39.js
++ curl -sS -m 120 -o courier/tmp/605-165ef35b0279bd39.js https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
++ read -r ref
++ '[' -n /_next/static/chunks/7530-6c786070af709fce.js ']'
++ n=9
+++ basename /_next/static/chunks/7530-6c786070af709fce.js
++ curl -sS -m 120 -o courier/tmp/7530-6c786070af709fce.js https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
++ read -r ref
++ '[' -n /_next/static/chunks/7957-27920a086f613776.js ']'
++ n=10
+++ basename /_next/static/chunks/7957-27920a086f613776.js
++ curl -sS -m 120 -o courier/tmp/7957-27920a086f613776.js https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
++ read -r ref
++ '[' -n /_next/static/chunks/8815-07c5d6c240d21302.js ']'
++ n=11
+++ basename /_next/static/chunks/8815-07c5d6c240d21302.js
++ curl -sS -m 120 -o courier/tmp/8815-07c5d6c240d21302.js https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
++ read -r ref
++ '[' -n /_next/static/chunks/8926-717c31dfb124a21d.js ']'
++ n=12
+++ basename /_next/static/chunks/8926-717c31dfb124a21d.js
++ curl -sS -m 120 -o courier/tmp/8926-717c31dfb124a21d.js https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
++ read -r ref
++ '[' -n /_next/static/chunks/8942-be40d7d0f79b2e9b.js ']'
++ n=13
+++ basename /_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ curl -sS -m 120 -o courier/tmp/8942-be40d7d0f79b2e9b.js https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ read -r ref
++ '[' -n /_next/static/chunks/9440-f5e8c349bd1c69e7.js ']'
++ n=14
+++ basename /_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ curl -sS -m 120 -o courier/tmp/9440-f5e8c349bd1c69e7.js https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ read -r ref
++ '[' -n /_next/static/chunks/d7eeaac4-e8982f47558a8e86.js ']'
++ n=15
+++ basename /_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ curl -sS -m 120 -o courier/tmp/d7eeaac4-e8982f47558a8e86.js https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ read -r ref
++ '[' -n /_next/static/chunks/framework-834e107486a0d020.js ']'
++ n=16
+++ basename /_next/static/chunks/framework-834e107486a0d020.js
++ curl -sS -m 120 -o courier/tmp/framework-834e107486a0d020.js https://wormhole.app/_next/static/chunks/framework-834e107486a0d020.js
++ read -r ref
++ '[' -n /_next/static/chunks/main-af16c7bd819172a3.js ']'
++ n=17
+++ basename /_next/static/chunks/main-af16c7bd819172a3.js
++ curl -sS -m 120 -o courier/tmp/main-af16c7bd819172a3.js https://wormhole.app/_next/static/chunks/main-af16c7bd819172a3.js
++ read -r ref
++ '[' -n /_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js ']'
++ n=18
+++ basename /_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
++ curl -sS -m 120 -o courier/tmp/%5BroomId%5D-0b3d0798ff57ff4a.js https://wormhole.app/_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
++ read -r ref
++ '[' -n /_next/static/chunks/pages/_app-cc6b50f61ae85e58.js ']'
++ n=19
+++ basename /_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
++ curl -sS -m 120 -o courier/tmp/_app-cc6b50f61ae85e58.js https://wormhole.app/_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
++ read -r ref
++ '[' -n /_next/static/chunks/polyfills-5cd94c89d3acac5f.js ']'
++ n=20
+++ basename /_next/static/chunks/polyfills-5cd94c89d3acac5f.js
++ curl -sS -m 120 -o courier/tmp/polyfills-5cd94c89d3acac5f.js https://wormhole.app/_next/static/chunks/polyfills-5cd94c89d3acac5f.js
++ read -r ref
++ '[' -n /_next/static/chunks/webpack-023767403b8f230c.js ']'
++ n=21
+++ basename /_next/static/chunks/webpack-023767403b8f230c.js
++ curl -sS -m 120 -o courier/tmp/webpack-023767403b8f230c.js https://wormhole.app/_next/static/chunks/webpack-023767403b8f230c.js
++ read -r ref
++ ls -la courier/tmp/
++ head -60
+total 1260
+-rw-r--r-- 1 runner runner    538 Sep 20 16:40 %5BroomId%5D-0b3d0798ff57ff4a.js
+drwxr-xr-x 2 runner runner   4096 Sep 20 16:40 .
+drwxr-xr-x 4 runner runner   4096 Sep 20 16:40 ..
+-rw-r--r-- 1 runner runner  30064 Sep 20 16:40 1485-dafc8cbe8d5e45fb.js
+-rw-r--r-- 1 runner runner  37672 Sep 20 16:40 1577-df667458441d461f.js
+-rw-r--r-- 1 runner runner   1455 Sep 20 16:40 17007de1-39a13d3cbd6eb7c1.js
+-rw-r--r-- 1 runner runner  19033 Sep 20 16:40 2814-717ef478de385955.js
+-rw-r--r-- 1 runner runner    501 Sep 20 16:40 31664189-131032d266cbea8f.js
+-rw-r--r-- 1 runner runner  13079 Sep 20 16:40 3403-32514a3b6f231b48.js
+-rw-r--r-- 1 runner runner 169064 Sep 20 16:40 5932-fc5e26ba7537d40f.js
+-rw-r--r-- 1 runner runner  16445 Sep 20 16:40 605-165ef35b0279bd39.js
+-rw-r--r-- 1 runner runner  15103 Sep 20 16:40 7530-6c786070af709fce.js
+-rw-r--r-- 1 runner runner  18714 Sep 20 16:40 7957-27920a086f613776.js
+-rw-r--r-- 1 runner runner  42544 Sep 20 16:40 8815-07c5d6c240d21302.js
+-rw-r--r-- 1 runner runner  16959 Sep 20 16:40 8926-717c31dfb124a21d.js
+-rw-r--r-- 1 runner runner  20013 Sep 20 16:40 8942-be40d7d0f79b2e9b.js
+-rw-r--r-- 1 runner runner  45237 Sep 20 16:40 9440-f5e8c349bd1c69e7.js
+-rw-r--r-- 1 runner runner 481273 Sep 20 16:40 _app-cc6b50f61ae85e58.js
+-rw-r--r-- 1 runner runner   3150 Sep 20 16:40 _buildManifest.js
+-rw-r--r-- 1 runner runner   3796 Sep 20 16:40 d7eeaac4-e8982f47558a8e86.js
+-rw-r--r-- 1 runner runner 130035 Sep 20 16:40 framework-834e107486a0d020.js
+-rw-r--r-- 1 runner runner  62684 Sep 20 16:40 main-af16c7bd819172a3.js
+-rw-r--r-- 1 runner runner  91434 Sep 20 16:40 polyfills-5cd94c89d3acac5f.js
+-rw-r--r-- 1 runner runner   1010 Sep 20 16:40 refs.txt
+-rw-r--r-- 1 runner runner   4706 Sep 20 16:40 webpack-023767403b8f230c.js
++ echo '=== api refs ==='
+=== api refs ===
++ grep -rhoE '"/?api/[A-Za-z0-9/_.-]+"' courier/tmp/
++ head -80
++ sort -u
++ tee courier/api-refs.txt
+"/api/check"
+"/api/info"
+"/api/report-error"
+"/api/subscribe"
++ echo '=== crypto chunks ==='
+=== crypto chunks ===
++ grep -rlE 'AES-GCM|crypto\.subtle|importKey|decrypt' courier/tmp/
++ tee courier/crypto-chunks.txt
