@@ -45,23 +45,23 @@ jobs:
         shell: bash
         run: |
           set -e
-          cd courier/out
-          rm -f recovered.torrent files.json fetch-log.txt
-          # anything under 100 MB can go to git directly; bigger files get split
-          mkdir -p parts
-          for f in *; do
-            [ -f "$f" ] || continue
+          # anything under ~99 MB can go to git directly; bigger files get split
+          mkdir -p payload-parts
+          for f in courier/out/*; do
+            b=$(basename "$f")
+            case "$b" in recovered.torrent|files.json) continue ;; esac
             sz=$(stat -c%s "$f")
             if [ "$sz" -lt 99000000 ]; then
-              cp "$f" "parts/$f"
+              cp "$f" "payload-parts/$b"
             else
-              split -b 95m --numeric-suffixes=1 --suffix-length=2 "$f" "parts/$f.part-"
+              split -b 95m --numeric-suffixes=1 --suffix-length=2 "$f" "payload-parts/$b.part-"
             fi
           done
-          ls -la parts
+          ls -la payload-parts
+          du -sh payload-parts
           git checkout --orphan courier-camera7z-payload
-          git rm -rf --cached . >/dev/null 2>&1 || true
-          find . -mindepth 1 -maxdepth 1 ! -name parts ! -name .git -exec rm -rf {} +
-          git add parts/
+          git rm -rf --cached . >/dev/null
+          find . -mindepth 1 -maxdepth 1 ! -name payload-parts ! -name .git -exec rm -rf {} +
+          git add payload-parts/
           git commit -m "courier payload: recovered wormhole archive parts"
           git push -f origin courier-camera7z-payload

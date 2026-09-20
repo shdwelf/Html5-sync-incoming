@@ -1,15 +1,16 @@
 // Wormhole.app room downloader — reverse-engineered from the Next.js client
 // (see courier/js*) and webtorrent/wormhole-crypto (RFC 8188 / ECE).
 //
-//   room  : path component of https://wormhole.app/<roomId>#<key>
-//   key   : base64url 16-byte secret from the URL fragment
-//   salt  : GET /api/room/<id>/salt
-//   auth  : HKDF-SHA256(key, salt, "authentication") -> "Bearer sync-v1 <b64>"
+//   room   : path component of https://wormhole.app/<roomId>#<key>
+//   key    : base64url 16-byte secret from the URL fragment
+//   salt   : GET /api/room/<id>/salt
+//   auth   : HKDF-SHA256(key, salt, "authentication") -> "Bearer sync-v1 <b64>"
 //   torrent: GET /api/room/<id> -> encryptedTorrentFile (16-byte IV + AES-GCM,
 //            metaKey = HKDF key with info "metadata")
-//   pieces : POST /api/room/<id>/b2/auth-download -> {downloadUrl, authorizationToken}
+//   data   : POST /api/room/<id>/b2/auth-download -> {downloadUrl, authorizationToken}
 //            GET <downloadUrl>/file/socket-dev-prod/<roomId>/<piece>?Authorization=<tok>
-//            each piece is an independent aes128gcm ECE stream under the main key
+//            The pieces concatenate into ONE aes128gcm ECE stream per file
+//            (torrent file lengths are the ENCRYPTED sizes).
 //
 // Usage: node fetch.mjs <roomId> <key> <outdir>
 
@@ -31,10 +32,6 @@ function b64urlToBytes (s) {
   return new Uint8Array(Buffer.from(b64, 'base64'))
 }
 
-// ---------------- keychain (mirrors wormhole-crypto/lib/keychain.js) -------
-const key = b64urlToBytes(keyB64Url)
-if (key.length !== 16) throw new Error('fragment key must be 16 bytes, got ' + key.length)
-
 async function api (path, opts = {}) {
   const res = await fetch('https://wormhole.app' + path, opts)
   const text = await res.text()
@@ -42,13 +39,17 @@ async function api (path, opts = {}) {
   try { return JSON.parse(text) } catch { return text }
 }
 
-const saltResp = await api(`/api/room/${ROOM}/salt`, { headers: { accept: 'application/json' } })
+// ---------------- keychain (mirrors wormhole-crypto/lib/keychain.js) -------
+const key = b64urlToBytes(keyB64Url)
+if (key.length !== 16) throw new Error('fragment key must be 16 bytes, got ' + key.length)
+
+const saltResp = await api(`/api/room/${ROOM}/salt`)
 console.log('salt response:', JSON.stringify(saltResp))
 const salt = b64urlToBytes(saltResp.salt)
 
 const mainKey = await crypto.subtle.importKey('raw', key, 'HKDF', false, ['deriveBits', 'deriveKey'])
-const hkdfBits = (salt, info, bits) =>
-  crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info: enc.encode(info) }, mainKey, bits)
+const hkdfBits = (s, info, bits) =>
+  crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt: s, info: enc.encode(info) }, mainKey, bits)
 const authToken = new Uint8Array(await hkdfBits(salt, 'authentication', 128))
 const authHeader = 'Bearer sync-v1 ' + Buffer.from(authToken).toString('base64')
 const metaKey = await crypto.subtle.deriveKey(
@@ -64,13 +65,10 @@ console.log('room:', JSON.stringify({
   multiFile: room.multiFile, etfLen: (room.encryptedTorrentFile || '').length
 }))
 if (!room.encryptedTorrentFile) throw new Error('no encryptedTorrentFile in room response')
-if (room.cloudState !== 'uploaded') console.warn('WARNING: cloudState is', room.cloudState)
 
-// decrypt torrent metadata: 16-byte IV + AES-GCM ciphertext
 const etf = Buffer.from(room.encryptedTorrentFile, 'base64')
-const iv = etf.subarray(0, 16)
 const torrentBytes = new Uint8Array(await crypto.subtle.decrypt(
-  { name: 'AES-GCM', iv, tagLength: 128 }, metaKey, etf.subarray(16)))
+  { name: 'AES-GCM', iv: etf.subarray(0, 16), tagLength: 128 }, metaKey, etf.subarray(16)))
 fs.writeFileSync(outDir + '/recovered.torrent', torrentBytes)
 console.log('torrent decrypted:', torrentBytes.length, 'bytes')
 
@@ -79,26 +77,22 @@ function parseBencode (buf) {
   let pos = 0
   const dec = () => {
     const c = buf[pos]
-    if (c === 0x69) { // i<int>e
+    if (c === 0x69) {
       const end = buf.indexOf(0x65, pos)
       const n = Number(buf.toString('latin1', pos + 1, end))
       pos = end + 1
       return n
     }
-    if (c === 0x6c || c === 0x64) { // list / dict
+    if (c === 0x6c || c === 0x64) {
       pos++
       const isDict = c === 0x64
       const out = isDict ? {} : []
       for (;;) {
         if (buf[pos] === 0x65) { pos++; break }
-        if (isDict) {
-          const k = dec().toString('latin1')
-          out[k] = dec()
-        } else out.push(dec())
+        if (isDict) { const k = dec().toString('latin1'); out[k] = dec() } else out.push(dec())
       }
       return out
     }
-    // <len>:<bytes>
     const colon = buf.indexOf(0x3a, pos)
     const len = Number(buf.toString('latin1', pos, colon))
     const start = colon + 1
@@ -110,15 +104,13 @@ function parseBencode (buf) {
 
 const td = parseBencode(Buffer.from(torrentBytes))
 const pieceLength = td.info['piece length']
-const piecesHash = td.info.pieces // 20 bytes per piece
-const pieceCount = piecesHash.length / 20
-const isMulti = !!td.info.files
-const files = isMulti
+const pieceCount = td.info.pieces.length / 20
+const files = td.info.files
   ? td.info.files.map(f => ({ path: f.path.map(p => p.toString('utf8')).join('/'), length: f.length }))
   : [{ path: td.info.name.toString('utf8'), length: td.info.length }]
-const total = files.reduce((a, f) => a + f.length, 0)
-console.log('pieceLength:', pieceLength, 'pieces:', pieceCount, 'total plaintext bytes:', total)
-for (const f of files) console.log(' file:', f.path, f.length)
+const totalEncrypted = files.reduce((a, f) => a + f.length, 0)
+console.log('pieceLength:', pieceLength, 'pieces:', pieceCount, 'total ENCRYPTED bytes:', totalEncrypted)
+for (const f of files) console.log(' file (encrypted length):', f.path, f.length)
 fs.writeFileSync(outDir + '/files.json', JSON.stringify(files, null, 2))
 
 // ---------------- B2 auth ----------------------------------------------------
@@ -128,77 +120,109 @@ const b2 = await api(`/api/room/${ROOM}/b2/auth-download`, {
 console.log('b2 downloadUrl:', b2.downloadUrl)
 if (!b2.downloadUrl || !b2.authorizationToken) throw new Error('b2 auth failed: ' + JSON.stringify(b2))
 
-// ---------------- ECE (RFC 8188) record decrypt ------------------------------
-async function decryptPiece (bytes) {
-  if (bytes.length < 21) throw new Error('piece too short')
-  const rs = (bytes[16] << 24 | bytes[17] << 16 | bytes[18] << 8 | bytes[19]) >>> 0
-  const idlen = bytes[20]
+async function fetchPiece (p) {
+  const path = [roomId, p].map(encodeURIComponent).join('/')
+  const url = `${b2.downloadUrl}/file/socket-dev-prod/${path}?Authorization=${b2.authorizationToken}`
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      const res = await fetch(url)
+      if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + (await res.text()).slice(0, 200))
+      return new Uint8Array(await res.arrayBuffer())
+    } catch (e) {
+      console.warn(`piece ${p} attempt ${attempt + 1} failed: ${e.message}`)
+      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
+    }
+  }
+  throw new Error('piece ' + p + ' unrecoverable')
+}
+
+// ---------------- streaming ECE decrypt of the concatenated pieces ----------
+// One ECE stream per file; for this room: single file -> one stream overall.
+let pending = Buffer.alloc(0)
+let hdr = null // {salt, rs, cek, nonceBase}
+let seq = 0
+let fileIdx = 0
+let fileWritten = 0
+let writer = null
+let plainExpected = null // per current file, once header known
+
+function plaintextSizeOf (encSize, rs) {
+  const meta = 17
+  const records = encSize - 21
+  return records - meta * Math.ceil(records / rs)
+}
+
+async function ensureHeader () {
+  if (hdr || pending.length < 21) return
+  const rs = pending.readUInt32BE(16)
+  const idlen = pending[20]
   if (idlen !== 0) throw new Error('non-zero keyid unsupported')
-  const eceSalt = bytes.subarray(0, 16)
+  const eceSalt = pending.subarray(0, 16)
+  pending = pending.subarray(21)
   const cek = await crypto.subtle.deriveKey(
     { name: 'HKDF', hash: 'SHA-256', salt: eceSalt, info: enc.encode('Content-Encoding: aes128gcm\0') },
     mainKey, { name: 'AES-GCM', length: 128 }, false, ['decrypt'])
   const nonceBase = new Uint8Array(await crypto.subtle.deriveBits(
     { name: 'HKDF', hash: 'SHA-256', salt: eceSalt, info: enc.encode('Content-Encoding: nonce\0') },
     mainKey, 96))
-  const out = []
-  let off = 21
-  let seq = 0
-  while (off < bytes.length) {
-    const rec = bytes.subarray(off, Math.min(off + rs, bytes.length))
-    off += rs
-    const isLast = off >= bytes.length
-    const nonce = nonceBase.slice()
+  hdr = { rs, cek, nonceBase }
+  const f = files[fileIdx]
+  plainExpected = plaintextSizeOf(f.length, rs)
+  const safeName = f.path.replace(/\//g, '__')
+  writer = createWriteStream(outDir + '/' + safeName)
+  console.log(`ECE header: rs=${rs}, file=${f.path}, plaintext size=${plainExpected}`)
+}
+
+async function drain (isStreamEnd) {
+  for (;;) {
+    if (fileIdx >= files.length) {
+      if (pending.length > 0) console.warn('trailing bytes:', pending.length)
+      return
+    }
+    if (!hdr) { await ensureHeader(); if (!hdr) return }
+    const rs = hdr.rs
+    if (pending.length === 0) return
+    if (pending.length < rs && !isStreamEnd) return // wait for a full record
+    const recLen = Math.min(rs, pending.length)
+    if (recLen < 17) throw new Error('record too short: ' + recLen)
+    const rec = pending.subarray(0, recLen)
+    pending = pending.subarray(recLen)
+    const nonce = hdr.nonceBase.slice()
     const dv = new DataView(nonce.buffer)
     dv.setUint32(8, (dv.getUint32(8) ^ seq) >>> 0)
     const pt = new Uint8Array(await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: nonce, tagLength: 128 }, cek, rec))
-    // strip padding: last non-zero byte is delimiter (2 = final record)
+      { name: 'AES-GCM', iv: nonce, tagLength: 128 }, hdr.cek, rec))
+    // strip padding: last non-zero byte is the delimiter (1 = more, 2 = final)
     let end = pt.length - 1
     while (end >= 0 && pt[end] === 0) end--
     if (end < 0) throw new Error('no delimiter')
-    if (pt[end] !== (isLast ? 2 : 1)) throw new Error(`bad delimiter ${pt[end]} seq ${seq} isLast ${isLast}`)
-    out.push(pt.subarray(0, end))
+    const delim = pt[end]
+    if (delim !== 1 && delim !== 2) throw new Error(`bad delimiter ${delim} seq ${seq}`)
+    const data = Buffer.from(pt.subarray(0, end))
+    writer.write(data)
+    fileWritten += data.length
     seq++
-  }
-  return Buffer.concat(out)
-}
-
-// ---------------- stream all pieces into per-file writers ---------------------
-const writers = files.map(f => ({ ...f, written: 0, ws: createWriteStream(outDir + '/' + f.path.replace(/\//g, '__')) }))
-let fileIdx = 0
-let inFileOff = 0
-const t0 = Date.now()
-for (let p = 0; p < pieceCount; p++) {
-  const path = [roomId, p].map(encodeURIComponent).join('/')
-  const url = `${b2.downloadUrl}/file/socket-dev-prod/${path}?Authorization=${b2.authorizationToken}`
-  let buf = null
-  for (let attempt = 0; attempt < 6 && buf === null; attempt++) {
-    try {
-      const res = await fetch(url)
-      if (!res.ok) throw new Error('HTTP ' + res.status)
-      buf = new Uint8Array(await res.arrayBuffer())
-    } catch (e) {
-      console.warn(`piece ${p} attempt ${attempt + 1} failed: ${e.message}`)
-      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
+    if (delim === 2) {
+      await new Promise(r => writer.end(r))
+      console.log(`file complete: ${files[fileIdx].path} (${fileWritten} bytes, expected ${plainExpected})`)
+      if (fileWritten !== plainExpected) throw new Error('size mismatch')
+      fileIdx++; fileWritten = 0; writer = null
+      hdr = null; seq = 0; plainExpected = null
     }
   }
-  if (buf === null) throw new Error('piece ' + p + ' unrecoverable')
-  const plain = await decryptPiece(buf)
-  let need = plain.length
-  let src = 0
-  while (need > 0) {
-    const w = writers[fileIdx]
-    const space = w.length - inFileOff
-    const take = Math.min(space, need)
-    if (take > 0) w.ws.write(Buffer.from(plain.subarray(src, src + take)))
-    src += take; need -= take; inFileOff += take; w.written += take
-    if (inFileOff >= w.length) { w.ws.end(); fileIdx++; inFileOff = 0 }
-  }
-  if (p % 25 === 0 || p === pieceCount - 1) {
-    const done = writers.reduce((a, w) => a + w.written, 0)
-    console.log(`piece ${p + 1}/${pieceCount}  ${done}/${total} bytes  ${Math.round((Date.now() - t0) / 1000)}s`)
+}
+
+const t0 = Date.now()
+let encDone = 0
+for (let p = 0; p < pieceCount; p++) {
+  const buf = await fetchPiece(p)
+  encDone += buf.length
+  pending = Buffer.concat([pending, Buffer.from(buf)])
+  await drain(p === pieceCount - 1)
+  if (p % 2 === 0 || p === pieceCount - 1) {
+    console.log(`piece ${p + 1}/${pieceCount}  encrypted ${encDone}/${totalEncrypted}  ${Math.round((Date.now() - t0) / 1000)}s`)
   }
 }
-for (const w of writers) await new Promise(r => w.ws.close(r))
+await drain(true)
+if (fileIdx < files.length) throw new Error(`unfinished: stopped at file ${fileIdx}`)
 console.log('ALL FILES WRITTEN')
