@@ -1,14 +1,22 @@
 name: courier-recon
 
-# Phase 6: the actual retrieval. Runs courier/fetch.mjs on the runner (full
-# internet), recovers the plaintext archive from the wormhole room, and pushes
-# it back split into <100 MB parts on the orphan branch courier/camera7z-payload.
+# Wormhole room retrieval (generic). The sandbox has no route to wormhole.app /
+# backblazeb2.com, so the runner performs the download+decrypt (see
+# courier/fetch.mjs) and pushes the recovered bytes back on a scratch branch.
 
 on:
-  push:
-    branches:
-      - arena/01a0bf6a-html5-sync-incoming
   workflow_dispatch:
+    inputs:
+      room:
+        description: wormhole room id
+        required: true
+      key:
+        description: URL-fragment secret key (base64url)
+        required: true
+      scratch:
+        description: scratch branch to publish parts on
+        required: true
+        default: courier-camera7z-payload
 
 permissions:
   contents: write
@@ -25,27 +33,15 @@ jobs:
         run: |
           set +e
           mkdir -p courier/out
-          node courier/fetch.mjs 0vXlpp AH0b0r1FXmt7ZE9ranwgag courier/out 2>&1 | tee courier/fetch-log.txt
+          node courier/fetch.mjs "${{ inputs.room }}" "${{ inputs.key }}" courier/out 2>&1 | tee courier/fetch-log.txt
           echo "node exit: ${PIPESTATUS[0]}" | tee -a courier/fetch-log.txt
           ls -la courier/out | tee -a courier/fetch-log.txt
           sha256sum courier/out/* >> courier/fetch-log.txt 2>/dev/null
-
-      - name: Publish log on the working branch
-        if: always()
-        shell: bash
-        run: |
-          set +e
-          git config user.name "arena-courier"
-          git config user.email "arena-courier@users.noreply.github.com"
-          git add courier/fetch-log.txt courier/out/recovered.torrent courier/out/files.json 2>/dev/null
-          git diff --cached --quiet || git commit -m "courier phase 6: fetch log"
-          git push
 
       - name: Push recovered files as parts on scratch branch
         shell: bash
         run: |
           set -e
-          # anything under ~99 MB can go to git directly; bigger files get split
           mkdir -p payload-parts
           for f in courier/out/*; do
             b=$(basename "$f")
@@ -59,9 +55,12 @@ jobs:
           done
           ls -la payload-parts
           du -sh payload-parts
-          git checkout --orphan courier-camera7z-payload
+          cp courier/fetch-log.txt payload-parts/ 2>/dev/null || true
+          git config user.name "arena-courier"
+          git config user.email "arena-courier@users.noreply.github.com"
+          git checkout --orphan "${{ inputs.scratch }}"
           git rm -rf --cached . >/dev/null
           find . -mindepth 1 -maxdepth 1 ! -name payload-parts ! -name .git -exec rm -rf {} +
           git add payload-parts/
-          git commit -m "courier payload: recovered wormhole archive parts"
-          git push -f origin courier-camera7z-payload
+          git commit -m "courier payload: wormhole room ${{ inputs.room }}"
+          git push -f origin "${{ inputs.scratch }}"
