@@ -1,5 +1,5 @@
 salt response: {"salt":"BN+WRuhCJ6frtYAzDyfpVQ=="}
-room: {"cloudState":"uploaded","lifetime":86400,"maxDownloads":100,"remainingDownloads":100,"expires":"2026-09-21T17:06:20.241Z","multiFile":true,"etfLen":1460}
+room: {"cloudState":"uploaded","lifetime":86400,"maxDownloads":100,"remainingDownloads":99,"expires":"2026-09-21T17:06:20.241Z","multiFile":true,"etfLen":1460}
 torrent decrypted: 1062 bytes
 pieceLength: 5013504 pieces: 23 total ENCRYPTED bytes: 113222639
  file (encrypted length): Camera.7z.part6.txt 8337649
@@ -9,25 +9,48 @@ pieceLength: 5013504 pieces: 23 total ENCRYPTED bytes: 113222639
  file (encrypted length): Camera.7z.part2.txt 20976998
  file (encrypted length): Camera.7z (2).part1.txt 20976998
 b2 downloadUrl: https://api000.backblazeb2.com
-ECE header: rs=65536, file=Camera.7z.part6.txt, plaintext size=8335452
+ECE header: rs=65536, file=Camera.7z.part6.txt, encrypted=8337649, plaintext size=8335452
 piece 1/23  encrypted 5013504/113222639  1s
-node:internal/crypto/util:453
-    return reject(lazyDOMException(
-                  ^
-
-DOMException [OperationError]: The operation failed for an operation-specific reason
-    at AESCipherJob.onDone (node:internal/crypto/util:453:19) {
-  [cause]: [Error: Cipher job failed]
-}
-
-Node.js v22.23.2
-node exit: 1
-total 8144
-drwxr-xr-x 2 runner runner    4096 Sep 20 17:15 .
-drwxr-xr-x 5 runner runner    4096 Sep 20 17:15 ..
--rw-r--r-- 1 runner runner 8320913 Sep 20 17:15 Camera.7z.part6.txt
--rw-r--r-- 1 runner runner     407 Sep 20 17:15 files.json
--rw-r--r-- 1 runner runner    1062 Sep 20 17:15 recovered.torrent
-883217f1a7c7b931dfdaa0c4e5d9a4400f9f5a3813eeef5535d87d3becaf1f00  courier/out/Camera.7z.part6.txt
+file complete: Camera.7z.part6.txt (8335452 bytes, expected 8335452)
+ECE header: rs=65536, file=Camera.7z.part5.txt, encrypted=20976998, plaintext size=20971520
+piece 3/23  encrypted 15040512/113222639  1s
+piece 5/23  encrypted 25067520/113222639  2s
+file complete: Camera.7z.part5.txt (20971520 bytes, expected 20971520)
+ECE header: rs=65536, file=Camera.7z.part4.txt, encrypted=20976998, plaintext size=20971520
+piece 7/23  encrypted 35094528/113222639  2s
+piece 9/23  encrypted 45121536/113222639  3s
+file complete: Camera.7z.part4.txt (20971520 bytes, expected 20971520)
+ECE header: rs=65536, file=Camera.7z.part3.txt, encrypted=20976998, plaintext size=20971520
+piece 11/23  encrypted 55148544/113222639  4s
+piece 13/23  encrypted 65175552/113222639  4s
+file complete: Camera.7z.part3.txt (20971520 bytes, expected 20971520)
+ECE header: rs=65536, file=Camera.7z.part2.txt, encrypted=20976998, plaintext size=20971520
+piece 15/23  encrypted 75202560/113222639  5s
+piece 17/23  encrypted 85229568/113222639  6s
+file complete: Camera.7z.part2.txt (20971520 bytes, expected 20971520)
+ECE header: rs=65536, file=Camera.7z (2).part1.txt, encrypted=20976998, plaintext size=20971520
+piece 19/23  encrypted 95256576/113222639  6s
+piece 21/23  encrypted 105283584/113222639  6s
+file complete: Camera.7z (2).part1.txt (20971520 bytes, expected 20971520)
+piece 23/23  encrypted 113222639/113222639  7s
+ALL FILES WRITTEN
+node exit: 0
+total 110560
+drwxr-xr-x 2 runner runner     4096 Sep 20 17:18 .
+drwxr-xr-x 5 runner runner     4096 Sep 20 17:18 ..
+-rw-r--r-- 1 runner runner 20971520 Sep 20 17:18 Camera.7z (2).part1.txt
+-rw-r--r-- 1 runner runner 20971520 Sep 20 17:18 Camera.7z.part2.txt
+-rw-r--r-- 1 runner runner 20971520 Sep 20 17:18 Camera.7z.part3.txt
+-rw-r--r-- 1 runner runner 20971520 Sep 20 17:18 Camera.7z.part4.txt
+-rw-r--r-- 1 runner runner 20971520 Sep 20 17:18 Camera.7z.part5.txt
+-rw-r--r-- 1 runner runner  8335452 Sep 20 17:18 Camera.7z.part6.txt
+-rw-r--r-- 1 runner runner      407 Sep 20 17:18 files.json
+-rw-r--r-- 1 runner runner     1062 Sep 20 17:18 recovered.torrent
+57ea825709e77f2a87d36dbb5a7f79a78e68846f5511c1bad0c9c1700be84a11  courier/out/Camera.7z (2).part1.txt
+08af0a41f6efda8a2bff94b649754fe1251a65b9208348f132ee7bd9c21e61d2  courier/out/Camera.7z.part2.txt
+8fc0b01a2a14f18b2ee8f61e3f8a0cda6972b191eda448b73b1be07f051a4ade  courier/out/Camera.7z.part3.txt
+ad6ce653007861b2b708e5c480faf962da006914c8653b98b5612820384b8fe6  courier/out/Camera.7z.part4.txt
+c160ac8dbce1f5e096ce5487ba3097cb9d5a911994f80ca02a82d29a19516faf  courier/out/Camera.7z.part5.txt
+4d32be053e4bce110e6f3a0f0e618dba84a738f1065d152bb6b7cb173a0a5637  courier/out/Camera.7z.part6.txt
 ac109ae9982484de6e62909b7f3c8a72aeafc8a2fcb6aebe28713e83f8046022  courier/out/files.json
 ba94083fed7ab2a5a14d06f65d0a8dabc4572794102b4fa950fb79dcbff16250  courier/out/recovered.torrent
