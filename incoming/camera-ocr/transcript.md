@@ -18,6 +18,11 @@ Mechanical Tesseract output (eng) is preserved alongside in `raw-tesseract/`.
 This file is a best-effort human-quality reading of each page; `[?]` marks uncertain
 words, `[...]` marks illegible spans. Pages are in photo order.
 
+The file contains TWO independent reading passes: Pass 1 covers every page in photo
+order; Pass 2 (after the separator near the end) is a verification re-read of pages
+160508–161259. Where the passes differ, both readings are retained — treat
+disagreements as low-confidence text.
+
 ## 20260919_160440 — printed "CLASS SCHEDULE" form (filled in by hand)
 
 Margin scribbles: "BACK IN 1-2-20 24"; "13:30 - UTC/GRC"; "02:14 3MAR08 / M?? 4331 AD";
@@ -563,6 +568,10 @@ Printed page (upside-down in photo): "METRIC UNIT CONVERSION … When You Know: 
 ## 20260919_161259 — printed conversion page, fractions/decimals/percentages (upside-down in photo)
 
 "METRIC UNIT CONVERSIONS / FRACTIONS, DECIMALS, PERCENTAGES": To add or subtract different fractions, first find the common denominator (4/5+1/3=12/15+5/15=17/15?); To multiply: 3/5×2/3=…; To divide, multiply with the reciprocal (2/3÷1/6=2/3×6/1=4); Decimals and Percent: 22.6%=.226=0.226; 0.15=.15=15%; FRACTION/DECIMAL/PERCENT table: 1/16 0.0625 6.25%; 1/8 0.125 12.5%; 3/16 0.1875 18.75%; 1/4 0.25 25.0%; 5/16 0.3125 31.25%; 1/3 0.3333 33.33%; 3/8 0.375 37.5%; 1/2 0.5 50.0%; 9/16 0.5625 56.25%; 5/8 0.625 62.5%; 2/3 0.6667 66.67%; 3/4 0.75 75.0%; 13/16 0.8125 81.25%. Also repeated: Length and Distance / Surface or Area / Volume and Capacity (Liquid) / Weight and Mass columns. Doodle zigzag across top.
+---
+
+# Pass 2 — verification re-reads (pages 160508–161259, independent second pass)
+
 ## 20260919_160508 — address variants list (V.I. / states)
 
 - Ombudsman, Navy — Office of Secretary General, Navy — c/o Postmaster, PR 00765, USA [struck]
