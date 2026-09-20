@@ -841,3 +841,34 @@ drwxr-xr-x 4 runner runner   4096 Sep 20 16:42 ..
 1
 + echo ALL-STEPS-DONE
 ALL-STEPS-DONE
+total 1408
+drwxr-xr-x 2 runner runner   4096 Sep 20 16:44 .
+drwxr-xr-x 4 runner runner   4096 Sep 20 16:44 ..
+-rw-r--r-- 1 runner runner    205 Sep 20 16:44 1379.b98a43266ca92e2c.js
+-rw-r--r-- 1 runner runner  48373 Sep 20 16:44 297.eedd867e90026c71.js
+-rw-r--r-- 1 runner runner  46297 Sep 20 16:44 5626.8e8fff96c110de2f.js
+-rw-r--r-- 1 runner runner 385653 Sep 20 16:44 5892.142b55654e839fb6.js
+-rw-r--r-- 1 runner runner    619 Sep 20 16:44 9060.59325fcbfe21e0d7.js
+-rw-r--r-- 1 runner runner  21021 Sep 20 16:44 9361.afdadd55cb17aa3b.js
+-rw-r--r-- 1 runner runner   6981 Sep 20 16:44 9894.15572e540f824c31.js
+-rw-r--r-- 1 runner runner 534988 Sep 20 16:44 fb7d5399.d366e817b93124a7.js
+-rw-r--r-- 1 runner runner 365919 Sep 20 16:44 fec483df.e9e3445d650f7fdd.js
+=== url-ish strings ===
+"/api/room"
+"/download-keepalive"
+"/download-stream/"
+"/tmp"
+`/api/room/${e}/b2/auth-download`
+`/api/room/${e}/salt`
+`/api/room/${e}`
+`/api/room/${s}/b2/auth-upload`
+`/api/room/${s}/b2/finish-upload`
+`/api/room/${s}`
+`/api/room/${this.id}/cloud-state`
+`/api/room/${this.id}/expiration`
+`/api/room/${this.id}/remaining-downloads`
+`/api/room/${this.id}/report`
+`/api/room/${this.id}/uploader-online`
+`/api/room/${this.id}`
+`/download-stream/${t}`
+DONE5
