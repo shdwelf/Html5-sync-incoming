@@ -1,0 +1,26 @@
+salt response: {"salt":"sWz7aj8dY0k1MkwLnmln8w=="}
+room: {"cloudState":"uploaded","lifetime":86400,"maxDownloads":100,"remainingDownloads":100,"expires":"2026-09-21T15:21:12.057Z","multiFile":false,"etfLen":1072}
+torrent decrypted: 771 bytes
+pieceLength: 5013504 pieces: 23 total plaintext bytes: 111695467
+ file: Camera.7z 111695467
+b2 downloadUrl: https://api000.backblazeb2.com
+node:internal/crypto/util:453
+    return reject(lazyDOMException(
+                  ^
+
+DOMException [OperationError]: The operation failed for an operation-specific reason
+    at AESCipherJob.onDone (node:internal/crypto/util:453:19) {
+  [cause]: [Error: Cipher job failed]
+}
+
+Node.js v22.23.2
+node exit: 1
+total 16
+drwxr-xr-x 2 runner runner 4096 Sep 20 16:47 .
+drwxr-xr-x 5 runner runner 4096 Sep 20 16:47 ..
+-rw-r--r-- 1 runner runner    0 Sep 20 16:47 Camera.7z
+-rw-r--r-- 1 runner runner   60 Sep 20 16:47 files.json
+-rw-r--r-- 1 runner runner  771 Sep 20 16:47 recovered.torrent
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  courier/out/Camera.7z
+f67a2c58a9a7245bc117c2040b7d80ea7a13a4dff7f6319e1e1e13f431683de4  courier/out/files.json
+115773964009a7c9bad1126d9ad7b21b4314d7538226d4654d71b2bc3d363018  courier/out/recovered.torrent
