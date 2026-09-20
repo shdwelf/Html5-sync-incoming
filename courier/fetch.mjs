@@ -143,6 +143,7 @@ let hdr = null // {salt, rs, cek, nonceBase}
 let seq = 0
 let fileIdx = 0
 let fileWritten = 0
+let encConsumed = 0
 let writer = null
 let plainExpected = null // per current file, once header known
 
@@ -159,6 +160,7 @@ async function ensureHeader () {
   if (idlen !== 0) throw new Error('non-zero keyid unsupported')
   const eceSalt = pending.subarray(0, 16)
   pending = pending.subarray(21)
+  encConsumed = 21
   const cek = await crypto.subtle.deriveKey(
     { name: 'HKDF', hash: 'SHA-256', salt: eceSalt, info: enc.encode('Content-Encoding: aes128gcm\0') },
     mainKey, { name: 'AES-GCM', length: 128 }, false, ['decrypt'])
@@ -170,10 +172,10 @@ async function ensureHeader () {
   plainExpected = plaintextSizeOf(f.length, rs)
   const safeName = f.path.replace(/\//g, '__')
   writer = createWriteStream(outDir + '/' + safeName)
-  console.log(`ECE header: rs=${rs}, file=${f.path}, plaintext size=${plainExpected}`)
+  console.log(`ECE header: rs=${rs}, file=${f.path}, encrypted=${f.length}, plaintext size=${plainExpected}`)
 }
 
-async function drain (isStreamEnd) {
+async function drain () {
   for (;;) {
     if (fileIdx >= files.length) {
       if (pending.length > 0) console.warn('trailing bytes:', pending.length)
@@ -181,33 +183,44 @@ async function drain (isStreamEnd) {
     }
     if (!hdr) { await ensureHeader(); if (!hdr) return }
     const rs = hdr.rs
+    const budget = files[fileIdx].length
+    const remaining = budget - encConsumed // encrypted bytes left in this file's stream
     if (pending.length === 0) return
-    if (pending.length < rs && !isStreamEnd) return // wait for a full record
-    const recLen = Math.min(rs, pending.length)
+    // final record of the file may be shorter than rs; piece boundaries do NOT
+    // align with file boundaries, so use the per-file encrypted budget to frame it
+    const recLen = Math.min(rs, remaining)
     if (recLen < 17) throw new Error('record too short: ' + recLen)
+    if (pending.length < recLen) return // wait for more bytes
     const rec = pending.subarray(0, recLen)
     pending = pending.subarray(recLen)
+    encConsumed += recLen
     const nonce = hdr.nonceBase.slice()
     const dv = new DataView(nonce.buffer)
     dv.setUint32(8, (dv.getUint32(8) ^ seq) >>> 0)
-    const pt = new Uint8Array(await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: nonce, tagLength: 128 }, hdr.cek, rec))
-    // strip padding: last non-zero byte is the delimiter (1 = more, 2 = final)
+    let pt
+    try {
+      pt = new Uint8Array(await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: nonce, tagLength: 128 }, hdr.cek, rec))
+    } catch (e) {
+      throw new Error(`GCM fail file=${fileIdx} seq=${seq} recLen=${recLen} remaining=${remaining}: ${e}`)
+    }
     let end = pt.length - 1
     while (end >= 0 && pt[end] === 0) end--
     if (end < 0) throw new Error('no delimiter')
     const delim = pt[end]
-    if (delim !== 1 && delim !== 2) throw new Error(`bad delimiter ${delim} seq ${seq}`)
+    const isFinal = encConsumed >= budget
+    const expectDelim = isFinal ? 2 : 1
+    if (delim !== expectDelim) throw new Error(`bad delimiter ${delim} (expected ${expectDelim}) seq ${seq}`)
     const data = Buffer.from(pt.subarray(0, end))
     writer.write(data)
     fileWritten += data.length
     seq++
-    if (delim === 2) {
+    if (isFinal) {
       await new Promise(r => writer.end(r))
       console.log(`file complete: ${files[fileIdx].path} (${fileWritten} bytes, expected ${plainExpected})`)
       if (fileWritten !== plainExpected) throw new Error('size mismatch')
       fileIdx++; fileWritten = 0; writer = null
-      hdr = null; seq = 0; plainExpected = null
+      hdr = null; seq = 0; plainExpected = null; encConsumed = 0
     }
   }
 }
@@ -218,11 +231,11 @@ for (let p = 0; p < pieceCount; p++) {
   const buf = await fetchPiece(p)
   encDone += buf.length
   pending = Buffer.concat([pending, Buffer.from(buf)])
-  await drain(p === pieceCount - 1)
+  await drain()
   if (p % 2 === 0 || p === pieceCount - 1) {
     console.log(`piece ${p + 1}/${pieceCount}  encrypted ${encDone}/${totalEncrypted}  ${Math.round((Date.now() - t0) / 1000)}s`)
   }
 }
-await drain(true)
+await drain()
 if (fileIdx < files.length) throw new Error(`unfinished: stopped at file ${fileIdx}`)
 console.log('ALL FILES WRITTEN')
