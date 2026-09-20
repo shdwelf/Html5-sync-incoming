@@ -1,6 +1,26 @@
 [
   {
-    "path": "Camera.7z",
-    "length": 111695467
+    "path": "Camera.7z.part6.txt",
+    "length": 8337649
+  },
+  {
+    "path": "Camera.7z.part5.txt",
+    "length": 20976998
+  },
+  {
+    "path": "Camera.7z.part4.txt",
+    "length": 20976998
+  },
+  {
+    "path": "Camera.7z.part3.txt",
+    "length": 20976998
+  },
+  {
+    "path": "Camera.7z.part2.txt",
+    "length": 20976998
+  },
+  {
+    "path": "Camera.7z (2).part1.txt",
+    "length": 20976998
   }
 ]
