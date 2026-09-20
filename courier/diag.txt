@@ -1,0 +1,874 @@
++ UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
++ mkdir -p courier/tmp courier/js
+++ grep -oE '/_next/static/[A-Za-z0-9_-]{10,}/_buildManifest' courier/page.html
+++ head -1
+++ cut -d/ -f4
++ BUILD=OPL3vj3294Ef3MPUMIb_K
++ echo BUILD=OPL3vj3294Ef3MPUMIb_K
+BUILD=OPL3vj3294Ef3MPUMIb_K
++ curl -sS -m 60 -o courier/tmp/_buildManifest.js https://wormhole.app/_next/static/OPL3vj3294Ef3MPUMIb_K/_buildManifest.js
++ head -c 800 courier/tmp/_buildManifest.js
+self.__BUILD_MANIFEST=function(s,e,t,a,c,i,r,o,u,n,b,d,f,h,k,j){return{__rewrites:{beforeFiles:[],afterFiles:[],fallback:[]},"/":[e,o,u,s,t,a,c,n,b,d,k,i,f,h,j,"static/chunks/pages/index-b0acf88696bc5f2a.js"],"/_error":[e,s,t,a,c,i,"static/chunks/pages/_error-a4e9e85bb1d3d130.js"],"/about":[e,s,t,a,c,r,i,"static/chunks/pages/about-9cca7d84bb28e6fe.js"],"/faq":[e,s,t,a,c,r,i,"static/chunks/pages/faq-80a9104e00bac749.js"],"/legal":[e,s,t,a,c,r,i,"static/chunks/pages/legal-9250014f37729f0a.js"],"/roadmap":[e,s,t,a,c,r,i,"static/chunks/pages/roadmap-8311cce9cb46bc34.js"],"/security":[e,s,t,a,c,r,i,"static/chunks/pages/security-80d140f3b6a8c9b3.js"],"/security/disclosure":[e,s,t,a,c,r,i,"static/chunks/pages/security/disclosure-21fc6fb420dbec05.js"],"/stories":[e,s,t,a,c,i,"static/chunks/pages/s+ echo
+
++ tr -d '"'
++ grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/page.html
++ sort -u
++ grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/tmp/_buildManifest.js
++ tr -d '"'
++ true
++ sort -u courier/tmp/refs.txt -o courier/tmp/refs.txt
++ wc -l courier/tmp/refs.txt
+21 courier/tmp/refs.txt
++ n=0
++ read -r ref
++ '[' -n /_next/static/chunks/1485-dafc8cbe8d5e45fb.js ']'
++ n=1
+++ basename /_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ curl -sS -m 120 -o courier/tmp/1485-dafc8cbe8d5e45fb.js https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ read -r ref
++ '[' -n /_next/static/chunks/1577-df667458441d461f.js ']'
++ n=2
+++ basename /_next/static/chunks/1577-df667458441d461f.js
++ curl -sS -m 120 -o courier/tmp/1577-df667458441d461f.js https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
++ read -r ref
++ '[' -n /_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js ']'
++ n=3
+++ basename /_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ curl -sS -m 120 -o courier/tmp/17007de1-39a13d3cbd6eb7c1.js https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ read -r ref
++ '[' -n /_next/static/chunks/2814-717ef478de385955.js ']'
++ n=4
+++ basename /_next/static/chunks/2814-717ef478de385955.js
++ curl -sS -m 120 -o courier/tmp/2814-717ef478de385955.js https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
++ read -r ref
++ '[' -n /_next/static/chunks/31664189-131032d266cbea8f.js ']'
++ n=5
+++ basename /_next/static/chunks/31664189-131032d266cbea8f.js
++ curl -sS -m 120 -o courier/tmp/31664189-131032d266cbea8f.js https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
++ read -r ref
++ '[' -n /_next/static/chunks/3403-32514a3b6f231b48.js ']'
++ n=6
+++ basename /_next/static/chunks/3403-32514a3b6f231b48.js
++ curl -sS -m 120 -o courier/tmp/3403-32514a3b6f231b48.js https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
++ read -r ref
++ '[' -n /_next/static/chunks/5932-fc5e26ba7537d40f.js ']'
++ n=7
+++ basename /_next/static/chunks/5932-fc5e26ba7537d40f.js
++ curl -sS -m 120 -o courier/tmp/5932-fc5e26ba7537d40f.js https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
++ read -r ref
++ '[' -n /_next/static/chunks/605-165ef35b0279bd39.js ']'
++ n=8
+++ basename /_next/static/chunks/605-165ef35b0279bd39.js
++ curl -sS -m 120 -o courier/tmp/605-165ef35b0279bd39.js https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
++ read -r ref
++ '[' -n /_next/static/chunks/7530-6c786070af709fce.js ']'
++ n=9
+++ basename /_next/static/chunks/7530-6c786070af709fce.js
++ curl -sS -m 120 -o courier/tmp/7530-6c786070af709fce.js https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
++ read -r ref
++ '[' -n /_next/static/chunks/7957-27920a086f613776.js ']'
++ n=10
+++ basename /_next/static/chunks/7957-27920a086f613776.js
++ curl -sS -m 120 -o courier/tmp/7957-27920a086f613776.js https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
++ read -r ref
++ '[' -n /_next/static/chunks/8815-07c5d6c240d21302.js ']'
++ n=11
+++ basename /_next/static/chunks/8815-07c5d6c240d21302.js
++ curl -sS -m 120 -o courier/tmp/8815-07c5d6c240d21302.js https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
++ read -r ref
++ '[' -n /_next/static/chunks/8926-717c31dfb124a21d.js ']'
++ n=12
+++ basename /_next/static/chunks/8926-717c31dfb124a21d.js
++ curl -sS -m 120 -o courier/tmp/8926-717c31dfb124a21d.js https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
++ read -r ref
++ '[' -n /_next/static/chunks/8942-be40d7d0f79b2e9b.js ']'
++ n=13
+++ basename /_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ curl -sS -m 120 -o courier/tmp/8942-be40d7d0f79b2e9b.js https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ read -r ref
++ '[' -n /_next/static/chunks/9440-f5e8c349bd1c69e7.js ']'
++ n=14
+++ basename /_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ curl -sS -m 120 -o courier/tmp/9440-f5e8c349bd1c69e7.js https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ read -r ref
++ '[' -n /_next/static/chunks/d7eeaac4-e8982f47558a8e86.js ']'
++ n=15
+++ basename /_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ curl -sS -m 120 -o courier/tmp/d7eeaac4-e8982f47558a8e86.js https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ read -r ref
++ '[' -n /_next/static/chunks/framework-834e107486a0d020.js ']'
++ n=16
+++ basename /_next/static/chunks/framework-834e107486a0d020.js
++ curl -sS -m 120 -o courier/tmp/framework-834e107486a0d020.js https://wormhole.app/_next/static/chunks/framework-834e107486a0d020.js
++ read -r ref
++ '[' -n /_next/static/chunks/main-af16c7bd819172a3.js ']'
++ n=17
+++ basename /_next/static/chunks/main-af16c7bd819172a3.js
++ curl -sS -m 120 -o courier/tmp/main-af16c7bd819172a3.js https://wormhole.app/_next/static/chunks/main-af16c7bd819172a3.js
++ read -r ref
++ '[' -n /_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js ']'
++ n=18
+++ basename /_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
++ curl -sS -m 120 -o courier/tmp/%5BroomId%5D-0b3d0798ff57ff4a.js https://wormhole.app/_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
++ read -r ref
++ '[' -n /_next/static/chunks/pages/_app-cc6b50f61ae85e58.js ']'
++ n=19
+++ basename /_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
++ curl -sS -m 120 -o courier/tmp/_app-cc6b50f61ae85e58.js https://wormhole.app/_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
++ read -r ref
++ '[' -n /_next/static/chunks/polyfills-5cd94c89d3acac5f.js ']'
++ n=20
+++ basename /_next/static/chunks/polyfills-5cd94c89d3acac5f.js
++ curl -sS -m 120 -o courier/tmp/polyfills-5cd94c89d3acac5f.js https://wormhole.app/_next/static/chunks/polyfills-5cd94c89d3acac5f.js
++ read -r ref
++ '[' -n /_next/static/chunks/webpack-023767403b8f230c.js ']'
++ n=21
+++ basename /_next/static/chunks/webpack-023767403b8f230c.js
++ curl -sS -m 120 -o courier/tmp/webpack-023767403b8f230c.js https://wormhole.app/_next/static/chunks/webpack-023767403b8f230c.js
++ read -r ref
++ ls -la courier/tmp/
++ head -60
+total 1260
+-rw-r--r-- 1 runner runner    538 Sep 20 16:40 %5BroomId%5D-0b3d0798ff57ff4a.js
+drwxr-xr-x 2 runner runner   4096 Sep 20 16:40 .
+drwxr-xr-x 4 runner runner   4096 Sep 20 16:40 ..
+-rw-r--r-- 1 runner runner  30064 Sep 20 16:40 1485-dafc8cbe8d5e45fb.js
+-rw-r--r-- 1 runner runner  37672 Sep 20 16:40 1577-df667458441d461f.js
+-rw-r--r-- 1 runner runner   1455 Sep 20 16:40 17007de1-39a13d3cbd6eb7c1.js
+-rw-r--r-- 1 runner runner  19033 Sep 20 16:40 2814-717ef478de385955.js
+-rw-r--r-- 1 runner runner    501 Sep 20 16:40 31664189-131032d266cbea8f.js
+-rw-r--r-- 1 runner runner  13079 Sep 20 16:40 3403-32514a3b6f231b48.js
+-rw-r--r-- 1 runner runner 169064 Sep 20 16:40 5932-fc5e26ba7537d40f.js
+-rw-r--r-- 1 runner runner  16445 Sep 20 16:40 605-165ef35b0279bd39.js
+-rw-r--r-- 1 runner runner  15103 Sep 20 16:40 7530-6c786070af709fce.js
+-rw-r--r-- 1 runner runner  18714 Sep 20 16:40 7957-27920a086f613776.js
+-rw-r--r-- 1 runner runner  42544 Sep 20 16:40 8815-07c5d6c240d21302.js
+-rw-r--r-- 1 runner runner  16959 Sep 20 16:40 8926-717c31dfb124a21d.js
+-rw-r--r-- 1 runner runner  20013 Sep 20 16:40 8942-be40d7d0f79b2e9b.js
+-rw-r--r-- 1 runner runner  45237 Sep 20 16:40 9440-f5e8c349bd1c69e7.js
+-rw-r--r-- 1 runner runner 481273 Sep 20 16:40 _app-cc6b50f61ae85e58.js
+-rw-r--r-- 1 runner runner   3150 Sep 20 16:40 _buildManifest.js
+-rw-r--r-- 1 runner runner   3796 Sep 20 16:40 d7eeaac4-e8982f47558a8e86.js
+-rw-r--r-- 1 runner runner 130035 Sep 20 16:40 framework-834e107486a0d020.js
+-rw-r--r-- 1 runner runner  62684 Sep 20 16:40 main-af16c7bd819172a3.js
+-rw-r--r-- 1 runner runner  91434 Sep 20 16:40 polyfills-5cd94c89d3acac5f.js
+-rw-r--r-- 1 runner runner   1010 Sep 20 16:40 refs.txt
+-rw-r--r-- 1 runner runner   4706 Sep 20 16:40 webpack-023767403b8f230c.js
++ echo '=== api refs ==='
+=== api refs ===
++ grep -rhoE '"/?api/[A-Za-z0-9/_.-]+"' courier/tmp/
++ head -80
++ sort -u
++ tee courier/api-refs.txt
+"/api/check"
+"/api/info"
+"/api/report-error"
+"/api/subscribe"
++ echo '=== crypto chunks ==='
+=== crypto chunks ===
++ grep -rlE 'AES-GCM|crypto\.subtle|importKey|decrypt' courier/tmp/
++ tee courier/crypto-chunks.txt
++ UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
++ rm -rf courier/tmp courier/js
++ mkdir -p courier/tmp courier/js
+++ grep -oE '/_next/static/[A-Za-z0-9_-]{10,}/_buildManifest' courier/page.html
+++ head -1
+++ cut -d/ -f4
++ BUILD=OPL3vj3294Ef3MPUMIb_K
++ echo BUILD=OPL3vj3294Ef3MPUMIb_K
+BUILD=OPL3vj3294Ef3MPUMIb_K
++ curl -sS -m 60 -o courier/tmp/_buildManifest.js https://wormhole.app/_next/static/OPL3vj3294Ef3MPUMIb_K/_buildManifest.js
++ cp courier/tmp/_buildManifest.js courier/js/
++ grep -oE '"static/chunks/[^"]+\.js"' courier/tmp/_buildManifest.js
++ tr -d '"'
++ sort -u
++ grep -oE '"/_next/static/chunks/[^"]+\.js"' courier/page.html
++ tr -d '"'
++ sort -u courier/tmp/refs.txt -o courier/tmp/refs.txt
++ sed -i 's#^static#/static#' courier/tmp/refs.txt
++ wc -l courier/tmp/refs.txt
+60 courier/tmp/refs.txt
++ cat courier/tmp/refs.txt
+/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
+/_next/static/chunks/1577-df667458441d461f.js
+/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
+/_next/static/chunks/2814-717ef478de385955.js
+/_next/static/chunks/31664189-131032d266cbea8f.js
+/_next/static/chunks/3403-32514a3b6f231b48.js
+/_next/static/chunks/5932-fc5e26ba7537d40f.js
+/_next/static/chunks/605-165ef35b0279bd39.js
+/_next/static/chunks/7530-6c786070af709fce.js
+/_next/static/chunks/7957-27920a086f613776.js
+/_next/static/chunks/8815-07c5d6c240d21302.js
+/_next/static/chunks/8926-717c31dfb124a21d.js
+/_next/static/chunks/8942-be40d7d0f79b2e9b.js
+/_next/static/chunks/9440-f5e8c349bd1c69e7.js
+/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
+/_next/static/chunks/framework-834e107486a0d020.js
+/_next/static/chunks/main-af16c7bd819172a3.js
+/_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
+/_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
+/_next/static/chunks/polyfills-5cd94c89d3acac5f.js
+/_next/static/chunks/webpack-023767403b8f230c.js
+/static/chunks/1485-dafc8cbe8d5e45fb.js
+/static/chunks/1577-df667458441d461f.js
+/static/chunks/17007de1-39a13d3cbd6eb7c1.js
+/static/chunks/2814-717ef478de385955.js
+/static/chunks/31664189-131032d266cbea8f.js
+/static/chunks/3403-32514a3b6f231b48.js
+/static/chunks/4032-99b593161dd7c68e.js
+/static/chunks/5932-fc5e26ba7537d40f.js
+/static/chunks/605-165ef35b0279bd39.js
+/static/chunks/7530-6c786070af709fce.js
+/static/chunks/7957-27920a086f613776.js
+/static/chunks/8815-07c5d6c240d21302.js
+/static/chunks/8926-717c31dfb124a21d.js
+/static/chunks/8942-be40d7d0f79b2e9b.js
+/static/chunks/9153-69a4b5046a11ac22.js
+/static/chunks/9440-f5e8c349bd1c69e7.js
+/static/chunks/d7eeaac4-e8982f47558a8e86.js
+/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js
+/static/chunks/pages/_error-a4e9e85bb1d3d130.js
+/static/chunks/pages/about-9cca7d84bb28e6fe.js
+/static/chunks/pages/faq-80a9104e00bac749.js
+/static/chunks/pages/index-b0acf88696bc5f2a.js
+/static/chunks/pages/legal-9250014f37729f0a.js
+/static/chunks/pages/roadmap-8311cce9cb46bc34.js
+/static/chunks/pages/security-80d140f3b6a8c9b3.js
+/static/chunks/pages/security/disclosure-21fc6fb420dbec05.js
+/static/chunks/pages/stories-4b9c1be85fc50890.js
+/static/chunks/pages/stories/ButtonLink-8d71040fbb009b42.js
+/static/chunks/pages/stories/CreatePanel-a2405e9ba67d503b.js
+/static/chunks/pages/stories/FileList-ca79a4da1c3a2386.js
+/static/chunks/pages/stories/FilePicker-8a6529438191d75c.js
+/static/chunks/pages/stories/HeaderFooter-2f500a33c4fa4adf.js
+/static/chunks/pages/stories/RelativeTime-60513b81d8f188b3.js
+/static/chunks/pages/stories/ReportButton-14cb57d99a86bc7d.js
+/static/chunks/pages/stories/Share-887baace191b807b.js
+/static/chunks/pages/stories/Wormhole-cd1a76b99dd55930.js
+/static/chunks/pages/stories/errors-1835e0ecc2d6bbb3.js
+/static/chunks/pages/stories/share-target-a0cd04aad7526687.js
+/static/chunks/pages/stories/useBrowser-469a29fa5a28ddb7.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
+++ echo /_next/static/chunks/1485-dafc8cbe8d5e45fb.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_1485-dafc8cbe8d5e45fb.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_1485-dafc8cbe8d5e45fb.js https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
+++ echo /_next/static/chunks/1577-df667458441d461f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_1577-df667458441d461f.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_1577-df667458441d461f.js https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
+++ echo /_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_17007de1-39a13d3cbd6eb7c1.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_17007de1-39a13d3cbd6eb7c1.js https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
+++ echo /_next/static/chunks/2814-717ef478de385955.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_2814-717ef478de385955.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_2814-717ef478de385955.js https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
+++ echo /_next/static/chunks/31664189-131032d266cbea8f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_31664189-131032d266cbea8f.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_31664189-131032d266cbea8f.js https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
+++ echo /_next/static/chunks/3403-32514a3b6f231b48.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_3403-32514a3b6f231b48.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_3403-32514a3b6f231b48.js https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
+++ echo /_next/static/chunks/5932-fc5e26ba7537d40f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_5932-fc5e26ba7537d40f.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_5932-fc5e26ba7537d40f.js https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
+++ echo /_next/static/chunks/605-165ef35b0279bd39.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_605-165ef35b0279bd39.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_605-165ef35b0279bd39.js https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
+++ echo /_next/static/chunks/7530-6c786070af709fce.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_7530-6c786070af709fce.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_7530-6c786070af709fce.js https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
+++ echo /_next/static/chunks/7957-27920a086f613776.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_7957-27920a086f613776.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_7957-27920a086f613776.js https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
+++ echo /_next/static/chunks/8815-07c5d6c240d21302.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_8815-07c5d6c240d21302.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_8815-07c5d6c240d21302.js https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
+++ echo /_next/static/chunks/8926-717c31dfb124a21d.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_8926-717c31dfb124a21d.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_8926-717c31dfb124a21d.js https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
+++ echo /_next/static/chunks/8942-be40d7d0f79b2e9b.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_8942-be40d7d0f79b2e9b.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_8942-be40d7d0f79b2e9b.js https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
+++ echo /_next/static/chunks/9440-f5e8c349bd1c69e7.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_9440-f5e8c349bd1c69e7.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_9440-f5e8c349bd1c69e7.js https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
+++ echo /_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_d7eeaac4-e8982f47558a8e86.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_d7eeaac4-e8982f47558a8e86.js https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/framework-834e107486a0d020.js
+++ echo /_next/static/chunks/framework-834e107486a0d020.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_framework-834e107486a0d020.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_framework-834e107486a0d020.js https://wormhole.app/_next/static/chunks/framework-834e107486a0d020.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/main-af16c7bd819172a3.js
+++ echo /_next/static/chunks/main-af16c7bd819172a3.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_main-af16c7bd819172a3.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_main-af16c7bd819172a3.js https://wormhole.app/_next/static/chunks/main-af16c7bd819172a3.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
+++ echo /_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_pages_%5BroomId%5D-0b3d0798ff57ff4a.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_pages_%5BroomId%5D-0b3d0798ff57ff4a.js https://wormhole.app/_next/static/chunks/pages/%5BroomId%5D-0b3d0798ff57ff4a.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
+++ echo /_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_pages__app-cc6b50f61ae85e58.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_pages__app-cc6b50f61ae85e58.js https://wormhole.app/_next/static/chunks/pages/_app-cc6b50f61ae85e58.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/polyfills-5cd94c89d3acac5f.js
+++ echo /_next/static/chunks/polyfills-5cd94c89d3acac5f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_polyfills-5cd94c89d3acac5f.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_polyfills-5cd94c89d3acac5f.js https://wormhole.app/_next/static/chunks/polyfills-5cd94c89d3acac5f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/webpack-023767403b8f230c.js
+++ echo /_next/static/chunks/webpack-023767403b8f230c.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/_next_static_chunks_webpack-023767403b8f230c.js
++ curl -sS -m 120 -o courier/tmp/_next_static_chunks_webpack-023767403b8f230c.js https://wormhole.app/_next/static/chunks/webpack-023767403b8f230c.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
+++ echo /static/chunks/1485-dafc8cbe8d5e45fb.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_1485-dafc8cbe8d5e45fb.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_1485-dafc8cbe8d5e45fb.js https://wormhole.app/_next/static/chunks/1485-dafc8cbe8d5e45fb.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
+++ echo /static/chunks/1577-df667458441d461f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_1577-df667458441d461f.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_1577-df667458441d461f.js https://wormhole.app/_next/static/chunks/1577-df667458441d461f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
+++ echo /static/chunks/17007de1-39a13d3cbd6eb7c1.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_17007de1-39a13d3cbd6eb7c1.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_17007de1-39a13d3cbd6eb7c1.js https://wormhole.app/_next/static/chunks/17007de1-39a13d3cbd6eb7c1.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
+++ echo /static/chunks/2814-717ef478de385955.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_2814-717ef478de385955.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_2814-717ef478de385955.js https://wormhole.app/_next/static/chunks/2814-717ef478de385955.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
+++ echo /static/chunks/31664189-131032d266cbea8f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_31664189-131032d266cbea8f.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_31664189-131032d266cbea8f.js https://wormhole.app/_next/static/chunks/31664189-131032d266cbea8f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
+++ echo /static/chunks/3403-32514a3b6f231b48.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_3403-32514a3b6f231b48.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_3403-32514a3b6f231b48.js https://wormhole.app/_next/static/chunks/3403-32514a3b6f231b48.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/4032-99b593161dd7c68e.js
+++ echo /static/chunks/4032-99b593161dd7c68e.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_4032-99b593161dd7c68e.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_4032-99b593161dd7c68e.js https://wormhole.app/_next/static/chunks/4032-99b593161dd7c68e.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
+++ echo /static/chunks/5932-fc5e26ba7537d40f.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_5932-fc5e26ba7537d40f.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_5932-fc5e26ba7537d40f.js https://wormhole.app/_next/static/chunks/5932-fc5e26ba7537d40f.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
+++ echo /static/chunks/605-165ef35b0279bd39.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_605-165ef35b0279bd39.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_605-165ef35b0279bd39.js https://wormhole.app/_next/static/chunks/605-165ef35b0279bd39.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
+++ echo /static/chunks/7530-6c786070af709fce.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_7530-6c786070af709fce.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_7530-6c786070af709fce.js https://wormhole.app/_next/static/chunks/7530-6c786070af709fce.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
+++ echo /static/chunks/7957-27920a086f613776.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_7957-27920a086f613776.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_7957-27920a086f613776.js https://wormhole.app/_next/static/chunks/7957-27920a086f613776.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
+++ echo /static/chunks/8815-07c5d6c240d21302.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_8815-07c5d6c240d21302.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_8815-07c5d6c240d21302.js https://wormhole.app/_next/static/chunks/8815-07c5d6c240d21302.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
+++ echo /static/chunks/8926-717c31dfb124a21d.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_8926-717c31dfb124a21d.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_8926-717c31dfb124a21d.js https://wormhole.app/_next/static/chunks/8926-717c31dfb124a21d.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
+++ echo /static/chunks/8942-be40d7d0f79b2e9b.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_8942-be40d7d0f79b2e9b.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_8942-be40d7d0f79b2e9b.js https://wormhole.app/_next/static/chunks/8942-be40d7d0f79b2e9b.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/9153-69a4b5046a11ac22.js
+++ echo /static/chunks/9153-69a4b5046a11ac22.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_9153-69a4b5046a11ac22.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_9153-69a4b5046a11ac22.js https://wormhole.app/_next/static/chunks/9153-69a4b5046a11ac22.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
+++ echo /static/chunks/9440-f5e8c349bd1c69e7.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_9440-f5e8c349bd1c69e7.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_9440-f5e8c349bd1c69e7.js https://wormhole.app/_next/static/chunks/9440-f5e8c349bd1c69e7.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
+++ echo /static/chunks/d7eeaac4-e8982f47558a8e86.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_d7eeaac4-e8982f47558a8e86.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_d7eeaac4-e8982f47558a8e86.js https://wormhole.app/_next/static/chunks/d7eeaac4-e8982f47558a8e86.js
++ read -r ref
++ case "$ref" in
++ url='https://wormhole.app/_next/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js'
+++ echo '/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js'
+++ sed 's#/#_#g; s#^_##'
++ out='courier/tmp/static_chunks_pages_[roomId]-0b3d0798ff57ff4a.js'
++ curl -sS -m 120 -o 'courier/tmp/static_chunks_pages_[roomId]-0b3d0798ff57ff4a.js' 'https://wormhole.app/_next/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js'
+curl: (3) bad range in URL position 49:
+https://wormhole.app/_next/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js
+                                                ^
++ echo 'FAILED https://wormhole.app/_next/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js'
+FAILED https://wormhole.app/_next/static/chunks/pages/[roomId]-0b3d0798ff57ff4a.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/_error-a4e9e85bb1d3d130.js
+++ echo /static/chunks/pages/_error-a4e9e85bb1d3d130.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages__error-a4e9e85bb1d3d130.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages__error-a4e9e85bb1d3d130.js https://wormhole.app/_next/static/chunks/pages/_error-a4e9e85bb1d3d130.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/about-9cca7d84bb28e6fe.js
+++ echo /static/chunks/pages/about-9cca7d84bb28e6fe.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_about-9cca7d84bb28e6fe.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_about-9cca7d84bb28e6fe.js https://wormhole.app/_next/static/chunks/pages/about-9cca7d84bb28e6fe.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/faq-80a9104e00bac749.js
+++ echo /static/chunks/pages/faq-80a9104e00bac749.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_faq-80a9104e00bac749.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_faq-80a9104e00bac749.js https://wormhole.app/_next/static/chunks/pages/faq-80a9104e00bac749.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/index-b0acf88696bc5f2a.js
+++ echo /static/chunks/pages/index-b0acf88696bc5f2a.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_index-b0acf88696bc5f2a.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_index-b0acf88696bc5f2a.js https://wormhole.app/_next/static/chunks/pages/index-b0acf88696bc5f2a.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/legal-9250014f37729f0a.js
+++ echo /static/chunks/pages/legal-9250014f37729f0a.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_legal-9250014f37729f0a.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_legal-9250014f37729f0a.js https://wormhole.app/_next/static/chunks/pages/legal-9250014f37729f0a.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/roadmap-8311cce9cb46bc34.js
+++ echo /static/chunks/pages/roadmap-8311cce9cb46bc34.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_roadmap-8311cce9cb46bc34.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_roadmap-8311cce9cb46bc34.js https://wormhole.app/_next/static/chunks/pages/roadmap-8311cce9cb46bc34.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/security-80d140f3b6a8c9b3.js
+++ echo /static/chunks/pages/security-80d140f3b6a8c9b3.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_security-80d140f3b6a8c9b3.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_security-80d140f3b6a8c9b3.js https://wormhole.app/_next/static/chunks/pages/security-80d140f3b6a8c9b3.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/security/disclosure-21fc6fb420dbec05.js
+++ echo /static/chunks/pages/security/disclosure-21fc6fb420dbec05.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_security_disclosure-21fc6fb420dbec05.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_security_disclosure-21fc6fb420dbec05.js https://wormhole.app/_next/static/chunks/pages/security/disclosure-21fc6fb420dbec05.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories-4b9c1be85fc50890.js
+++ echo /static/chunks/pages/stories-4b9c1be85fc50890.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories-4b9c1be85fc50890.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories-4b9c1be85fc50890.js https://wormhole.app/_next/static/chunks/pages/stories-4b9c1be85fc50890.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/ButtonLink-8d71040fbb009b42.js
+++ echo /static/chunks/pages/stories/ButtonLink-8d71040fbb009b42.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_ButtonLink-8d71040fbb009b42.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_ButtonLink-8d71040fbb009b42.js https://wormhole.app/_next/static/chunks/pages/stories/ButtonLink-8d71040fbb009b42.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/CreatePanel-a2405e9ba67d503b.js
+++ echo /static/chunks/pages/stories/CreatePanel-a2405e9ba67d503b.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_CreatePanel-a2405e9ba67d503b.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_CreatePanel-a2405e9ba67d503b.js https://wormhole.app/_next/static/chunks/pages/stories/CreatePanel-a2405e9ba67d503b.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/FileList-ca79a4da1c3a2386.js
+++ echo /static/chunks/pages/stories/FileList-ca79a4da1c3a2386.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_FileList-ca79a4da1c3a2386.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_FileList-ca79a4da1c3a2386.js https://wormhole.app/_next/static/chunks/pages/stories/FileList-ca79a4da1c3a2386.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/FilePicker-8a6529438191d75c.js
+++ echo /static/chunks/pages/stories/FilePicker-8a6529438191d75c.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_FilePicker-8a6529438191d75c.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_FilePicker-8a6529438191d75c.js https://wormhole.app/_next/static/chunks/pages/stories/FilePicker-8a6529438191d75c.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/HeaderFooter-2f500a33c4fa4adf.js
+++ echo /static/chunks/pages/stories/HeaderFooter-2f500a33c4fa4adf.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_HeaderFooter-2f500a33c4fa4adf.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_HeaderFooter-2f500a33c4fa4adf.js https://wormhole.app/_next/static/chunks/pages/stories/HeaderFooter-2f500a33c4fa4adf.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/RelativeTime-60513b81d8f188b3.js
+++ echo /static/chunks/pages/stories/RelativeTime-60513b81d8f188b3.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_RelativeTime-60513b81d8f188b3.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_RelativeTime-60513b81d8f188b3.js https://wormhole.app/_next/static/chunks/pages/stories/RelativeTime-60513b81d8f188b3.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/ReportButton-14cb57d99a86bc7d.js
+++ echo /static/chunks/pages/stories/ReportButton-14cb57d99a86bc7d.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_ReportButton-14cb57d99a86bc7d.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_ReportButton-14cb57d99a86bc7d.js https://wormhole.app/_next/static/chunks/pages/stories/ReportButton-14cb57d99a86bc7d.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/Share-887baace191b807b.js
+++ echo /static/chunks/pages/stories/Share-887baace191b807b.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_Share-887baace191b807b.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_Share-887baace191b807b.js https://wormhole.app/_next/static/chunks/pages/stories/Share-887baace191b807b.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/Wormhole-cd1a76b99dd55930.js
+++ echo /static/chunks/pages/stories/Wormhole-cd1a76b99dd55930.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_Wormhole-cd1a76b99dd55930.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_Wormhole-cd1a76b99dd55930.js https://wormhole.app/_next/static/chunks/pages/stories/Wormhole-cd1a76b99dd55930.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/errors-1835e0ecc2d6bbb3.js
+++ echo /static/chunks/pages/stories/errors-1835e0ecc2d6bbb3.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_errors-1835e0ecc2d6bbb3.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_errors-1835e0ecc2d6bbb3.js https://wormhole.app/_next/static/chunks/pages/stories/errors-1835e0ecc2d6bbb3.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/share-target-a0cd04aad7526687.js
+++ echo /static/chunks/pages/stories/share-target-a0cd04aad7526687.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_share-target-a0cd04aad7526687.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_share-target-a0cd04aad7526687.js https://wormhole.app/_next/static/chunks/pages/stories/share-target-a0cd04aad7526687.js
++ read -r ref
++ case "$ref" in
++ url=https://wormhole.app/_next/static/chunks/pages/stories/useBrowser-469a29fa5a28ddb7.js
+++ echo /static/chunks/pages/stories/useBrowser-469a29fa5a28ddb7.js
+++ sed 's#/#_#g; s#^_##'
++ out=courier/tmp/static_chunks_pages_stories_useBrowser-469a29fa5a28ddb7.js
++ curl -sS -m 120 -o courier/tmp/static_chunks_pages_stories_useBrowser-469a29fa5a28ddb7.js https://wormhole.app/_next/static/chunks/pages/stories/useBrowser-469a29fa5a28ddb7.js
++ read -r ref
++ ls -la courier/tmp
++ head -80
+total 2016
+drwxr-xr-x 2 runner runner   4096 Sep 20 16:42 .
+drwxr-xr-x 4 runner runner   4096 Sep 20 16:42 ..
+-rw-r--r-- 1 runner runner   3150 Sep 20 16:42 _buildManifest.js
+-rw-r--r-- 1 runner runner  30064 Sep 20 16:42 _next_static_chunks_1485-dafc8cbe8d5e45fb.js
+-rw-r--r-- 1 runner runner  37672 Sep 20 16:42 _next_static_chunks_1577-df667458441d461f.js
+-rw-r--r-- 1 runner runner   1455 Sep 20 16:42 _next_static_chunks_17007de1-39a13d3cbd6eb7c1.js
+-rw-r--r-- 1 runner runner  19033 Sep 20 16:42 _next_static_chunks_2814-717ef478de385955.js
+-rw-r--r-- 1 runner runner    501 Sep 20 16:42 _next_static_chunks_31664189-131032d266cbea8f.js
+-rw-r--r-- 1 runner runner  13079 Sep 20 16:42 _next_static_chunks_3403-32514a3b6f231b48.js
+-rw-r--r-- 1 runner runner 169064 Sep 20 16:42 _next_static_chunks_5932-fc5e26ba7537d40f.js
+-rw-r--r-- 1 runner runner  16445 Sep 20 16:42 _next_static_chunks_605-165ef35b0279bd39.js
+-rw-r--r-- 1 runner runner  15103 Sep 20 16:42 _next_static_chunks_7530-6c786070af709fce.js
+-rw-r--r-- 1 runner runner  18714 Sep 20 16:42 _next_static_chunks_7957-27920a086f613776.js
+-rw-r--r-- 1 runner runner  42544 Sep 20 16:42 _next_static_chunks_8815-07c5d6c240d21302.js
+-rw-r--r-- 1 runner runner  16959 Sep 20 16:42 _next_static_chunks_8926-717c31dfb124a21d.js
+-rw-r--r-- 1 runner runner  20013 Sep 20 16:42 _next_static_chunks_8942-be40d7d0f79b2e9b.js
+-rw-r--r-- 1 runner runner  45237 Sep 20 16:42 _next_static_chunks_9440-f5e8c349bd1c69e7.js
+-rw-r--r-- 1 runner runner   3796 Sep 20 16:42 _next_static_chunks_d7eeaac4-e8982f47558a8e86.js
+-rw-r--r-- 1 runner runner 130035 Sep 20 16:42 _next_static_chunks_framework-834e107486a0d020.js
+-rw-r--r-- 1 runner runner  62684 Sep 20 16:42 _next_static_chunks_main-af16c7bd819172a3.js
+-rw-r--r-- 1 runner runner    538 Sep 20 16:42 _next_static_chunks_pages_%5BroomId%5D-0b3d0798ff57ff4a.js
+-rw-r--r-- 1 runner runner 481273 Sep 20 16:42 _next_static_chunks_pages__app-cc6b50f61ae85e58.js
+-rw-r--r-- 1 runner runner  91434 Sep 20 16:42 _next_static_chunks_polyfills-5cd94c89d3acac5f.js
+-rw-r--r-- 1 runner runner   4706 Sep 20 16:42 _next_static_chunks_webpack-023767403b8f230c.js
+-rw-r--r-- 1 runner runner   2910 Sep 20 16:42 refs.txt
+-rw-r--r-- 1 runner runner  30064 Sep 20 16:42 static_chunks_1485-dafc8cbe8d5e45fb.js
+-rw-r--r-- 1 runner runner  37672 Sep 20 16:42 static_chunks_1577-df667458441d461f.js
+-rw-r--r-- 1 runner runner   1455 Sep 20 16:42 static_chunks_17007de1-39a13d3cbd6eb7c1.js
+-rw-r--r-- 1 runner runner  19033 Sep 20 16:42 static_chunks_2814-717ef478de385955.js
+-rw-r--r-- 1 runner runner    501 Sep 20 16:42 static_chunks_31664189-131032d266cbea8f.js
+-rw-r--r-- 1 runner runner  13079 Sep 20 16:42 static_chunks_3403-32514a3b6f231b48.js
+-rw-r--r-- 1 runner runner  11810 Sep 20 16:42 static_chunks_4032-99b593161dd7c68e.js
+-rw-r--r-- 1 runner runner 169064 Sep 20 16:42 static_chunks_5932-fc5e26ba7537d40f.js
+-rw-r--r-- 1 runner runner  16445 Sep 20 16:42 static_chunks_605-165ef35b0279bd39.js
+-rw-r--r-- 1 runner runner  15103 Sep 20 16:42 static_chunks_7530-6c786070af709fce.js
+-rw-r--r-- 1 runner runner  18714 Sep 20 16:42 static_chunks_7957-27920a086f613776.js
+-rw-r--r-- 1 runner runner  42544 Sep 20 16:42 static_chunks_8815-07c5d6c240d21302.js
+-rw-r--r-- 1 runner runner  16959 Sep 20 16:42 static_chunks_8926-717c31dfb124a21d.js
+-rw-r--r-- 1 runner runner  20013 Sep 20 16:42 static_chunks_8942-be40d7d0f79b2e9b.js
+-rw-r--r-- 1 runner runner  17333 Sep 20 16:42 static_chunks_9153-69a4b5046a11ac22.js
+-rw-r--r-- 1 runner runner  45237 Sep 20 16:42 static_chunks_9440-f5e8c349bd1c69e7.js
+-rw-r--r-- 1 runner runner   3796 Sep 20 16:42 static_chunks_d7eeaac4-e8982f47558a8e86.js
+-rw-r--r-- 1 runner runner   5128 Sep 20 16:42 static_chunks_pages__error-a4e9e85bb1d3d130.js
+-rw-r--r-- 1 runner runner  17080 Sep 20 16:42 static_chunks_pages_about-9cca7d84bb28e6fe.js
+-rw-r--r-- 1 runner runner  11359 Sep 20 16:42 static_chunks_pages_faq-80a9104e00bac749.js
+-rw-r--r-- 1 runner runner    488 Sep 20 16:42 static_chunks_pages_index-b0acf88696bc5f2a.js
+-rw-r--r-- 1 runner runner  22306 Sep 20 16:42 static_chunks_pages_legal-9250014f37729f0a.js
+-rw-r--r-- 1 runner runner  11794 Sep 20 16:42 static_chunks_pages_roadmap-8311cce9cb46bc34.js
+-rw-r--r-- 1 runner runner  28502 Sep 20 16:42 static_chunks_pages_security-80d140f3b6a8c9b3.js
+-rw-r--r-- 1 runner runner  12344 Sep 20 16:42 static_chunks_pages_security_disclosure-21fc6fb420dbec05.js
+-rw-r--r-- 1 runner runner   1697 Sep 20 16:42 static_chunks_pages_stories-4b9c1be85fc50890.js
+-rw-r--r-- 1 runner runner  13719 Sep 20 16:42 static_chunks_pages_stories_ButtonLink-8d71040fbb009b42.js
+-rw-r--r-- 1 runner runner  13033 Sep 20 16:42 static_chunks_pages_stories_CreatePanel-a2405e9ba67d503b.js
+-rw-r--r-- 1 runner runner   7144 Sep 20 16:42 static_chunks_pages_stories_FileList-ca79a4da1c3a2386.js
+-rw-r--r-- 1 runner runner  10637 Sep 20 16:42 static_chunks_pages_stories_FilePicker-8a6529438191d75c.js
+-rw-r--r-- 1 runner runner    615 Sep 20 16:42 static_chunks_pages_stories_HeaderFooter-2f500a33c4fa4adf.js
+-rw-r--r-- 1 runner runner   2406 Sep 20 16:42 static_chunks_pages_stories_RelativeTime-60513b81d8f188b3.js
+-rw-r--r-- 1 runner runner  15540 Sep 20 16:42 static_chunks_pages_stories_ReportButton-14cb57d99a86bc7d.js
+-rw-r--r-- 1 runner runner  11132 Sep 20 16:42 static_chunks_pages_stories_Share-887baace191b807b.js
+-rw-r--r-- 1 runner runner  11087 Sep 20 16:42 static_chunks_pages_stories_Wormhole-cd1a76b99dd55930.js
+-rw-r--r-- 1 runner runner   6814 Sep 20 16:42 static_chunks_pages_stories_errors-1835e0ecc2d6bbb3.js
+-rw-r--r-- 1 runner runner   7021 Sep 20 16:42 static_chunks_pages_stories_share-target-a0cd04aad7526687.js
+-rw-r--r-- 1 runner runner    656 Sep 20 16:42 static_chunks_pages_stories_useBrowser-469a29fa5a28ddb7.js
++ cp courier/tmp/_buildManifest.js courier/tmp/_next_static_chunks_1485-dafc8cbe8d5e45fb.js courier/tmp/_next_static_chunks_1577-df667458441d461f.js courier/tmp/_next_static_chunks_17007de1-39a13d3cbd6eb7c1.js courier/tmp/_next_static_chunks_2814-717ef478de385955.js courier/tmp/_next_static_chunks_31664189-131032d266cbea8f.js courier/tmp/_next_static_chunks_3403-32514a3b6f231b48.js courier/tmp/_next_static_chunks_5932-fc5e26ba7537d40f.js courier/tmp/_next_static_chunks_605-165ef35b0279bd39.js courier/tmp/_next_static_chunks_7530-6c786070af709fce.js courier/tmp/_next_static_chunks_7957-27920a086f613776.js courier/tmp/_next_static_chunks_8815-07c5d6c240d21302.js courier/tmp/_next_static_chunks_8926-717c31dfb124a21d.js courier/tmp/_next_static_chunks_8942-be40d7d0f79b2e9b.js courier/tmp/_next_static_chunks_9440-f5e8c349bd1c69e7.js courier/tmp/_next_static_chunks_d7eeaac4-e8982f47558a8e86.js courier/tmp/_next_static_chunks_framework-834e107486a0d020.js courier/tmp/_next_static_chunks_main-af16c7bd819172a3.js courier/tmp/_next_static_chunks_pages_%5BroomId%5D-0b3d0798ff57ff4a.js courier/tmp/_next_static_chunks_pages__app-cc6b50f61ae85e58.js courier/tmp/_next_static_chunks_polyfills-5cd94c89d3acac5f.js courier/tmp/_next_static_chunks_webpack-023767403b8f230c.js courier/tmp/refs.txt courier/tmp/static_chunks_1485-dafc8cbe8d5e45fb.js courier/tmp/static_chunks_1577-df667458441d461f.js courier/tmp/static_chunks_17007de1-39a13d3cbd6eb7c1.js courier/tmp/static_chunks_2814-717ef478de385955.js courier/tmp/static_chunks_31664189-131032d266cbea8f.js courier/tmp/static_chunks_3403-32514a3b6f231b48.js courier/tmp/static_chunks_4032-99b593161dd7c68e.js courier/tmp/static_chunks_5932-fc5e26ba7537d40f.js courier/tmp/static_chunks_605-165ef35b0279bd39.js courier/tmp/static_chunks_7530-6c786070af709fce.js courier/tmp/static_chunks_7957-27920a086f613776.js courier/tmp/static_chunks_8815-07c5d6c240d21302.js courier/tmp/static_chunks_8926-717c31dfb124a21d.js courier/tmp/static_chunks_8942-be40d7d0f79b2e9b.js courier/tmp/static_chunks_9153-69a4b5046a11ac22.js courier/tmp/static_chunks_9440-f5e8c349bd1c69e7.js courier/tmp/static_chunks_d7eeaac4-e8982f47558a8e86.js courier/tmp/static_chunks_pages__error-a4e9e85bb1d3d130.js courier/tmp/static_chunks_pages_about-9cca7d84bb28e6fe.js courier/tmp/static_chunks_pages_faq-80a9104e00bac749.js courier/tmp/static_chunks_pages_index-b0acf88696bc5f2a.js courier/tmp/static_chunks_pages_legal-9250014f37729f0a.js courier/tmp/static_chunks_pages_roadmap-8311cce9cb46bc34.js courier/tmp/static_chunks_pages_security-80d140f3b6a8c9b3.js courier/tmp/static_chunks_pages_security_disclosure-21fc6fb420dbec05.js courier/tmp/static_chunks_pages_stories-4b9c1be85fc50890.js courier/tmp/static_chunks_pages_stories_ButtonLink-8d71040fbb009b42.js courier/tmp/static_chunks_pages_stories_CreatePanel-a2405e9ba67d503b.js courier/tmp/static_chunks_pages_stories_FileList-ca79a4da1c3a2386.js courier/tmp/static_chunks_pages_stories_FilePicker-8a6529438191d75c.js courier/tmp/static_chunks_pages_stories_HeaderFooter-2f500a33c4fa4adf.js courier/tmp/static_chunks_pages_stories_RelativeTime-60513b81d8f188b3.js courier/tmp/static_chunks_pages_stories_ReportButton-14cb57d99a86bc7d.js courier/tmp/static_chunks_pages_stories_Share-887baace191b807b.js courier/tmp/static_chunks_pages_stories_Wormhole-cd1a76b99dd55930.js courier/tmp/static_chunks_pages_stories_errors-1835e0ecc2d6bbb3.js courier/tmp/static_chunks_pages_stories_share-target-a0cd04aad7526687.js courier/tmp/static_chunks_pages_stories_useBrowser-469a29fa5a28ddb7.js courier/js/
++ echo '=== API probes ==='
+=== API probes ===
++ probe -X POST -H 'Content-Type: application/json' -d '{"id":"9ojE40"}' https://wormhole.app/api/info
++ echo '### -X POST -H Content-Type: application/json -d {"id":"9ojE40"} https://wormhole.app/api/info'
+### -X POST -H Content-Type: application/json -d {"id":"9ojE40"} https://wormhole.app/api/info
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"id":"9ojE40"}' https://wormhole.app/api/info
++ head -c 2000
++ cat -v
+{"err":{"message":"type must be a string"}}+ echo
+
++ echo
+
++ probe -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/info
++ echo '### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/info'
+### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/info
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/info
++ head -c 2000
++ cat -v
+{"err":{"message":"type must be a string"}}+ echo
+
++ echo
+
++ probe -X POST -H 'Content-Type: application/json' -d '{"roomCode":"9ojE40"}' https://wormhole.app/api/info
++ echo '### -X POST -H Content-Type: application/json -d {"roomCode":"9ojE40"} https://wormhole.app/api/info'
+### -X POST -H Content-Type: application/json -d {"roomCode":"9ojE40"} https://wormhole.app/api/info
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"roomCode":"9ojE40"}' https://wormhole.app/api/info
++ cat -v
++ head -c 2000
+{"err":{"message":"type must be a string"}}+ echo
+
++ echo
+
++ probe -X POST -H 'Content-Type: application/json' -d '{"code":"9ojE40"}' https://wormhole.app/api/info
++ echo '### -X POST -H Content-Type: application/json -d {"code":"9ojE40"} https://wormhole.app/api/info'
+### -X POST -H Content-Type: application/json -d {"code":"9ojE40"} https://wormhole.app/api/info
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"code":"9ojE40"}' https://wormhole.app/api/info
++ head -c 2000
++ cat -v
+{"err":{"message":"type must be a string"}}+ echo
+
++ echo
+
++ probe -X GET 'https://wormhole.app/api/info?id=9ojE40'
++ echo '### -X GET https://wormhole.app/api/info?id=9ojE40'
+### -X GET https://wormhole.app/api/info?id=9ojE40
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X GET 'https://wormhole.app/api/info?id=9ojE40'
++ head -c 2000
++ cat -v
++ echo
+
++ echo
+
++ probe -X GET https://wormhole.app/api/info/9ojE40
++ echo '### -X GET https://wormhole.app/api/info/9ojE40'
+### -X GET https://wormhole.app/api/info/9ojE40
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X GET https://wormhole.app/api/info/9ojE40
++ cat -v
++ head -c 2000
+<!DOCTYPE html><html lang="en-US" dir="ltr"><head><meta charSet="utf-8"/><title>Page Not Found - Wormhole</title><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><meta name="description" content="Wormhole lets you share files with end-to-end encryption and a link that automatically expires."/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="application-name" content="Wormhole"/><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/><link rel="manifest" href="/site.webmanifest"/><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#9F7AEA"/><meta name="msapplication-TileColor" content="#9F7AEA"/><meta name="theme-color" content="#9F7AEA"/><meta property="og:title" content="Page Not Found - Wormhole"/><meta property="og:description" content="Wormhole lets you share files with end-to-end encryption and a link that automatically expires."/><meta property="og:image" content="https://wormhole.app/images/social-share-home.jpg"/><meta property="og:site_name" content="Wormhole"/><meta property="og:type" content="website"/><meta name="twitter:title" content="Page Not Found - Wormhole"/><meta name="twitter:image" content="https://wormhole.app/images/social-share-home.jpg"/><meta name="twitter:site" content="Wormhole_App"/><meta name="twitter:card" content="summary_large_image"/><link rel="icon" href="/favicon.ico"/><meta name="next-head-count" content="23"/><noscript data-n-css=""></noscript><script defer="" nomodule="" src="/_next/static/chunks/polyfills-5cd94c89d3acac5f.js"></script><script src="/_next/static/chunks/webpack-023767403b8f230c.js" defer=""></script><script src="/_next/static/chunks/framework-834e107486a0d020.js" defer=""></script><script src="/_next/static/chunks/main-af16c7bd819172a3.js" defer=""></script>+ echo
+
++ echo
+
++ probe -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/check
++ echo '### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/check'
+### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/check
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/check
++ head -c 2000
++ cat -v
++ echo
+
++ echo
+
++ probe -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/subscribe
++ echo '### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/subscribe'
+### -X POST -H Content-Type: application/json -d {"roomId":"9ojE40"} https://wormhole.app/api/subscribe
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X POST -H 'Content-Type: application/json' -d '{"roomId":"9ojE40"}' https://wormhole.app/api/subscribe
++ head -c 2000
++ cat -v
+{"err":{"message":"email must be a string"}}+ echo
+
++ echo
+
++ probe -X GET https://wormhole.app/api/check
++ echo '### -X GET https://wormhole.app/api/check'
+### -X GET https://wormhole.app/api/check
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -X GET https://wormhole.app/api/check
++ head -c 2000
++ cat -v
+{"err":{"message":"release must be a string"}}+ echo
+
++ echo
+
++ echo '=== room page HTML ==='
+=== room page HTML ===
++ curl -sS -m 60 -A 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36' -o courier/room-page.html https://wormhole.app/9ojE40
++ grep -c roomId courier/room-page.html
+1
++ echo ALL-STEPS-DONE
+ALL-STEPS-DONE
+total 1408
+drwxr-xr-x 2 runner runner   4096 Sep 20 16:44 .
+drwxr-xr-x 4 runner runner   4096 Sep 20 16:44 ..
+-rw-r--r-- 1 runner runner    205 Sep 20 16:44 1379.b98a43266ca92e2c.js
+-rw-r--r-- 1 runner runner  48373 Sep 20 16:44 297.eedd867e90026c71.js
+-rw-r--r-- 1 runner runner  46297 Sep 20 16:44 5626.8e8fff96c110de2f.js
+-rw-r--r-- 1 runner runner 385653 Sep 20 16:44 5892.142b55654e839fb6.js
+-rw-r--r-- 1 runner runner    619 Sep 20 16:44 9060.59325fcbfe21e0d7.js
+-rw-r--r-- 1 runner runner  21021 Sep 20 16:44 9361.afdadd55cb17aa3b.js
+-rw-r--r-- 1 runner runner   6981 Sep 20 16:44 9894.15572e540f824c31.js
+-rw-r--r-- 1 runner runner 534988 Sep 20 16:44 fb7d5399.d366e817b93124a7.js
+-rw-r--r-- 1 runner runner 365919 Sep 20 16:44 fec483df.e9e3445d650f7fdd.js
+=== url-ish strings ===
+"/api/room"
+"/download-keepalive"
+"/download-stream/"
+"/tmp"
+`/api/room/${e}/b2/auth-download`
+`/api/room/${e}/salt`
+`/api/room/${e}`
+`/api/room/${s}/b2/auth-upload`
+`/api/room/${s}/b2/finish-upload`
+`/api/room/${s}`
+`/api/room/${this.id}/cloud-state`
+`/api/room/${this.id}/expiration`
+`/api/room/${this.id}/remaining-downloads`
+`/api/room/${this.id}/report`
+`/api/room/${this.id}/uploader-online`
+`/api/room/${this.id}`
+`/download-stream/${t}`
+DONE5

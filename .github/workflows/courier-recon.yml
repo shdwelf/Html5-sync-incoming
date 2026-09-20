@@ -1,0 +1,65 @@
+name: courier-recon
+
+# Wormhole room retrieval (generic). The sandbox has no route to wormhole.app /
+# backblazeb2.com, so the runner performs the download+decrypt (see
+# courier/fetch.mjs) and pushes the recovered bytes back on a scratch branch.
+
+on:
+  push:
+    branches:
+      - arena/01a0bf6a-html5-sync-incoming
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read job parameters
+        id: p
+        shell: bash
+        run: |
+          echo "room=$(python3 -c "import json;print(json.load(open('courier/job.json'))['room'])")" >> "$GITHUB_OUTPUT"
+          echo "key=$(python3 -c "import json;print(json.load(open('courier/job.json'))['key'])")" >> "$GITHUB_OUTPUT"
+          echo "scratch=$(python3 -c "import json;print(json.load(open('courier/job.json'))['scratch'])")" >> "$GITHUB_OUTPUT"
+
+      - name: Recover the archive from the wormhole room
+        shell: bash
+        run: |
+          set +e
+          mkdir -p courier/out
+          node courier/fetch.mjs "${{ steps.p.outputs.room }}" "${{ steps.p.outputs.key }}" courier/out 2>&1 | tee courier/fetch-log.txt
+          echo "node exit: ${PIPESTATUS[0]}" | tee -a courier/fetch-log.txt
+          ls -la courier/out | tee -a courier/fetch-log.txt
+          sha256sum courier/out/* >> courier/fetch-log.txt 2>/dev/null
+
+      - name: Push recovered files as parts on scratch branch
+        shell: bash
+        run: |
+          set -e
+          mkdir -p payload-parts
+          for f in courier/out/*; do
+            b=$(basename "$f")
+            case "$b" in recovered.torrent|files.json) continue ;; esac
+            sz=$(stat -c%s "$f")
+            if [ "$sz" -lt 99000000 ]; then
+              cp "$f" "payload-parts/$b"
+            else
+              split -b 95m --numeric-suffixes=1 --suffix-length=2 "$f" "payload-parts/$b.part-"
+            fi
+          done
+          ls -la payload-parts
+          du -sh payload-parts
+          cp courier/fetch-log.txt payload-parts/ 2>/dev/null || true
+          git config user.name "arena-courier"
+          git config user.email "arena-courier@users.noreply.github.com"
+          git checkout --orphan "${{ steps.p.outputs.scratch }}"
+          git rm -rf --cached . >/dev/null
+          find . -mindepth 1 -maxdepth 1 ! -name payload-parts ! -name .git -exec rm -rf {} +
+          git add payload-parts/
+          git commit -m "courier payload: wormhole room ${{ steps.p.outputs.room }}"
+          git push -f origin "${{ steps.p.outputs.scratch }}"

@@ -1,0 +1,4 @@
+"/api/check"
+"/api/info"
+"/api/report-error"
+"/api/subscribe"
