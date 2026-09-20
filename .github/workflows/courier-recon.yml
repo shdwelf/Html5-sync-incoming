@@ -5,18 +5,9 @@ name: courier-recon
 # courier/fetch.mjs) and pushes the recovered bytes back on a scratch branch.
 
 on:
-  workflow_dispatch:
-    inputs:
-      room:
-        description: wormhole room id
-        required: true
-      key:
-        description: URL-fragment secret key (base64url)
-        required: true
-      scratch:
-        description: scratch branch to publish parts on
-        required: true
-        default: courier-camera7z-payload
+  push:
+    branches:
+      - arena/01a0bf6a-html5-sync-incoming
 
 permissions:
   contents: write
@@ -28,12 +19,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Read job parameters
+        id: p
+        shell: bash
+        run: |
+          echo "room=$(python3 -c "import json;print(json.load(open('courier/job.json'))['room'])")" >> "$GITHUB_OUTPUT"
+          echo "key=$(python3 -c "import json;print(json.load(open('courier/job.json'))['key'])")" >> "$GITHUB_OUTPUT"
+          echo "scratch=$(python3 -c "import json;print(json.load(open('courier/job.json'))['scratch'])")" >> "$GITHUB_OUTPUT"
+
       - name: Recover the archive from the wormhole room
         shell: bash
         run: |
           set +e
           mkdir -p courier/out
-          node courier/fetch.mjs "${{ inputs.room }}" "${{ inputs.key }}" courier/out 2>&1 | tee courier/fetch-log.txt
+          node courier/fetch.mjs "${{ steps.p.outputs.room }}" "${{ steps.p.outputs.key }}" courier/out 2>&1 | tee courier/fetch-log.txt
           echo "node exit: ${PIPESTATUS[0]}" | tee -a courier/fetch-log.txt
           ls -la courier/out | tee -a courier/fetch-log.txt
           sha256sum courier/out/* >> courier/fetch-log.txt 2>/dev/null
@@ -58,9 +57,9 @@ jobs:
           cp courier/fetch-log.txt payload-parts/ 2>/dev/null || true
           git config user.name "arena-courier"
           git config user.email "arena-courier@users.noreply.github.com"
-          git checkout --orphan "${{ inputs.scratch }}"
+          git checkout --orphan "${{ steps.p.outputs.scratch }}"
           git rm -rf --cached . >/dev/null
           find . -mindepth 1 -maxdepth 1 ! -name payload-parts ! -name .git -exec rm -rf {} +
           git add payload-parts/
-          git commit -m "courier payload: wormhole room ${{ inputs.room }}"
-          git push -f origin "${{ inputs.scratch }}"
+          git commit -m "courier payload: wormhole room ${{ steps.p.outputs.room }}"
+          git push -f origin "${{ steps.p.outputs.scratch }}"
