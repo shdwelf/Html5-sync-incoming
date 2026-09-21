@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NSA Enigma Suite — machine + Rejewski attack lab (single-file, offline)</title>
+<!--
+  ============================================================================
+  NSA ENIGMA SUITE — single-file HTML5 conversion
+  ============================================================================
+  Converted from the U.S. National Security Agency's open-source
+  "enigma-simulator" educational suite:
+    https://github.com/NationalSecurityAgency/enigma-simulator
+    commit f234ee68291ccea70446bcbcb1468a2708277ab8 (HEAD, 2020-08-13)
+    files: components.py, machine.py, rejewski.py,
+           BreakingEnigma.ipynb, MasterEnigmaCracker.ipynb
+
+  License: MIT (Copyright 2019) — plus portions of the U.S. Government, not
+  subject to copyright under 17 U.S.C. The converted file is a derivative
+  work of the NSA sources and carries the same MIT terms; see the repo
+  NOTICE and docs/nsa-github-deep-dive.md.
+
+  This file is fully offline: no network requests, no external assets, no
+  CDN, no fonts. Everything — machine, attack, lesson, tests — is inline.
+
+  Deviations from the NSA sources are documented in the FINDINGS tab and in
+  apps/crypto/nsa-enigma.test.mjs (the repo's node:test harness extracts the
+  core script block below and asserts the golden vectors on every CI run).
+  ============================================================================
+-->
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #111823;
+    --panel2: #0e141d;
+    --line: #1f2c3d;
+    --ink: #cfe3d8;
+    --dim: #7d93a8;
+    --green: #46e08c;
+    --amber: #ffc857;
+    --red: #ff6b6b;
+    --blue: #6bc1ff;
+    --mono: 'SFMono-Regular', ui-monospace, 'Cascadia Mono', Consolas, Menlo, monospace;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.5; }
+  a { color: var(--blue); }
+  header { padding: 18px 22px 10px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #0d131c, var(--bg)); }
+  header h1 { margin: 0; font-size: 20px; letter-spacing: .5px; }
+  header h1 .sig { color: var(--green); }
+  header .prov { color: var(--dim); font-size: 12.5px; margin-top: 4px; font-family: var(--mono); }
+  nav { display: flex; gap: 4px; padding: 10px 22px 0; flex-wrap: wrap; }
+  nav button {
+    background: var(--panel2); color: var(--dim); border: 1px solid var(--line); border-bottom: none;
+    padding: 8px 14px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-family: var(--sans);
+  }
+  nav button.active { color: var(--green); background: var(--panel); border-color: #2b3f58; }
+  main { padding: 0 22px 40px; }
+  section.tab { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 0 10px 10px 10px; padding: 18px; }
+  section.tab.active { display: block; }
+  h2 { font-size: 15px; margin: 0 0 10px; color: var(--amber); letter-spacing: .4px; text-transform: uppercase; }
+  h3 { font-size: 13.5px; margin: 18px 0 8px; color: var(--ink); }
+  p, li { font-size: 13.5px; }
+  .dim { color: var(--dim); }
+  .mono { font-family: var(--mono); }
+  .green { color: var(--green); }
+  .amber { color: var(--amber); }
+  .red { color: var(--red); }
+  .blue { color: var(--blue); }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  .card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 10px 0; }
+  label { display: block; font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+  select, input[type=text], input[type=number], textarea {
+    background: #0a0f16; color: var(--ink); border: 1px solid #2a3b52; border-radius: 5px;
+    padding: 6px 8px; font-size: 13px; font-family: var(--mono);
+  }
+  textarea { width: 100%; resize: vertical; }
+  button.act {
+    background: #14301f; color: var(--green); border: 1px solid #1f5c38; border-radius: 6px;
+    padding: 7px 14px; cursor: pointer; font-size: 13px; font-family: var(--sans);
+  }
+  button.act:hover { background: #1a4028; }
+  button.act:disabled { opacity: .45; cursor: default; }
+  button.act.amberb { background: #33290f; color: var(--amber); border-color: #6b5518; }
+  button.act.small { padding: 3px 9px; font-size: 12px; }
+  .lamps { display: grid; grid-template-columns: repeat(9, 34px); gap: 6px; justify-content: center; margin: 10px 0; }
+  .lamp {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #2a3b52; background: #0a0f16;
+    color: #51677e; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 14px;
+  }
+  .lamp.lit { background: var(--amber); color: #201803; border-color: var(--amber); box-shadow: 0 0 12px rgba(255,200,87,.7); }
+  .lamp.src { background: #16324a; color: var(--blue); border-color: var(--blue); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; font-family: var(--mono); font-size: 12.5px; }
+  th { color: var(--dim); font-weight: 600; background: #0d141e; }
+  td.ok { color: var(--green); }
+  td.no { color: var(--red); }
+  .grid-intercepts { font-family: var(--mono); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .grid-intercepts span { background: #0a0f16; border: 1px solid #22344c; padding: 1px 6px; border-radius: 4px; }
+  .bar { height: 18px; background: #0a0f16; border: 1px solid #2a3b52; border-radius: 9px; overflow: hidden; position: relative; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #1f5c38, var(--green)); width: 0%; transition: width .15s; }
+  .bar .lbl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: var(--mono); color: #dff5ea; }
+  .spoiler { filter: blur(5px); transition: filter .15s; cursor: pointer; user-select: none; }
+  .spoiler.revealed { filter: none; user-select: auto; }
+  .finding { border-left: 3px solid var(--amber); padding: 8px 12px; margin: 10px 0; background: #151d14; border-radius: 0 6px 6px 0; }
+  .finding.bad { border-left-color: var(--red); background: #1d1215; }
+  .finding.good { border-left-color: var(--green); }
+  .finding .tag { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+  .kbox { font-family: var(--mono); background: #0a0f16; border: 1px solid #22344c; border-radius: 6px; padding: 8px 10px; margin: 6px 0; font-size: 12.5px; white-space: pre-wrap; word-break: break-all; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .pass { color: var(--green); font-family: var(--mono); }
+  .fail { color: var(--red); font-family: var(--mono); }
+  footer { color: var(--dim); font-size: 11.5px; padding: 0 22px 30px; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="sig">&#9673;</span> NSA ENIGMA SUITE <span class="dim">// machine &amp; Rejewski attack lab</span></h1>
+  <div class="prov">single-file HTML5 conversion of NationalSecurityAgency/enigma-simulator@f234ee6 (components.py + machine.py + rejewski.py + 2 notebooks) &mdash; fully offline, MIT + US-Gov public domain</div>
+</header>
+<nav>
+  <button data-tab="machine" class="active">Machine</button>
+  <button data-tab="lab">Rejewski Lab</button>
+  <button data-tab="lesson">Lesson</button>
+  <button data-tab="findings">Findings (no filter)</button>
+  <button data-tab="selftest">Self-test</button>
+</nav>
+<main>
+
+<!-- =============================== MACHINE =============================== -->
+<section class="tab active" id="tab-machine">
+  <h2>Enigma machine</h2>
+  <p class="dim">Two engines live in this file. The <b class="amber">NSA simulator</b> is a 1:1 port of machine.py/components.py &mdash;
+  quirks included (it steps the <i>left</i> rotor, has no Ringstellung, only rotor I/II/III/V, reflector B, and caps the plugboard at 6 pairs).
+  The <b class="blue">historical Enigma I</b> is a corrected model (right-hand drive + double-stepping, rings B/C reflectors, rotors I&ndash;V) added by this
+  conversion so the divergence is demonstrable: the canonical vector <span class="mono">AAAAA</span> &rarr; <span class="mono">BDZGO</span> only works on the historical engine; the NSA engine produces <span class="mono">FTZMG</span>. See <i>Findings</i>.</p>
+
+  <div class="card">
+    <div class="row">
+      <div><label>Engine</label>
+        <select id="m-engine">
+          <option value="nsa">NSA simulator (as published)</option>
+          <option value="hist">Historical Enigma I (corrected)</option>
+        </select>
+      </div>
+      <div><label>Rotor L</label><select id="m-rl"></select></div>
+      <div><label>Rotor M</label><select id="m-rm"></select></div>
+      <div><label>Rotor R</label><select id="m-rr"></select></div>
+      <div><label>Reflector</label><select id="m-refl"><option>B</option><option>C</option></select></div>
+      <div><label>Windows (L&nbsp;M&nbsp;R)</label>
+        <input type="text" id="m-win" size="4" value="AAA" maxlength="3" class="mono">
+      </div>
+      <div><label>Rings L&nbsp;M&nbsp;R <span id="m-ringnote" class="dim">(hist only)</span></label>
+        <input type="text" id="m-rings" size="4" value="AAA" maxlength="3" class="mono">
+      </div>
+      <div><label>Plugboard (max 6, e.g. "AB CD")</label>
+        <input type="text" id="m-plugs" size="14" value="" placeholder="AB CD EF" class="mono">
+      </div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <h3 style="margin-top:0">Keyboard &rarr; Lampboard</h3>
+      <textarea id="m-in" rows="3" placeholder="type plaintext (a-z, spaces)">this is a test</textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="act" id="m-go">Encipher &amp; light lamps</button>
+        <button class="act small" id="m-vec1">Vector: notebook (NSA)</button>
+        <button class="act small" id="m-vec2">Vector: BDZGO (historical)</button>
+      </div>
+      <div class="kbox" id="m-out" style="min-height:38px">&mdash;</div>
+      <div class="lamps" id="m-lamps"></div>
+      <div class="dim" style="font-size:12px">Lit lamps replay the output letters in order; the last letter&rsquo;s full signal path is shown below.</div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Signal path of the last letter</h3>
+      <div class="kbox" id="m-trace">encipher something&hellip;</div>
+      <h3>Stepping trace</h3>
+      <div class="kbox" id="m-steps">windows after each press appear here</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================ LAB ================================== -->
+<section class="tab" id="tab-lab">
+  <h2>Rejewski attack lab &mdash; recover the day key from intercepts</h2>
+  <p class="dim">A faithful rebuild of <span class="mono">rejewski.py</span> and the two NSA notebooks. Marian Rejewski&rsquo;s 1932 attack
+  reconstructs the <b>AD/BE/CF</b> permutations from double-enciphered message keys, reads off their cycle-length signature, and looks that
+  signature up in a catalogue of all <span class="mono">26&#179; &times; 6 = 105,456</span> settings. The cycle structure survives the plugboard
+  (<span class="mono">AD = Q&thinsp;&circ;&#8203;T&thinsp;&circ;&#8203;Q</span> is a conjugate &mdash; cycle lengths are invariant), so the catalogue is built
+  plug-free while the traffic is plugged. The NSA suite shipped this as a pickled dictionary; here the catalogue is computed on demand in your browser.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">Scenario <span class="dim">(the night shift at Bletchley, from the notebooks)</span></h3>
+    <div class="row">
+      <div><label>Scenario seed</label><input type="number" id="l-seed" value="19321207" style="width:110px"></div>
+      <div><label>Intercepts</label><input type="number" id="l-count" value="200" min="26" max="2000" style="width:90px"></div>
+      <button class="act" id="l-gen">1 &middot; Generate today&rsquo;s intercepts</button>
+      <span class="dim" id="l-scen-sum" style="font-size:12.5px"></span>
+    </div>
+    <div class="kbox" id="l-intercepts" style="max-height:130px; overflow:auto"></div>
+    <div id="l-messages"></div>
+    <div class="dim" style="font-size:12px">Secret settings are generated but hidden &mdash; reveal only to check the final answer:
+      <span class="amber mono spoiler" id="l-secret" data-hidden="true">reveal</span></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">The attack</h3>
+    <div class="row">
+      <button class="act" id="l-perms" disabled>2 &middot; Build AD/BE/CF + cycles</button>
+      <button class="act" id="l-search" disabled>3 &middot; Search catalogue (105,456 settings)</button>
+      <button class="act amberb" id="l-crack" disabled>4 &middot; Recover plugboard + read traffic</button>
+    </div>
+    <div class="bar" id="l-bar" style="display:none; margin-top:10px"><div></div><div class="lbl" id="l-bar-lbl"></div></div>
+    <div id="l-perm-out"></div>
+    <div id="l-results"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Historical exhibit &mdash; the actual 1932 notebook data that survived</h3>
+    <p class="dim" style="margin-top:2px">The NSA repo never committed <span class="mono">message_key_encrypts.pickle</span> or <span class="mono">chains.pickle</span>.
+    What survived is printed notebook output: 23 intercepts, the complete AD/BE/CF cycles, and a lookup that still returns the true secret
+    <span class="mono">YAQ / II-I-III</span> alongside decoy <span class="mono">AAC / II-III-I</span>. Rebuilt from those prints, the true chain index is
+    <span class="mono green" id="l-nb-idx"></span> &mdash; the notebook&rsquo;s own cell hard-codes the stale string <span class="mono red">AD:6677 BE:11221010 CF:221111</span>.
+    <button class="act small" id="l-nb-show">show the 23 survivors</button></p>
+    <div class="kbox" id="l-nb" style="display:none"></div>
+  </div>
+</section>
+
+<!-- =============================== LESSON ================================ -->
+<section class="tab" id="tab-lesson">
+  <h2>How to break Enigma like Rejewski <span class="dim">(condensed from BreakingEnigma.ipynb / MasterEnigmaCracker.ipynb)</span></h2>
+  <div class="card">
+    <h3 style="margin-top:0">The scenario (notebook markdown, verbatim in spirit)</h3>
+    <p>&ldquo;It&rsquo;s midnight at Bletchley, the middle of your nighttime shift. The past days of German army traffic you decrypted have hinted at
+    some major events to come today. Since the new day began at midnight, the Germans have changed their day key. If you can&rsquo;t find the new
+    settings, all of that traffic will be gibberish&hellip;&rdquo;</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Step 1 &mdash; know the machine</h3>
+    <p>Each keypress: step rotors, run the letter through the plugboard, rotors L&rarr;M&rarr;R, reflector, then back R&rarr;M&rarr;L and through the
+    plugboard again. The reflector makes the machine an <b>involution</b>: encipher = decipher, and no letter can ever encipher to itself.
+    Operators encrypted each <i>message key</i> <b>twice</b> at the day key (six-letter indicator <span class="mono">ABCDEF</span> with
+    <span class="mono">D=E+F=</span> the key repeated) &mdash; the fatal procedural habit.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Step 2 &mdash; build the AD/BE/CF permutations from the indicators</h3>
+    <p>For a six-letter indicator <span class="mono">c&#8321;c&#8322;c&#8323;c&#8324;c&#8325;c&#8326;</span>: positions 1&amp;4 encode the same key letter
+    (permutations P&#8321; and P&#8324;), likewise 2&amp;5 and 3&amp;6. Collect over many indicators: <span class="mono">AD = P&#8324;&#8728;P&#8321;</span>,
+    <span class="mono">BE = P&#8325;&#8728;P&#8322;</span>, <span class="mono">CF = P&#8326;&#8728;P&#8323;</span>. Because the plugboard enters as
+    <span class="mono">Q&thinsp;&circ;&#8203;P&#7522;&thinsp;&circ;&#8203;Q</span> on both ends, <span class="mono">AD = Q&thinsp;&circ;&#8203;(P&#8324;&#8728;P&#8321;)&thinsp;&circ;&#8203;Q</span> &mdash; a <b>conjugate</b>, so its <b>cycle-length structure is unchanged by unknown plugs</b>.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Step 3 &mdash; cycles and the chain index</h3>
+    <p>Write each permutation in cycle notation. The notebook example (true data):</p>
+    <div class="kbox" id="ls-cycles"></div>
+    <p>Sorted cycle lengths give the index <span class="mono green">AD:222299 BE:11221010 CF:6677</span>. Note the NSA notebook&rsquo;s own lookup cell
+    hard-codes a different, stale string &mdash; covered in Findings.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Step 4 &mdash; the catalogue: 105,456 settings &rarr; 2 candidates</h3>
+    <p>For every day key (26&sup3;) and every rotor order (6 permutations of I/II/III &mdash; the NSA simulator offers no rotor IV), compute the chain
+    index and keep the matches. For the notebook data the survivors are exactly:</p>
+    <div class="kbox">YAQ / II-I-III   &larr; the true secret day key
+AAC / II-III-I   &larr; a coincidence (decoy)</div>
+    <p>The NSA suite ships this catalogue as a pickle. Here it is recomputed from scratch, in your browser, in seconds.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Step 5 &mdash; recover the plugboard, then read the traffic</h3>
+    <p>The catalogue pins rotors+windows but not the plugs. The notebooks let the student <i>guess</i> swaps and test-decrypt
+    (<span class="mono">test_putative_key</span>). This lab does it with arithmetic instead: with the setting known, each plug pair must satisfy
+    <span class="mono">AD(u) = Q(T(Q(u)))</span> with T known &mdash; beam-search pairs by agreement count (78 exact constraints), then confirm by
+    decrypting the three intercepted messages and scoring them as English. Expect the plugboard <span class="mono">JS HY NF</span> and three
+    familiar quotations from Einstein, Hemingway and Roosevelt.</p>
+  </div>
+</section>
+
+<!-- ============================== FINDINGS =============================== -->
+<section class="tab" id="tab-findings">
+  <h2>Deep-dive findings <span class="dim">// &ldquo;no filter&rdquo;</span></h2>
+  <p class="dim">Everything below was established by executing the NSA sources (CPython 3) against published reference vectors, and re-proven here
+  in the browser port. Full org survey: <span class="mono">docs/nsa-github-deep-dive.md</span>.</p>
+
+  <div class="finding bad"><span class="tag">ENG-1 &middot; simulation fidelity</span><br>
+    <b>The NSA &ldquo;Enigma&rdquo; is not a historical Enigma.</b> machine.py steps the <b>left</b> rotor on every keypress and cascades rightward
+    (l.rotor.step() in encode_decode_letter), where the real machine steps the <b>right</b> rotor and cascades leftward with the double-step anomaly.
+    On the canonical vector (rotors I-II-III, reflector B, key AAA, no plugs) the NSA simulator emits <span class="mono red">FTZMG</span> where every
+    real Enigma I emits <span class="mono green">BDZGO</span>. It also lacks Ringstellung entirely, ships no rotor IV, and hard-wires reflector B.
+    The attack still works on it because the attack only needs a deterministic involution machine &mdash; but traffic produced by the NSA simulator
+    is not historically valid ciphertext. Both engines are provided here; the divergence is a self-test.</div>
+
+  <div class="finding bad"><span class="tag">ENG-2 &middot; notebook integrity</span><br>
+    <b>The walkthrough notebooks contain stale, mutually inconsistent data.</b> MasterEnigmaCracker cell 22 looks up
+    <span class="mono">chains_dict['AD:6677 BE:11221010 CF:221111']</span>, but the index recomputed from the cycles the same notebook prints
+    (cells 17&ndash;19) is <span class="mono">AD:222299 BE:11221010 CF:6677</span>. Both strings resolve to the same candidate pair in the (unshipped)
+    pickle &mdash; evidence the intercept data changed between notebook runs and the printed outputs were never refreshed. The markdown &ldquo;recall
+    that these are of the form&hellip;&rdquo; cycle strings differ from the printed code output in both notebooks.</div>
+
+  <div class="finding bad"><span class="tag">ENG-3 &middot; missing artifacts</span><br>
+    <b>The lesson&rsquo;s two data files are not in the repository</b>: <span class="mono">message_key_encrypts.pickle</span> and
+    <span class="mono">chains.pickle</span> are load()ed but were never committed, so the notebooks cannot run as shipped. 23 intercepts and the full
+    AD/BE/CF cycles survive only as printed outputs. This port regenerates an equivalent scenario deterministically (seeded PRNG, same secret) and
+    rebuilds the catalogue on demand instead of pickling 105,456 entries.</div>
+
+  <div class="finding"><span class="tag">ENG-4 &middot; code quality (kept faithfully)</span><br>
+    <span class="mono">rejewski.py</span>: <span class="mono">if i is 1</span> / <span class="mono">is 2</span> compare integers by identity (works on
+    CPython small-int caching, not portable); <span class="mono">alphabet.replace(next_letter, '')</span> discards its result (no-op); the
+    AD/BE/CF maps are filled by encrypting <i>random</i> keys until complete (~hundreds of enciphers; this port uses an exact sweep or direct
+    permutation composition). <span class="mono">components.py</span>: the 6-plug cap only rejects a single update listing &gt;6 pairs &mdash;
+    cumulative updates can exceed 6. All of it is preserved where harmless and documented where not.</div>
+
+  <div class="finding good"><span class="tag">ENG-5 &middot; the maths is sound and lovely</span><br>
+    The chain-index attack rests on a genuinely elegant fact: enciphering under plugs is <span class="mono">Q&thinsp;&circ;&#8203;P&thinsp;&circ;&#8203;Q</span>,
+    so <span class="mono">AD = Q&thinsp;&circ;&#8203;(P&#8324;&#8728;P&#8321;)&thinsp;&circ;&#8203;Q</span> &mdash; a conjugation, and conjugate permutations have
+    identical cycle structure. Verified end-to-end here: plugged intercepts match the plug-free catalogue (self-test &sect;9), and the catalogue really
+    does reduce 105,456 settings to the true day key plus one decoy.</div>
+
+  <div class="finding good"><span class="tag">ENG-6 &middot; performance</span><br>
+    The reference workflow (build the full chains dictionary in CPython) took ~25 minutes of compute in this sandbox; the same search as composed
+    permutations in JS runs in ~4&thinsp;s in a browser, single-threaded, with the fast path asserted equal to the literal encipher-based path
+    (self-test &sect;14).</div>
+
+  <div class="finding"><span class="tag">ENG-7 &middot; scope of the source suite</span><br>
+    The NSA org has <b>no HTML5 repo at all</b> (89 repositories; only their site listing is HTML). The closest &ldquo;suite of utilities&rdquo; that
+    converts cleanly to a browser artifact is this Enigma teaching suite &mdash; which is what this file is. Runner-up: the GPL-2 QGIS coordinate-tool
+    plugin family (MGRS/UTM/GEOREF/plus-codes converters) &mdash; convertible, but heavier licensing and largely QGIS-bound. Survey and triage:
+    <span class="mono">docs/nsa-github-deep-dive.md</span>.</div>
+</section>
+
+<!-- ============================== SELF-TEST ============================== -->
+<section class="tab" id="tab-selftest">
+  <h2>Self-test <span class="dim">// same assertions the repo&rsquo;s CI runs under node:test</span></h2>
+  <div class="row"><button class="act" id="st-run">Run all assertions</button><span class="dim mono" id="st-sum"></span></div>
+  <table id="st-table" style="margin-top:10px"><thead><tr><th style="width:34px">#</th><th>Assertion</th><th style="width:80px">Result</th><th style="width:70px">ms</th><th>Detail</th></tr></thead><tbody></tbody></table>
+</section>
+
+</main>
+<footer>
+  provenance: NationalSecurityAgency/enigma-simulator@f234ee68291ccea70446bcbcb1468a2708277ab8 &middot; MIT &copy; 2019 + portions U.S. Govt public domain (17 U.S.C.)
+  &middot; converted 2026-09-21 for shdwelf/Html5-sync-incoming &middot; offline: 0 network requests
+</footer>
+<script id="enigma-core">
+/* ============================================================================
+   NSA ENIGMA SUITE — browser port core
+   ============================================================================
+   Faithful JavaScript conversion of the U.S. National Security Agency's
+   open-source "enigma-simulator" educational suite:
+
+     source:   https://github.com/NationalSecurityAgency/enigma-simulator
+     commit:   f234ee68291ccea70446bcbcb1468a2708277ab8  (HEAD, 2020-08-13)
+     files:    components.py (173 ln)  machine.py (141 ln)  rejewski.py (167 ln)
+               BreakingEnigma.ipynb  MasterEnigmaCracker.ipynb
+     license:  MIT (Copyright 2019) + portions of the U.S. Government, not
+               subject to copyright under 17 U.S.C.
+
+   Ported 1:1 (semantics-preserving, quirks included) and annotated:
+     * "NSA machine"  = components.py + machine.py, left-hand rotor drive,
+       reflector B only, rotors I/II/III/V, plugboard capped at 6 swaps,
+       no Ringstellung.  The NsaEnigma class below reproduces the NSA
+       outputs bit-for-bit (see SELF_TESTS vectors).
+     * "Historical machine" = a corrected Enigma I model (right-hand drive,
+       double-stepping, rings, reflectors B/C, rotors I-V) added so the app
+       can demonstrate exactly where the NSA simulation departs from the
+       real WWII device (NSA output FTZMG vs. the real machine's BDZGO for
+       the canonical vector).
+     * The Rejewski attack lab is a direct port of rejewski.py, with the
+       random-search permutation builder replaced by an exact one (message
+       keys of the form x-y-x fill AD/BE/CF deterministically in 26x26
+       enciphers instead of "encrypt random keys until the maps are full"),
+       and the pickled chains dictionary replaced by an on-demand catalogue
+       search over all 105,456 candidate settings (26^3 keys x 6 rotor
+       orders), which is what the NSA notebook's chains.pickle contained.
+
+   Everything below is dependency-free and runs identically in a browser
+   page, a Web Worker, and Node (the repo's test harness extracts this
+   exact script block and executes it under node:test).
+   ============================================================================ */
+
+'use strict';
+
+var ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+/* ---------------------------------------------------------------------------
+   1. THE NSA MACHINE — exact port of components.py
+   ------------------------------------------------------------------------- */
+
+/* ROTOR_WIRINGS / ROTOR_NOTCHES — verbatim from components.py
+   (wiring provenance per NSA comment: users.telenet.be/d.rijmenants/en/enigmatech.htm) */
+var NSA_ROTOR_WIRINGS = {
+  'I':   { forward: 'EKMFLGDQVZNTOWYHXUSPAIBRCJ', backward: 'UWYGADFPVZBECKMTHXSLRINQOJ' },
+  'II':  { forward: 'AJDKSIRUXBLHWTMCQGZNPYFVOE', backward: 'AJPCZWRLFBDKOTYUQGENHXMIVS' },
+  'III': { forward: 'BDFHJLCPRTXVZNYEIWGAKMUSQO', backward: 'TAGBPCSDQEUFVNZHYIXJWLRKOM' },
+  'V':   { forward: 'VZBRGITYUPSDNHLXAWMJQOFECK', backward: 'QCYLXWENFTZOSMVJUDKGIARPHB' }
+};
+var NSA_ROTOR_NOTCHES = { 'I': 'Q', 'II': 'E', 'III': 'V', 'V': 'Z' };
+
+/* components.py: class Rotor
+   NOTE (faithful to source): the NSA rotor indexes relative to the window
+   letter — the visible letter is index 0. */
+function NsaRotor(rotorNum, windowLetter, nextRotor, prevRotor) {
+  if (!Object.prototype.hasOwnProperty.call(NSA_ROTOR_WIRINGS, rotorNum)) {
+    throw new Error('Please select I, II, III, or V for your rotor number and provide ' +
+      'the initial window setting (i.e. the letter on the wheel initially visible to the operator.');
+  }
+  this.rotorNum  = rotorNum;
+  this.wiring    = NSA_ROTOR_WIRINGS[rotorNum];
+  this.notch     = NSA_ROTOR_NOTCHES[rotorNum];
+  this.window    = windowLetter.toUpperCase();
+  this.offset    = ALPHA.indexOf(this.window);
+  this.nextRotor = nextRotor || null;
+  this.prevRotor = prevRotor || null;
+}
+/* components.py: Rotor.step() — if THIS rotor sits at its notch, the NEXT
+   rotor (toward the right of the machine) steps too.  machine.py always
+   steps the LEFT rotor first, so the cascade drives rightward; a real
+   Enigma drives the right rotor and cascades leftward.  Kept as published. */
+NsaRotor.prototype.step = function () {
+  if (this.nextRotor && this.window === this.notch) this.nextRotor.step();
+  this.offset = (this.offset + 1) % 26;
+  this.window = ALPHA[this.offset];
+};
+/* components.py: Rotor.encode_letter(index, forward, return_letter, printit) */
+NsaRotor.prototype.encodeLetter = function (index, forward, returnLetter) {
+  if (typeof index === 'string') index = ALPHA.indexOf(index.toUpperCase());
+  if (forward === undefined) forward = true;
+  var key = forward ? 'forward' : 'backward';
+  var outputLetter = this.wiring[key][(index + this.offset) % 26];
+  var outputIndex = (ALPHA.indexOf(outputLetter) - this.offset + 26) % 26;
+  if (forward && this.nextRotor) return this.nextRotor.encodeLetter(outputIndex, true, returnLetter);
+  if (!forward && this.prevRotor) return this.prevRotor.encodeLetter(outputIndex, false, returnLetter);
+  return returnLetter ? ALPHA[outputIndex] : outputIndex;
+};
+NsaRotor.prototype.changeSetting = function (newWindowLetter) {
+  this.window = newWindowLetter.toUpperCase();
+  this.offset = ALPHA.indexOf(this.window);
+};
+
+/* components.py: class Reflector — "this is the wiring for Reflector B of
+   the Wehrmacht Enigma" (the only reflector the NSA simulator ships). */
+var NSA_REFLECTOR_B = {
+  A:'Y', B:'R', C:'U', D:'H', E:'Q', F:'S', G:'L', H:'D', I:'P', J:'X', K:'N', L:'G', M:'O',
+  N:'K', O:'M', P:'I', Q:'E', R:'B', S:'F', T:'Z', U:'C', V:'W', W:'V', X:'J', Y:'A', Z:'T'
+};
+
+/* components.py: class Plugboard — "Only a maximum of 6 swaps is allowed." */
+var NSA_PLUGBOARD_MAX_SWAPS = 6;
+function NsaPlugboard(swaps) {
+  this.swaps = {};
+  if (swaps && swaps.length) this.addSwaps(swaps);
+}
+NsaPlugboard.prototype.addSwaps = function (newSwaps, replace) {
+  if (replace) this.swaps = {};
+  if (newSwaps && newSwaps.length) {
+    if (newSwaps.length > NSA_PLUGBOARD_MAX_SWAPS) {
+      return false; /* components.py prints: 'Only a maximum of 6 swaps is allowed.' */
+    }
+    for (var i = 0; i < newSwaps.length; i++) {
+      var s = newSwaps[i];
+      this.swaps[s[0]] = s[1];
+      this.swaps[s[1]] = s[0];
+    }
+  }
+  return true;
+};
+
+/* ---------------------------------------------------------------------------
+   2. THE NSA MACHINE — exact port of machine.py
+   ------------------------------------------------------------------------- */
+
+var NSA_INPUT_FILTER = /[^a-zA-Z ]/;
+
+/* machine.py: class Enigma
+   Keyboard -> Plugboard -> L Rotor -> M Rotor -> R Rotor -> Reflector */
+function NsaEnigma(key, swaps, rotorOrder) {
+  key = key || 'AAA';
+  rotorOrder = rotorOrder || ['I', 'II', 'III'];
+  if (key.length !== 3) {
+    throw new Error('Please provide a three letter string as the initial window setting.');
+  }
+  this.key = key;
+  this.rotorOrder = rotorOrder.slice();
+  this.rRotor = new NsaRotor(rotorOrder[2], key[2]);
+  this.mRotor = new NsaRotor(rotorOrder[1], key[1], this.rRotor);
+  this.lRotor = new NsaRotor(rotorOrder[0], key[0], this.mRotor);
+  this.reflector = NSA_REFLECTOR_B;
+  this.plugboard = new NsaPlugboard(swaps);
+  this.mRotor.prevRotor = this.lRotor;
+  this.rRotor.prevRotor = this.mRotor;
+}
+/* machine.py: encipher() — validates a-zA-Z and space only, strips spaces.
+   Quirk kept from source: invalid input returns an error *string*. */
+NsaEnigma.prototype.encipher = function (message) {
+  if (NSA_INPUT_FILTER.test(message)) {
+    return 'Please provide a string containing only the characters a-zA-Z and spaces.';
+  }
+  var cipher = '';
+  var clean = message.toUpperCase().replace(/ /g, '').strip ? message.toUpperCase().replace(/ /g, '').strip() : message.toUpperCase().replace(/ /g, '');
+  for (var i = 0; i < clean.length; i++) cipher += this.encodeDecodeLetter(clean[i]);
+  return cipher;
+};
+NsaEnigma.prototype.decipher = function (message) { return this.encipher(message); };
+/* machine.py: encode_decode_letter() */
+NsaEnigma.prototype.encodeDecodeLetter = function (letter) {
+  if (NSA_INPUT_FILTER.test(letter)) {
+    return 'Please provide a letter in a-zA-Z.';
+  }
+  if (Object.prototype.hasOwnProperty.call(this.plugboard.swaps, letter)) {
+    letter = this.plugboard.swaps[letter.toUpperCase()];
+  }
+  this.lRotor.step();
+  var leftPass = this.lRotor.encodeLetter(ALPHA.indexOf(letter.toUpperCase()), true);
+  var reflOutput = this.reflector[ALPHA[leftPass % 26]];
+  var finalLetter = ALPHA[this.rRotor.encodeLetter(ALPHA.indexOf(reflOutput), false)];
+  if (Object.prototype.hasOwnProperty.call(this.plugboard.swaps, finalLetter)) {
+    return this.plugboard.swaps[finalLetter];
+  }
+  return finalLetter;
+};
+/* machine.py: set_rotor_position / set_rotor_order / set_plugs */
+NsaEnigma.prototype.setRotorPosition = function (positionKey) {
+  if (typeof positionKey === 'string' && positionKey.length === 3) {
+    this.key = positionKey;
+    this.lRotor.changeSetting(this.key[0]);
+    this.mRotor.changeSetting(this.key[1]);
+    this.rRotor.changeSetting(this.key[2]);
+    return true;
+  }
+  return false;
+};
+NsaEnigma.prototype.setRotorOrder = function (order) {
+  this.rRotor = new NsaRotor(order[2], this.key[2]);
+  this.mRotor = new NsaRotor(order[1], this.key[1], this.rRotor);
+  this.lRotor = new NsaRotor(order[0], this.key[0], this.mRotor);
+  this.mRotor.prevRotor = this.lRotor;
+  this.rRotor.prevRotor = this.mRotor;
+  this.rotorOrder = order.slice();
+};
+NsaEnigma.prototype.setPlugs = function (swaps, replace) {
+  return this.plugboard.addSwaps(swaps, replace);
+};
+/* speed helper for the catalogue search — identical state effect to
+   setRotorPosition, no string validation (internal only). */
+NsaEnigma.prototype._jumpTo = function (k0, k1, k2) {
+  this.lRotor.offset = k0; this.lRotor.window = ALPHA[k0];
+  this.mRotor.offset = k1; this.mRotor.window = ALPHA[k1];
+  this.rRotor.offset = k2; this.rRotor.window = ALPHA[k2];
+};
+
+/* ---------------------------------------------------------------------------
+   3. THE HISTORICAL MACHINE — corrected Enigma I (not part of the NSA suite;
+   added by this conversion so the divergence can be demonstrated in-app)
+   ------------------------------------------------------------------------- */
+
+var HIST_ROTOR_WIRINGS = {
+  'I':   'EKMFLGDQVZNTOWYHXUSPAIBRCJ',
+  'II':  'AJDKSIRUXBLHWTMCQGZNPYFVOE',
+  'III': 'BDFHJLCPRTXVZNYEIWGAKMUSQO',
+  'IV':  'ESOVPZJAYQUIRHXLNFTGKDCMWB',
+  'V':   'VZBRGITYUPSDNHLXAWMJQOFECK'
+};
+var HIST_ROTOR_NOTCHES = { 'I': 'Q', 'II': 'E', 'III': 'V', 'IV': 'J', 'V': 'Z' };
+var HIST_REFLECTORS = { 'B': 'YRUHQSLDPXNGOKMIEBFZCWVJAT', 'C': 'FVPJIAOYEDRZXWGCTKUQSBNMHL' };
+
+function HistRotor(num, windowLetter, ring) {
+  this.num = num;
+  this.fwd = HIST_ROTOR_WIRINGS[num];
+  var inv = new Array(26);
+  for (var i = 0; i < 26; i++) inv[ALPHA.indexOf(this.fwd[i])] = ALPHA[i];
+  this.bwd = inv.join('');
+  this.notch = HIST_ROTOR_NOTCHES[num];
+  this.windowLetter = windowLetter.toUpperCase();
+  this.ring = ((ring % 26) + 26) % 26;
+  this._sync();
+}
+HistRotor.prototype._sync = function () {
+  this.pos = ALPHA.indexOf(this.windowLetter);          /* position shown in window */
+  this.off = (this.pos - this.ring + 26) % 26;          /* core offset vs. wiring   */
+};
+HistRotor.prototype.atNotch = function () { return this.windowLetter === this.notch; };
+HistRotor.prototype.step = function () {
+  this.pos = (this.pos + 1) % 26;
+  this.windowLetter = ALPHA[this.pos];
+  this.off = (this.off + 1) % 26;
+};
+HistRotor.prototype.forward = function (x) { return (ALPHA.indexOf(this.fwd[(x + this.off) % 26]) - this.off + 26) % 26; };
+HistRotor.prototype.backward = function (x) { return (ALPHA.indexOf(this.bwd[(x + this.off) % 26]) - this.off + 26) % 26; };
+
+/* Historical Enigma I stepping: right rotor advances every keypress; the
+   middle rotor steps when the right rotor shows its notch OR when the middle
+   itself shows its notch (the double-step anomaly), which also advances the
+   left rotor. */
+function HistEnigma(opts) {
+  opts = opts || {};
+  var order = opts.rotorOrder || ['I', 'II', 'III'];
+  var key = (opts.key || 'AAA').toUpperCase();
+  var rings = (opts.rings || 'AAA').toUpperCase();
+  this.rotorOrder = order.slice();
+  this.reflector = HIST_REFLECTORS[opts.reflector || 'B'];
+  this.reflectorName = opts.reflector || 'B';
+  this.lRotor = new HistRotor(order[0], key[0], ALPHA.indexOf(rings[0]));
+  this.mRotor = new HistRotor(order[1], key[1], ALPHA.indexOf(rings[1]));
+  this.rRotor = new HistRotor(order[2], key[2], ALPHA.indexOf(rings[2]));
+  this.plugboard = {};
+  var swaps = opts.swaps || [];
+  for (var i = 0; i < swaps.length; i++) {
+    this.plugboard[swaps[i][0]] = swaps[i][1];
+    this.plugboard[swaps[i][1]] = swaps[i][0];
+  }
+}
+HistEnigma.prototype._plug = function (ch) {
+  return Object.prototype.hasOwnProperty.call(this.plugboard, ch) ? this.plugboard[ch] : ch;
+};
+HistEnigma.prototype.stepRotors = function () {
+  if (this.mRotor.atNotch()) { this.mRotor.step(); this.lRotor.step(); }
+  else if (this.rRotor.atNotch()) { this.mRotor.step(); }
+  this.rRotor.step();
+};
+HistEnigma.prototype.windows = function () {
+  return this.lRotor.windowLetter + this.mRotor.windowLetter + this.rRotor.windowLetter;
+};
+HistEnigma.prototype.setPosition = function (key) {
+  key = key.toUpperCase();
+  this.lRotor.windowLetter = key[0]; this.mRotor.windowLetter = key[1]; this.rRotor.windowLetter = key[2];
+  this.lRotor._sync(); this.mRotor._sync(); this.rRotor._sync();
+};
+HistEnigma.prototype.encipher = function (message) {
+  var out = '', i, c, x;
+  message = message.toUpperCase().replace(/[^A-Z]/g, '');
+  for (i = 0; i < message.length; i++) {
+    this.stepRotors();
+    c = this._plug(message[i]);
+    x = ALPHA.indexOf(c);
+    x = this.rRotor.forward(x); x = this.mRotor.forward(x); x = this.lRotor.forward(x);
+    x = ALPHA.indexOf(this.reflector[x]);   /* reflector is a wiring STRING: index by contact number */
+    x = this.lRotor.backward(x); x = this.mRotor.backward(x); x = this.rRotor.backward(x);
+    out += this._plug(ALPHA[x]);
+  }
+  return out;
+};
+
+/* ---------------------------------------------------------------------------
+   4. THE REJEWSKI ATTACK — port of rejewski.py
+   ------------------------------------------------------------------------- */
+
+/* rejewski.py: generate_permutation_dicts + make_chains_from_permutation_dict
+   + generate_chain_index.  The NSA chain-walk builds the full cycle strings;
+   for the catalogue only the cycle LENGTHS matter (generate_chain_index), so
+   the tight search path computes lengths directly.  The full cycle strings
+   are produced here too, for display (and to test equality with the values
+   printed in the notebooks). */
+function permutationDictsFromEncrypts(encrypts) {
+  var AD = {}, BE = {}, CF = {}, i, m;
+  for (i = 0; i < 26; i++) { AD[ALPHA[i]] = null; BE[ALPHA[i]] = null; CF[ALPHA[i]] = null; }
+  for (i = 0; i < encrypts.length; i++) {
+    m = encrypts[i];
+    if (m.length !== 6) continue;
+    if (AD[m[0]] === null) AD[m[0]] = m[3];
+    if (BE[m[1]] === null) BE[m[1]] = m[4];
+    if (CF[m[2]] === null) CF[m[2]] = m[5];
+  }
+  return [AD, BE, CF];
+}
+function makeChainsFromPermutationDict(permDict) {
+  /* direct port of rejewski.make_chains_from_permutation_dict */
+  var alphabet = ALPHA.split('');
+  var chains = [];
+  while (alphabet.length > 0) {
+    var nextChain = permDict[alphabet[0]];
+    if (nextChain === null) return null;           /* incomplete data — NSA assumes complete maps */
+    var nextLetter = permDict[nextChain[0]];
+    var drop = alphabet.indexOf(alphabet[0]);
+    if (drop !== -1) alphabet.splice(drop, 1);     /* python str.replace is a no-op when absent; splice(-1,1) is NOT */
+    drop = alphabet.indexOf(nextChain);
+    if (drop !== -1) alphabet.splice(drop, 1);
+    while (nextLetter !== nextChain[0]) {
+      nextChain += nextLetter;
+      drop = alphabet.indexOf(nextLetter);
+      if (drop !== -1) alphabet.splice(drop, 1);
+      nextLetter = permDict[nextLetter];
+    }
+    chains.push(nextChain);
+  }
+  return chains;
+}
+function generateChainIndex(chainsPerPair) {
+  /* rejewski.py: generate_chain_index — 'AD:... BE:... CF:...', lengths of
+     each pair's cycles concatenated shortest-first */
+  var names = ['AD', 'BE', 'CF'];
+  var s = '';
+  for (var i = 0; i < chainsPerPair.length; i++) {
+    if (i) s += ' ';
+    s += names[i] + ':';
+    var sorted = chainsPerPair[i].slice().sort(function (a, b) { return a.length - b.length; });
+    for (var j = 0; j < sorted.length; j++) s += String(sorted[j].length);
+  }
+  return s;
+}
+function chainsToIndex(chains) {
+  var lens = chains.map(function (c) { return c.length; }).sort(function (a, b) { return a - b; });
+  var names = ['AD', 'BE', 'CF'];
+  var s = '';
+  for (var i = 0; i < chains.length; i++) {
+    if (i) s += ' ';
+    s += names[i] + ':';
+    var sorted = chains[i].slice().sort(function (a, b) { return a.length - b.length; });
+    for (var j = 0; j < sorted.length; j++) s += String(sorted[j].length);
+  }
+  return s;
+}
+function chainIndexFromPermutationDicts(triple) {
+  var all = [];
+  for (var i = 0; i < 3; i++) {
+    var chains = makeChainsFromPermutationDict(triple[i]);
+    if (!chains) return null;
+    all.push(chains);
+  }
+  return generateChainIndex(all);
+}
+
+/* The catalogue search replaces rejewski.make_chain_length_dict's pickled
+   dictionary.  For every day key (26^3) and every rotor order (the 6
+   permutations of I/II/III — the NSA simulator offers no rotor IV) the
+   chain index of AD/BE/CF is computed exactly, no plugs (the cycle-length
+   signature is invariant under the plugboard conjugation
+   AD = Q o P4 o P1 o Q, so plugged traffic matches an unplugged catalogue). */
+function _permutationArrayFromMaps(map) {
+  var arr = new Array(26);
+  for (var i = 0; i < 26; i++) {
+    var v = map[ALPHA[i]];
+    if (v === null) return null;
+    arr[i] = ALPHA.indexOf(v);
+  }
+  return arr;
+}
+function _cycleLengths(arr) {
+  var seen = new Array(26), lens = [], i, j, n;
+  for (i = 0; i < 26; i++) seen[i] = false;
+  for (i = 0; i < 26; i++) {
+    if (seen[i]) continue;
+    n = 0; j = i;
+    while (!seen[j]) { seen[j] = true; j = arr[j]; n++; }
+    lens.push(n);
+  }
+  lens.sort(function (a, b) { return a - b; });
+  return lens;
+}
+function _lensToIndex(lensAD, lensBE, lensCF) {
+  var s = 'AD:';
+  for (var i = 0; i < lensAD.length; i++) s += String(lensAD[i]);
+  s += ' BE:';
+  for (i = 0; i < lensBE.length; i++) s += String(lensBE[i]);
+  s += ' CF:';
+  for (i = 0; i < lensCF.length; i++) s += String(lensCF[i]);
+  return s;
+}
+/* Exact replacement for rejewski.py's "encrypt random message keys until the
+   maps are full" builder: message keys of the form x-y-x sweep all three
+   positions deterministically in 26x26 six-letter enciphers.  Replaced by
+   the even tighter direct method in _mapsForSettingFast below (kept here for
+   documentation/verification: both produce identical maps). */
+function mapsForSetting(key, order) {
+  var en = new NsaEnigma(key, null, order);
+  var AD = {}, BE = {}, CF = {}, x, y, c;
+  for (x = 0; x < 26; x++) { AD[ALPHA[x]] = null; BE[ALPHA[x]] = null; CF[ALPHA[x]] = null; }
+  for (x = 0; x < 26; x++) {
+    for (y = 0; y < 26; y++) {
+      en.setRotorPosition(key);
+      c = en.encipher(ALPHA[x] + ALPHA[y] + ALPHA[x] + ALPHA[x] + ALPHA[y] + ALPHA[x]);
+      if (AD[c[0]] === null) AD[c[0]] = c[3];
+      if (BE[c[1]] === null) BE[c[1]] = c[4];
+      if (CF[c[2]] === null) CF[c[2]] = c[5];
+    }
+  }
+  return [AD, BE, CF];
+}
+/* Fast path used by the catalogue: for each letter x, one 4-letter encipher
+   yields P1(x) and P4(x) (AD), one 5-letter yields P2(x)/P5(x) (BE), one
+   6-letter yields P3(x)/P6(x) (CF) — 15 letters per x instead of 156.
+   NOTE the probe strings: a double-enciphered message key k1k2k3k1k2k3 puts
+   k_i at BOTH position i and position i+3, so position 4 of "xAAx" encodes
+   x again. */
+function _mapsForSettingFast(en, k0, k1, k2) {
+  var AD = new Array(26), BE = new Array(26), CF = new Array(26);
+  var x, c, i;
+  for (x = 0; x < 26; x++) {
+    en._jumpTo(k0, k1, k2);
+    c = _rawEncipher(en, ALPHA[x] + 'AA' + ALPHA[x]);          /* o1=P1(x) o4=P4(x) */
+    AD[ALPHA.indexOf(c[0])] = ALPHA.indexOf(c[3]);
+    en._jumpTo(k0, k1, k2);
+    c = _rawEncipher(en, 'A' + ALPHA[x] + 'AA' + ALPHA[x]);    /* o2=P2(x) o5=P5(x) */
+    BE[ALPHA.indexOf(c[1])] = ALPHA.indexOf(c[4]);
+    en._jumpTo(k0, k1, k2);
+    c = _rawEncipher(en, 'AA' + ALPHA[x] + 'AA' + ALPHA[x]);   /* o3=P3(x) o6=P6(x) */
+    CF[ALPHA.indexOf(c[2])] = ALPHA.indexOf(c[5]);
+  }
+  for (i = 0; i < 26; i++) if (AD[i] === undefined || BE[i] === undefined || CF[i] === undefined) return null;
+  return [AD, BE, CF];
+}
+/* encipher without validation/allocation — internal hot path */
+function _rawEncipher(en, s) {
+  var out = '';
+  for (var i = 0; i < s.length; i++) out += en.encodeDecodeLetter(s[i]);
+  return out;
+}
+var ORDERS_III = [
+  ['I', 'II', 'III'], ['I', 'III', 'II'], ['II', 'I', 'III'],
+  ['II', 'III', 'I'], ['III', 'I', 'II'], ['III', 'II', 'I']
+];
+
+/* ---- catalogue hot path: permutation composition (exact, ~2000 ops/setting)
+   The rotor-system permutation at letter-position k (plugboard absent) is
+     P_k = Lb o Mb o Rb o U o Rf o Mf o Lf
+   with each Rf/Mf/Lf the rotor's forward wiring rotated into the window frame
+   at that position's offsets (and Rb/Mb/Lb the same for the backward wiring).
+   Building P_k as a 26-array and composing pairs costs a few hundred integer
+   ops — versus ~390 letter enciphers — and is asserted equal to the
+   encipher-based reference (mapsForSetting) in the self-test suite. -------- */
+var _WIRING_ARRAYS = (function () {
+  var out = {};
+  for (var num in NSA_ROTOR_WIRINGS) {
+    if (!Object.prototype.hasOwnProperty.call(NSA_ROTOR_WIRINGS, num)) continue;
+    var f = new Array(26), b = new Array(26);
+    for (var i = 0; i < 26; i++) {
+      f[i] = ALPHA.indexOf(NSA_ROTOR_WIRINGS[num].forward[i]);
+      b[i] = ALPHA.indexOf(NSA_ROTOR_WIRINGS[num].backward[i]);
+    }
+    out[num] = { f: f, b: b, notch: ALPHA.indexOf(NSA_ROTOR_NOTCHES[num]) };
+  }
+  return out;
+})();
+var _REFL_B_ARRAY = (function () {
+  var r = new Array(26);
+  for (var i = 0; i < 26; i++) r[i] = ALPHA.indexOf(NSA_REFLECTOR_B[ALPHA[i]]);
+  return r;
+})();
+/* NSA cascade on pure ints (machine.py steps the LEFT rotor every keypress) */
+function _stepCascade(lOff, lNotch, mOff, mNotch, rOff) {
+  if (lOff === lNotch) {
+    if (mOff === mNotch) rOff = (rOff + 1) % 26;
+    mOff = (mOff + 1) % 26;
+  }
+  lOff = (lOff + 1) % 26;
+  return [lOff, mOff, rOff];
+}
+function _shifted(wiring, off) {
+  var out = new Array(26);
+  for (var i = 0; i < 26; i++) out[i] = (wiring[(i + off) % 26] - off + 26) % 26;
+  return out;
+}
+function _systemPerms(order, lOff, mOff, rOff) {
+  var L = _WIRING_ARRAYS[order[0]], M = _WIRING_ARRAYS[order[1]], R = _WIRING_ARRAYS[order[2]];
+  var lf = _shifted(L.f, lOff), lb = _shifted(L.b, lOff);
+  var mf = _shifted(M.f, mOff), mb = _shifted(M.b, mOff);
+  var rf = _shifted(R.f, rOff), rb = _shifted(R.b, rOff);
+  var P = new Array(26), i, x;
+  for (i = 0; i < 26; i++) {
+    x = lf[i]; x = mf[x]; x = rf[x];
+    x = _REFL_B_ARRAY[x];
+    x = rb[x]; x = mb[x]; x = lb[x];
+    P[i] = x;
+  }
+  return P;
+}
+/* chain index for one (key, order) — offsets for positions 1..6 come from
+   running the published cascade six times from the day key */
+function _chainIndexForKey(order, lNotch, mNotch, rNotch, k0, k1, k2) {
+  var lOff = k0, mOff = k1, rOff = k2, t;
+  var P1, P4, P2, P5, P3, P6, k;
+  t = _stepCascade(lOff, lNotch, mOff, mNotch, rOff); lOff = t[0]; mOff = t[1]; rOff = t[2];
+  P1 = _systemPerms(order, lOff, mOff, rOff);
+  P2 = _systemPerms(order, (t = _stepCascade(lOff, lNotch, mOff, mNotch, rOff))[0], t[1], t[2]);
+  P3 = _systemPerms(order, (t = _stepCascade(t[0], lNotch, t[1], mNotch, t[2]))[0], t[1], t[2]);
+  P4 = _systemPerms(order, (t = _stepCascade(t[0], lNotch, t[1], mNotch, t[2]))[0], t[1], t[2]);
+  P5 = _systemPerms(order, (t = _stepCascade(t[0], lNotch, t[1], mNotch, t[2]))[0], t[1], t[2]);
+  P6 = _systemPerms(order, (t = _stepCascade(t[0], lNotch, t[1], mNotch, t[2]))[0], t[1], t[2]);
+  var AD = new Array(26), BE = new Array(26), CF = new Array(26);
+  for (k = 0; k < 26; k++) { AD[P1[k]] = P4[k]; BE[P2[k]] = P5[k]; CF[P3[k]] = P6[k]; }
+  return _lensToIndex(_cycleLengths(AD), _cycleLengths(BE), _cycleLengths(CF));
+}
+function searchCatalogue(targetIndex, onProgress) {
+  /* rejewski.make_chain_length_dict, inverted: evaluate settings on demand
+     and return every (key, order) whose chain index equals the target. */
+  var results = [];
+  for (var oi = 0; oi < ORDERS_III.length; oi++) {
+    results = results.concat(searchCatalogueOrder(targetIndex, ORDERS_III[oi]));
+    if (onProgress) onProgress({ doneOrders: oi + 1, totalOrders: 6, evaluated: (oi + 1) * 17576, total: 105456 });
+  }
+  results.sort(function (a, b) { return (a.key + a.order.join('-')).localeCompare(b.key + b.order.join('-')); });
+  return results;
+}
+function searchCatalogueOrder(targetIndex, order) {
+  /* one rotor order (17,576 day keys) — the UI runs these as chunks so the
+     page stays responsive; searchCatalogue is the all-orders version. */
+  var results = [];
+  var lNotch = _WIRING_ARRAYS[order[0]].notch;
+  var mNotch = _WIRING_ARRAYS[order[1]].notch;
+  var rNotch = _WIRING_ARRAYS[order[2]].notch;
+  for (var n = 0; n < 17576; n++) {
+    var k0 = Math.floor(n / 676) % 26, k1 = Math.floor(n / 26) % 26, k2 = n % 26;
+    if (_chainIndexForKey(order, lNotch, mNotch, rNotch, k0, k1, k2) === targetIndex) {
+      results.push({ key: ALPHA[k0] + ALPHA[k1] + ALPHA[k2], order: order.slice() });
+    }
+  }
+  return results;
+}
+
+/* ---------------------------------------------------------------------------
+   5. SCORING + PLUGBOARD RECOVERY (the step rejewski.py leaves to the student;
+   the MasterEnigmaCracker notebook's test_putative_key made manual)
+   ------------------------------------------------------------------------- */
+
+function indexOfCoincence(text) {
+  var counts = {}, i, n = 0, sum = 0;
+  for (i = 0; i < 26; i++) counts[ALPHA[i]] = 0;
+  for (i = 0; i < text.length; i++) { counts[text[i]]++; n++; }
+  if (n < 2) return 0;
+  for (i = 0; i < 26; i++) sum += counts[ALPHA[i]] * (counts[ALPHA[i]] - 1);
+  return sum / (n * (n - 1));
+}
+function englishScore(text) {
+  /* IC plus a bonus for high-frequency English markers — enough to rank
+     three-plugboard recoveries on ~200-letter samples, deterministic. */
+  var score = indexOfCoincence(text) * 100;
+  var up = text.toUpperCase();
+  var markers = ['THE', 'AND', 'ING', 'ENT', 'ION', 'OF', 'TO', 'IS', 'IT'];
+  for (var i = 0; i < markers.length; i++) {
+    var pos = 0, hit;
+    while ((hit = up.indexOf(markers[i], pos)) !== -1) { score += 2; pos = hit + 1; }
+  }
+  return score;
+}
+var PLUG_PAIRS = (function () {
+  var pairs = [];
+  for (var i = 0; i < 26; i++) for (var j = i + 1; j < 26; j++) pairs.push(ALPHA[i] + ALPHA[j]);
+  return pairs;
+})();
+function recoverPlugs(dayKey, order, intercepts, messages, indicator, maxSwaps, beamWidth) {
+  /* Recover the plugboard once a catalogue candidate (dayKey, order) is in
+     hand — the step rejewski.py leaves to the student (MasterEnigmaCracker's
+     test_putative_key made automatic).
+
+     Stage 1 — exact constraint matching: for candidate board Q, the observed
+     AD/BE/CF permutations must equal Q o T o Q with T the plugboard-free
+     product P_(i+3) o P_i computable from the candidate setting alone.  Each
+     correct pair increases the number of letters u with AD[u] == Q(T(Q(u)))
+     (summed over the three pairs); wrong pairs do not.  Beam-search pairs by
+     agreement count.  No plaintext needed — works even with no sample text.
+     Stage 2 — confirmation: decipher the indicator-position messages and
+     score them as English (englishScore). */
+  maxSwaps = maxSwaps || 6;
+  beamWidth = beamWidth || 8;
+  var maps = permutationDictsFromEncrypts(intercepts);   /* AD, BE, CF observed */
+  var T = (function () {
+    /* plugboard-free products per position pair, at the candidate setting */
+    var en = new NsaEnigma(dayKey, null, order);
+    var lNotch = _WIRING_ARRAYS[order[0]].notch, mNotch = _WIRING_ARRAYS[order[1]].notch,
+        rNotch = _WIRING_ARRAYS[order[2]].notch;
+    var k0 = ALPHA.indexOf(dayKey[0]), k1 = ALPHA.indexOf(dayKey[1]), k2 = ALPHA.indexOf(dayKey[2]);
+    var P = [null, 0, 0, 0, 0, 0, 0], lOff = k0, mOff = k1, rOff = k2, t, k;
+    for (k = 1; k <= 6; k++) {
+      t = _stepCascade(lOff, lNotch, mOff, mNotch, rOff);
+      lOff = t[0]; mOff = t[1]; rOff = t[2];
+      P[k] = _systemPerms(order, lOff, mOff, rOff);
+    }
+    function prod(a, b) { var o = new Array(26); for (var i = 0; i < 26; i++) o[i] = a[b[i]]; return o; }
+    /* letter-keyed view: T_letter[letterIndex] = letter */
+    function letterize(arr) { var o = new Array(26); for (var i = 0; i < 26; i++) o[i] = ALPHA[arr[i]]; return o; }
+    return [letterize(prod(P[4], P[1])), letterize(prod(P[5], P[2])), letterize(prod(P[6], P[3]))];
+  })();
+  function agreements(swaps) {
+    /* score = letters u where Q(T_i(Q(u))) equals the observed permutation */
+    var q = {};
+    var i, u, w;
+    for (i = 0; i < 26; i++) q[ALPHA[i]] = ALPHA[i];
+    for (i = 0; i < swaps.length; i++) { q[swaps[i][0]] = swaps[i][1]; q[swaps[i][1]] = swaps[i][0]; }
+    var hit = 0;
+    for (var m = 0; m < 3; m++) {
+      var obs = maps[m], Tm = T[m];
+      for (u = 0; u < 26; u++) {
+        w = q[Tm[ALPHA.indexOf(q[ALPHA[u]])]];   /* q keyed by letters; Tm by letter index */
+        if (w === obs[ALPHA[u]]) hit++;
+      }
+    }
+    return hit;
+  }
+  var board = [];
+  while (board.length < maxSwaps) {
+    var used = {}, i;
+    for (i = 0; i < board.length; i++) { used[board[i][0]] = 1; used[board[i][1]] = 1; }
+    var scored = [];
+    for (var p = 0; p < PLUG_PAIRS.length; p++) {
+      var pair = PLUG_PAIRS[p];
+      if (used[pair[0]] || used[pair[1]]) continue;
+      var ext = board.concat([pair]);
+      scored.push({ swaps: ext, hit: agreements(ext) });
+    }
+    scored.sort(function (a, b) { return b.hit - a.hit; });
+    var top = scored.slice(0, beamWidth);
+    var progressed = false;
+    for (i = 0; i < top.length; i++) {
+      var baseline = agreements(board);
+      if (top[i].hit > baseline + 1) {        /* require meaningful gain over current board */
+        board = top[i].swaps; progressed = true; break;
+      }
+    }
+    if (!progressed) break;
+  }
+  var en = new NsaEnigma(indicator, board, order);
+  var plain = '';
+  for (i = 0; i < messages.length; i++) plain += en.encipher(messages[i]);
+  return { swaps: board, agreements: agreements(board), score: englishScore(plain), plain: plain };
+}
+
+/* ---------------------------------------------------------------------------
+   6. THE INTERCEPT SCENARIO — rejewski.py's lost pickles, regenerated
+   deterministically.  The original message_key_encrypts.pickle was never
+   committed; 23 intercepts and the full AD/BE/CF cycles survive only as
+   printed notebook output (see LESSON/FINDINGS).  This generator reproduces
+   the same scenario (same secret day key, rotor order and plugboard) with a
+   seeded PRNG so the app is fully self-contained and reproducible.
+   ------------------------------------------------------------------------- */
+
+function mulberry32(seed) {
+  var t = seed >>> 0;
+  return function () {
+    t += 0x6D2B79F5;
+    var r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* rejewski.py module-level secrets, verbatim */
+var SECRET_DAY_KEY = 'YAQ';
+var SECRET_ROTOR_ORDER = ['II', 'I', 'III'];
+var SECRET_SWAPS = ['JS', 'HY', 'NF'];   /* [('J','S'),('H','Y'),('N','F')] */
+var SECRET_INDICATOR = 'TDS';            /* position the three sample messages start at */
+
+var MSG1 = 'A calm and modest life brings more happiness than the pursuit of success combined with constant restlessness Albert Einstein';
+var MSG2 = 'The way to make people trustworthy is to trust them Ernest Hemmingway';
+var MSG3 = 'The future belongs to those who believe in the beauty of their dreams Eleanor Roosevelt';
+
+/* The 23 intercepts printed by MasterEnigmaCracker.ipynb cell 10 — the only
+   surviving fragment of message_key_encrypts.pickle. */
+var NOTEBOOK_INTERCEPTS_23 = [
+  'ZEUATW', 'MVBXPQ', 'LSCEJY', 'GYICYG', 'ORZNBX', 'UZBBXQ', 'LCHEKP', 'DMGOOO',
+  'UQVBDR', 'BPZSIX', 'RJOFRE', 'YCFJKC', 'SCTTKZ', 'HCGKKO', 'NSVWJR', 'ZWGAEO',
+  'EBTLAZ', 'TWRIET', 'AIVHSR', 'PTLUUB', 'ZVKAPS', 'XZNPXL', 'SWFTEC'
+];
+/* The complete AD/BE/CF cycles printed by MasterEnigmaCracker.ipynb cell 17. */
+var NOTEBOOK_AD_CHAINS = ['HKVDONWZA', 'STIQMXPUB', 'GC', 'LE', 'RF', 'YJ'];
+var NOTEBOOK_BE_CHAINS = ['QDVPISJRBA', 'KC', 'TULZXMOHWE', 'GF', 'N', 'Y'];
+var NOTEBOOK_CF_CHAINS = ['JIGOEDA', 'QKSNLB', 'YHPUWFC', 'VRTZXM'];
+/* Notebook-derived index of the real intercept data (the string hard-coded in
+   the notebook's own lookup cell — 'AD:6677 BE:11221010 CF:221111' — is stale;
+   see FINDINGS). */
+var NOTEBOOK_CHAIN_INDEX = 'AD:222299 BE:11221010 CF:6677';
+
+function generateScenario(seed, interceptCount) {
+  /* rejewski.py: make_messages — every message key is enciphered from a
+     machine reset to the day key, with the day's plugboard set. */
+  seed = (seed === undefined) ? 19321207 : seed;       /* Rejewski's first-breakthrough date */
+  interceptCount = (interceptCount === undefined) ? 200 : interceptCount;
+  var rng = mulberry32(seed);
+  var en = new NsaEnigma(SECRET_DAY_KEY, SECRET_SWAPS, SECRET_ROTOR_ORDER);
+  var intercepts = [], i, mk;
+  for (i = 0; i < interceptCount; i++) {
+    mk = ALPHA[Math.floor(rng() * 26)] + ALPHA[Math.floor(rng() * 26)] + ALPHA[Math.floor(rng() * 26)];
+    en.setRotorPosition(SECRET_DAY_KEY);
+    intercepts.push(en.encipher(mk + mk));
+  }
+  var messages = [MSG1, MSG2, MSG3];
+  var encrypted = [];
+  for (i = 0; i < messages.length; i++) {
+    en.setRotorPosition(SECRET_INDICATOR);
+    encrypted.push(en.encipher(messages[i]));
+  }
+  return {
+    seed: seed,
+    secret: { dayKey: SECRET_DAY_KEY, rotorOrder: SECRET_ROTOR_ORDER.slice(), swaps: SECRET_SWAPS.slice(), indicator: SECRET_INDICATOR },
+    intercepts: intercepts,
+    messages: messages,
+    encryptedMessages: encrypted
+  };
+}
+/* golden ciphertexts from the notebooks — the generator above must reproduce
+   them (MSG1's is printed in both notebooks) */
+var NOTEBOOK_GOLDEN = {
+  vectorAAA: 'ZPJJSVSPGBW',   /* encipher('this is a test') at AAA, I-II-III */
+  msg1AtTDS: 'ZNRJYTZHJEADPAXQZBRGEJEFQWZRNCZNXKYFHWEWWSSTXMLVQQCNJIJBXCXFKFXPZFCAKVRQTQGOIXXEUOOWWQZJRXTZPOPNTUBULJERNT'
+};
+/* Historical ground truth (NOT reproducible by the NSA simulation — it steps
+   the wrong rotor; see FINDINGS) */
+var HISTORICAL_GOLDEN = { bdzgo: 'BDZGO' };
+
+/* ---------------------------------------------------------------------------
+   7. SELF-TEST SUITE — the same assertions run in-browser and under node:test
+   ------------------------------------------------------------------------- */
+
+function assertEq(actual, expected, label) {
+  if (actual !== expected) {
+    throw new Error((label || 'value') + ': expected ' + JSON.stringify(expected) + ', got ' + JSON.stringify(actual));
+  }
+}
+var SELF_TESTS = [
+  {
+    name: 'NSA machine reproduces notebook vector (encipher "this is a test" @AAA, I-II-III)',
+    run: function () {
+      var e = new NsaEnigma('AAA', null, ['I', 'II', 'III']);
+      assertEq(e.encipher('this is a test'), NOTEBOOK_GOLDEN.vectorAAA, 'cipher');
+      e.setRotorPosition('AAA');
+      assertEq(e.decipher(NOTEBOOK_GOLDEN.vectorAAA), 'THISISATEST', 'roundtrip');
+      return 'ZPJJSVSPGBW / round-trips to THISISATEST';
+    }
+  },
+  {
+    name: 'NSA machine reproduces notebook Einstein message (TDS, II-I-III, plugs JS/HY/NF)',
+    run: function () {
+      var e = new NsaEnigma('TDS', SECRET_SWAPS, ['II', 'I', 'III']);
+      assertEq(e.encipher(MSG1), NOTEBOOK_GOLDEN.msg1AtTDS, 'cipher');
+      return '105-letter ciphertext matches BreakingEnigma/MasterEnigmaCracker cell 29';
+    }
+  },
+  {
+    name: 'NSA stepping is left-driven (published quirk): first keypress advances rotor I, not III',
+    run: function () {
+      var e = new NsaEnigma('AAA', null, ['I', 'II', 'III']);
+      e.encipher('A');
+      assertEq(e.lRotor.window + e.mRotor.window + e.rRotor.window, 'BAA', 'windows after 1 press');
+      e.setRotorPosition('AAA');                     /* reset — the press above advanced the machine */
+      assertEq(e.encipher('AAAAA'), 'FTZMG', 'AAAAA@AAA in NSA mode');
+      return 'windows BAA; AAAAA@AAA = FTZMG (a real Enigma I gives BDZGO)';
+    }
+  },
+  {
+    name: 'Historical machine reproduces the real Enigma I vector (AAAAA @AAA, I-II-III, B -> BDZGO)',
+    run: function () {
+      var e = new HistEnigma({ key: 'AAA', rotorOrder: ['I', 'II', 'III'], reflector: 'B', rings: 'AAA' });
+      assertEq(e.encipher('AAAAA'), HISTORICAL_GOLDEN.bdzgo, 'cipher');
+      var e2 = new HistEnigma({ key: 'AAA', rotorOrder: ['I', 'II', 'III'], reflector: 'B', rings: 'BBB' });
+      assertEq(e2.encipher('AAAAA'), 'EWTYX', 'cipher with rings BBB');
+      return 'BDZGO (rings AAA) and EWTYX (rings BBB) — both published reference vectors';
+    }
+  },
+  {
+    name: 'Historical machine double-steps correctly (ADU -> ADV -> AEW -> BFX)',
+    run: function () {
+      var e = new HistEnigma({ key: 'ADU', rotorOrder: ['I', 'II', 'III'], reflector: 'B', rings: 'AAA' });
+      var seq = [];
+      for (var i = 0; i < 3; i++) { e.stepRotors(); seq.push(e.windows()); }
+      assertEq(seq.join(' '), 'ADV AEW BFX', 'step sequence');
+      return 'windows after each press: ADV, AEW, BFX (middle rotor steps twice in one press at AEW)';
+    }
+  },
+  {
+    name: 'Historical machine is self-reciprocal and never maps a letter to itself',
+    run: function () {
+      var e = new HistEnigma({ key: 'XCD', rotorOrder: ['II', 'IV', 'V'], reflector: 'C', rings: 'BDH', swaps: ['AB', 'KR'] });
+      var pt = 'THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG';
+      var ct = e.encipher(pt);
+      for (var i = 0; i < ct.length; i++) {
+        if (ct[i] === pt.replace(/[^A-Z]/g, '')[i]) throw new Error('letter ' + i + ' maps to itself');
+      }
+      e.setPosition('XCD');
+      assertEq(e.encipher(ct), pt.replace(/[^A-Z]/g, ''), 'decryption');
+      return 'reflects + decrypts cleanly under rotors II-IV-V, reflector C, rings BDH';
+    }
+  },
+  {
+    name: 'Ringstellung shifts wiring, not the notch (ring B still turns over at window V for rotor III)',
+    run: function () {
+      var a = new HistRotor('III', 'V', 0), b = new HistRotor('III', 'V', 5);
+      assertEq(String(a.atNotch()) + ',' + String(b.atNotch()), 'true,true', 'notch tied to window letter');
+      assertEq(a.forward(0) === b.forward(0), false, 'wiring shifted by ring');
+      return 'notch fires on window letter regardless of ring; core offset differs';
+    }
+  },
+  {
+    name: 'Notebook cycles rebuild the true chain index AD:222299 BE:11221010 CF:6677',
+    run: function () {
+      var c = function (cs) { return cs.map(function (x) { return x.split(''); }); };
+      var mk = function (cycles) {
+        var p = {};
+        c(cycles).forEach(function (cyc) {
+          for (var i = 0; i < cyc.length; i++) p[cyc[i]] = cyc[(i + 1) % cyc.length];
+        });
+        return p;
+      };
+      var ix = chainIndexFromPermutationDicts([mk(NOTEBOOK_AD_CHAINS), mk(NOTEBOOK_BE_CHAINS), mk(NOTEBOOK_CF_CHAINS)]);
+      assertEq(ix, NOTEBOOK_CHAIN_INDEX, 'index');
+      return NOTEBOOK_CHAIN_INDEX + ' (the notebook cell hard-codes the stale "AD:6677 BE:11221010 CF:221111")';
+    }
+  },
+  {
+    name: 'Generated intercepts (seed 19321207) yield the SAME chain index as the lost 1932 pickle data',
+    run: function () {
+      var sc = generateScenario();
+      var maps = permutationDictsFromEncrypts(sc.intercepts);
+      var ix = chainIndexFromPermutationDicts(maps);
+      assertEq(ix, NOTEBOOK_CHAIN_INDEX, 'index');
+      return 'plugboard conjugation invariance confirmed end-to-end: ' + ix;
+    }
+  },
+  {
+    name: 'Catalogue search reduces 105,456 settings to the notebook pair {YAQ/II-I-III, AAC/II-III-I}',
+    run: function () {
+      var hits = searchCatalogue(NOTEBOOK_CHAIN_INDEX);
+      var flat = hits.map(function (h) { return h.key + '/' + h.order.join('-'); });
+      assertEq(JSON.stringify(flat), JSON.stringify(['AAC/II-III-I', 'YAQ/II-I-III']), 'candidates');
+      return 'candidates: ' + flat.join(', ') + ' — secret is YAQ with rotors II-I-III';
+    }
+  },
+  {
+    name: 'Plugboard recovery from intercept constraints finds JS/HY/NF and decrypts the Einstein message',
+    run: function () {
+      var sc = generateScenario();
+      var best = recoverPlugs(SECRET_DAY_KEY, SECRET_ROTOR_ORDER, sc.intercepts, sc.encryptedMessages, SECRET_INDICATOR);
+      var canon = best.swaps.map(function (s) { return s.split('').sort().join(''); }).sort().join(',');
+      assertEq(canon, 'FN,HY,JS', 'swaps');   /* pairs unordered: NF == FN */
+      if (best.plain.indexOf('HAPPINESS') === -1) throw new Error('plaintext not recovered');
+      return 'plugs ' + canon + ' (agreement score ' + best.agreements + '/78) -> "...more happiness than the pursuit of success..."';
+    }
+  },
+  {
+    name: 'False catalogue candidate (AAC/II-III-I) cannot be rescued by any plugboard',
+    run: function () {
+      var sc = generateScenario();
+      var trueBest = recoverPlugs(SECRET_DAY_KEY, SECRET_ROTOR_ORDER, sc.intercepts, sc.encryptedMessages, SECRET_INDICATOR);
+      var falseBest = recoverPlugs('AAC', ['II', 'III', 'I'], sc.intercepts, sc.encryptedMessages, SECRET_INDICATOR);
+      if (falseBest.score >= trueBest.score) throw new Error('true setting did not outscore the decoy');
+      return 'true score ' + trueBest.score.toFixed(2) + ' > decoy score ' + falseBest.score.toFixed(2);
+    }
+  },
+  {
+    name: 'Cycle-structure invariance under plugboard (Rejewski\'s core theorem), 3 random day keys',
+    run: function () {
+      var keys = ['QGV', 'MXT', 'BBO'];
+      for (var i = 0; i < keys.length; i++) {
+        var bare = chainIndexFromPermutationDicts(mapsForSetting(keys[i], ['II', 'I', 'III']));
+        var en = new NsaEnigma(keys[i], ['QR', 'JX', 'WD'], ['II', 'I', 'III']);
+        var plugged = {};
+        var ADS = {}, BES = {}, CFS = {};
+        for (var x = 0; x < 26; x++) {
+          en.setRotorPosition(keys[i]);
+          var c = en.encipher(ALPHA[x] + 'AA' + ALPHA[x]);          /* o1=P1(x) o4=P4(x) */
+          if (ADS[c[0]] === undefined) ADS[c[0]] = c[3];
+          en.setRotorPosition(keys[i]);
+          c = en.encipher('A' + ALPHA[x] + 'AA' + ALPHA[x]);        /* o2=P2(x) o5=P5(x) */
+          if (BES[c[1]] === undefined) BES[c[1]] = c[4];
+          en.setRotorPosition(keys[i]);
+          c = en.encipher('AA' + ALPHA[x] + 'AA' + ALPHA[x]);       /* o3=P3(x) o6=P6(x) */
+          if (CFS[c[2]] === undefined) CFS[c[2]] = c[5];
+        }
+        plugged = chainIndexFromPermutationDicts([ADS, BES, CFS]);
+        assertEq(plugged, bare, 'key ' + keys[i]);
+      }
+      return 'plugged traffic and unplugged catalogue agree on AD/BE/CF cycle lengths';
+    }
+  },
+  {
+    name: 'Catalogue hot path (permutation composition) is exact vs. the encipher-based reference',
+    run: function () {
+      var keys = ['AAA', 'YAQ', 'GCD', 'ZZZ'];
+      var orders = [['I', 'II', 'III'], ['II', 'III', 'I']];
+      for (var i = 0; i < keys.length; i++) {
+        for (var o = 0; o < orders.length; o++) {
+          var ref = chainIndexFromPermutationDicts(mapsForSetting(keys[i], orders[o]));
+          var k0 = ALPHA.indexOf(keys[i][0]), k1 = ALPHA.indexOf(keys[i][1]), k2 = ALPHA.indexOf(keys[i][2]);
+          var fast = _chainIndexForKey(
+            orders[o],
+            _WIRING_ARRAYS[orders[o][0]].notch, _WIRING_ARRAYS[orders[o][1]].notch, _WIRING_ARRAYS[orders[o][2]].notch,
+            k0, k1, k2);
+          assertEq(fast, ref, keys[i] + '/' + orders[o].join(''));
+        }
+      }
+      return '8 settings: composed-array index identical to the letter-encipher index';
+    }
+  },
+  {
+    name: 'NSA plugboard cap kept: a 7-pair update is refused (components.py: "Only a maximum of 6 swaps")',
+    run: function () {
+      var e = new NsaEnigma('AAA', ['AB', 'CD', 'EF']);
+      var ok = e.setPlugs(['GH', 'IJ', 'KL', 'MN', 'OP', 'QR', 'ST'], false); /* 7 pairs in one update */
+      if (ok !== false) throw new Error('7-pair update accepted');
+      assertEq(Object.keys(e.plugboard.swaps).length, 6, 'swap count (original 3 pairs kept)');
+      return 'addSwaps returns false for >6 pairs in one call, existing plugs preserved' +
+        ' (source quirk kept: a *cumulative* run of <=6-pair updates can exceed 6, as in components.py)';
+    }
+  },
+  {
+    name: 'Deterministic scenario: same seed -> byte-identical intercepts',
+    run: function () {
+      var a = generateScenario(42, 50).intercepts.join('');
+      var b = generateScenario(42, 50).intercepts.join('');
+      var c = generateScenario(43, 50).intercepts.join('');
+      assertEq(a, b, 'same seed');
+      if (a === c) throw new Error('different seeds produced identical traffic');
+      return 'mulberry32-seeded traffic is reproducible and seed-sensitive';
+    }
+  }
+];
+function runSelfTests() {
+  var out = [], i, t0, res;
+  for (i = 0; i < SELF_TESTS.length; i++) {
+    t0 = Date.now();
+    try {
+      res = SELF_TESTS[i].run();
+      out.push({ name: SELF_TESTS[i].name, pass: true, detail: String(res), ms: Date.now() - t0 });
+    } catch (err) {
+      out.push({ name: SELF_TESTS[i].name, pass: false, detail: String(err && err.message || err), ms: Date.now() - t0 });
+    }
+  }
+  return out;
+}
+
+/* ---------------------------------------------------------------------------
+   8. EXPORTS (browser + worker + node)
+   ------------------------------------------------------------------------- */
+var EnigmaCore = {
+  ALPHA: ALPHA,
+  NsaEnigma: NsaEnigma, NsaRotor: NsaRotor, NsaPlugboard: NsaPlugboard,
+  NSA_REFLECTOR_B: NSA_REFLECTOR_B, NSA_ROTOR_WIRINGS: NSA_ROTOR_WIRINGS, NSA_ROTOR_NOTCHES: NSA_ROTOR_NOTCHES,
+  HistEnigma: HistEnigma, HistRotor: HistRotor, HIST_ROTOR_WIRINGS: HIST_ROTOR_WIRINGS, HIST_REFLECTORS: HIST_REFLECTORS,
+  permutationDictsFromEncrypts: permutationDictsFromEncrypts,
+  makeChainsFromPermutationDict: makeChainsFromPermutationDict,
+  generateChainIndex: generateChainIndex,
+  chainIndexFromPermutationDicts: chainIndexFromPermutationDicts,
+  mapsForSetting: mapsForSetting,
+  searchCatalogue: searchCatalogue, searchCatalogueOrder: searchCatalogueOrder,
+  ORDERS_III: ORDERS_III,
+  indexOfCoincence: indexOfCoincence,
+  englishScore: englishScore,
+  recoverPlugs: recoverPlugs,
+  mulberry32: mulberry32,
+  generateScenario: generateScenario,
+  SELF_TESTS: SELF_TESTS,
+  runSelfTests: runSelfTests,
+  NOTEBOOK_INTERCEPTS_23: NOTEBOOK_INTERCEPTS_23,
+  NOTEBOOK_AD_CHAINS: NOTEBOOK_AD_CHAINS, NOTEBOOK_BE_CHAINS: NOTEBOOK_BE_CHAINS, NOTEBOOK_CF_CHAINS: NOTEBOOK_CF_CHAINS,
+  NOTEBOOK_CHAIN_INDEX: NOTEBOOK_CHAIN_INDEX,
+  NOTEBOOK_GOLDEN: NOTEBOOK_GOLDEN,
+  HISTORICAL_GOLDEN: HISTORICAL_GOLDEN,
+  SECRET_DAY_KEY: SECRET_DAY_KEY, SECRET_ROTOR_ORDER: SECRET_ROTOR_ORDER, SECRET_SWAPS: SECRET_SWAPS, SECRET_INDICATOR: SECRET_INDICATOR,
+  MSG1: MSG1, MSG2: MSG2, MSG3: MSG3,
+  VERSION: 'nsa-enigma-suite/1.0.0 (converted from NationalSecurityAgency/enigma-simulator@f234ee6)'
+};
+if (typeof window !== 'undefined') window.EnigmaCore = EnigmaCore;
+if (typeof globalThis !== 'undefined') globalThis.EnigmaCore = EnigmaCore;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') module.exports = EnigmaCore;
+</script>
+<script>
+/* UI layer — browser only. All state lives in this closure. */
+(function () {
+  'use strict';
+  var C = window.EnigmaCore, A = C.ALPHA;
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- tabs ---------- */
+  var navBtns = document.querySelectorAll('nav button');
+  for (var i = 0; i < navBtns.length; i++) {
+    navBtns[i].addEventListener('click', function () {
+      document.querySelectorAll('nav button').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('section.tab').forEach(function (s) { s.classList.remove('active'); });
+      this.classList.add('active');
+      $('tab-' + this.getAttribute('data-tab')).classList.add('active');
+    });
+  }
+
+  /* ================= MACHINE ================= */
+  var lamps = $('m-lamps');
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function (ch) {
+    var d = document.createElement('div');
+    d.className = 'lamp'; d.id = 'lamp-' + ch; d.textContent = ch;
+    lamps.appendChild(d);
+  });
+  function lamp(ch, cls) {
+    var el = $('lamp-' + ch);
+    if (!el) return;
+    el.classList.add(cls || 'lit');
+  }
+  function clearLamps() {
+    document.querySelectorAll('.lamp').forEach(function (el) { el.className = 'lamp'; });
+  }
+
+  function fillRotorSelects() {
+    var hist = $('m-engine').value === 'hist';
+    var rotorList = hist ? ['I', 'II', 'III', 'IV', 'V'] : ['I', 'II', 'III', 'V'];
+    ['m-rl', 'm-rm', 'm-rr'].forEach(function (id, slot) {
+      var sel = $(id), cur = sel.value || ['I', 'II', 'III'][slot];
+      sel.innerHTML = '';
+      rotorList.forEach(function (r) {
+        var o = document.createElement('option'); o.value = r; o.textContent = r; sel.appendChild(o);
+      });
+      if (rotorList.indexOf(cur) !== -1) sel.value = cur;
+      else sel.value = rotorList[slot] || rotorList[0];
+    });
+    $('m-refl').disabled = !hist;
+    $('m-rings').disabled = !hist;
+    $('m-ringnote').textContent = hist ? '' : '(n/a — NSA sim has no Ringstellung)';
+  }
+  fillRotorSelects();
+  $('m-engine').addEventListener('change', fillRotorSelects);
+
+  function parsePlugs(str) {
+    var out = [];
+    str.trim().toUpperCase().split(/[^A-Z]{1,}/).forEach(function (pair) {
+      if (pair.length === 2) out.push(pair);
+    });
+    return out;
+  }
+
+  function buildNsa() {
+    var order = [$('m-rl').value, $('m-rm').value, $('m-rr').value];
+    var win = ($('m-win').value.toUpperCase() + 'AAA').replace(/[^A-Z]/g, '').slice(0, 3) || 'AAA';
+    var plugs = parsePlugs($('m-plugs').value);
+    if (plugs.length > 6) { plugs = plugs.slice(0, 6); $('m-plugs').value = plugs.join(' '); }
+    return new C.NsaEnigma(win, plugs, order);
+  }
+  function buildHist() {
+    var order = [$('m-rl').value, $('m-rm').value, $('m-rr').value];
+    var win = ($('m-win').value.toUpperCase() + 'AAA').replace(/[^A-Z]/g, '').slice(0, 3) || 'AAA';
+    var rings = ($('m-rings').value.toUpperCase() + 'AAA').replace(/[^A-Z]/g, '').slice(0, 3) || 'AAA';
+    return new C.HistEnigma({
+      key: win, rotorOrder: order, rings: rings,
+      reflector: $('m-refl').value, swaps: parsePlugs($('m-plugs').value)
+    });
+  }
+
+  function traceNsa(m, letter, lines) {
+    var plugIn = m.plugboard.swaps[letter] !== undefined ? m.plugboard.swaps[letter] : letter;
+    lines.push('plugboard: ' + letter + (plugIn !== letter ? ' -> ' + plugIn : '  (no swap)'));
+    var cur = A.indexOf(plugIn), r, out, seq = [['L', m.lRotor], ['M', m.mRotor], ['R', m.rRotor]];
+    for (var i = 0; i < 3; i++) {
+      r = seq[i][1];
+      out = r.wiring.forward[(cur + r.offset) % 26];
+      lines.push('rotor ' + seq[i][0] + ' [' + r.rotorNum + ' win ' + r.window + ']: ' + A[(r.offset + cur) % 26] + ' -> ' + out);
+      cur = (A.indexOf(out) - r.offset + 26) % 26;
+    }
+    var refl = m.reflector[A[cur]];
+    lines.push('reflector B: ' + A[cur] + ' -> ' + refl);
+    cur = A.indexOf(refl);
+    var back = [['R', m.rRotor], ['M', m.mRotor], ['L', m.lRotor]];
+    for (i = 0; i < 3; i++) {
+      r = back[i][1];
+      out = r.wiring.backward[(cur + r.offset) % 26];
+      lines.push('rotor ' + back[i][0] + ' [' + r.rotorNum + ' win ' + r.window + '] back: ' + A[(r.offset + cur) % 26] + ' -> ' + out);
+      cur = (A.indexOf(out) - r.offset + 26) % 26;
+    }
+    var exit = A[cur];
+    var plugOut = m.plugboard.swaps[exit] !== undefined ? m.plugboard.swaps[exit] : exit;
+    lines.push('plugboard: ' + exit + (plugOut !== exit ? ' -> ' + plugOut : '  (no swap)'));
+    lines.push('LAMP: ' + plugOut);
+  }
+  function traceHist(m, letter, lines) {
+    var plugIn = m.plugboard[letter] !== undefined ? m.plugboard[letter] : letter;
+    lines.push('plugboard: ' + letter + (plugIn !== letter ? ' -> ' + plugIn : '  (no swap)'));
+    var cur = A.indexOf(plugIn), i, out, seq = [['L', m.lRotor], ['M', m.mRotor], ['R', m.rRotor]];
+    for (i = 0; i < 3; i++) {
+      var r = seq[i][1];
+      out = r.fwd[(cur + r.off) % 26];
+      lines.push('rotor ' + seq[i][0] + ' [' + r.num + ' win ' + r.windowLetter + ']: ' + A[(cur + r.off) % 26] + ' -> ' + out);
+      cur = (A.indexOf(out) - r.off + 26) % 26;
+    }
+    var refl = m.reflector[cur];
+    lines.push('reflector ' + m.reflectorName + ': ' + A[cur] + ' -> ' + refl);
+    cur = A.indexOf(refl);
+    var back = [['R', m.rRotor], ['M', m.mRotor], ['L', m.lRotor]];
+    for (i = 0; i < 3; i++) {
+      r = back[i][1];
+      out = r.bwd[(cur + r.off) % 26];
+      lines.push('rotor ' + back[i][0] + ' [' + r.num + ' win ' + r.windowLetter + '] back: ' + A[(cur + r.off) % 26] + ' -> ' + out);
+      cur = (A.indexOf(out) - r.off + 26) % 26;
+    }
+    var exit = A[cur];
+    var plugOut = m.plugboard[exit] !== undefined ? m.plugboard[exit] : exit;
+    lines.push('plugboard: ' + exit + (plugOut !== exit ? ' -> ' + plugOut : '  (no swap)'));
+    lines.push('LAMP: ' + plugOut);
+  }
+
+  function runEncipher() {
+    clearLamps();
+    var hist = $('m-engine').value === 'hist';
+    var machine = hist ? buildHist() : buildNsa();
+    var text = $('m-in').value;
+    var clean = text.toUpperCase().replace(/[^A-Z ]/g, '');
+    var letters = clean.replace(/ /g, '').split('');
+    if (!letters.length) { $('m-out').textContent = '(nothing to encipher)'; return; }
+    var before = hist
+      ? [machine.lRotor.windowLetter, machine.mRotor.windowLetter, machine.rRotor.windowLetter].join('')
+      : machine.lRotor.window + machine.mRotor.window + machine.rRotor.window;
+    var out = machine.encipher(clean);
+    if (hist) machine.setPosition(($('m-win').value.toUpperCase() + 'AAA').replace(/[^A-Z]/g, '').slice(0, 3) || 'AAA');
+    var after = hist
+      ? [machine.lRotor.windowLetter, machine.mRotor.windowLetter, machine.rRotor.windowLetter].join('')
+      : machine.lRotor.window + machine.mRotor.window + machine.rRotor.window;
+
+    $('m-out').textContent = out;
+    /* stepping trace: replay presses, note which rotors advanced */
+    var stepLines = [];
+    var m2 = hist ? buildHist() : buildNsa();
+    var prev = before;
+    for (var i = 0; i < letters.length && i < 40; i++) {
+      m2.encipher(letters[i]);
+      var now = hist
+        ? [m2.lRotor.windowLetter, m2.mRotor.windowLetter, m2.rRotor.windowLetter].join('')
+        : m2.lRotor.window + m2.mRotor.window + m2.rRotor.window;
+      var moved = [];
+      for (var k = 0; k < 3; k++) if (now[k] !== prev[k]) moved.push(['L', 'M', 'R'][k]);
+      stepLines.push((i + 1) + '. ' + prev + ' -> ' + now + (moved.length ? '  (' + moved.join('+') + ' stepped' + (moved.length > 1 ? ' — cascade' : '') + ')' : '  (?)'));
+      prev = now;
+    }
+    if (letters.length > 40) stepLines.push('… (' + (letters.length - 40) + ' more presses)');
+    stepLines.push('overall: ' + before + ' -> ' + prev);
+    $('m-steps').textContent = stepLines.join('\n');
+
+    /* signal path for the LAST letter: re-run on a fresh machine up to it */
+    var m3 = hist ? buildHist() : buildNsa();
+    for (var j = 0; j < letters.length - 1; j++) m3.encipher(letters[j]);
+    var lines = ['letter #' + letters.length + ' (' + letters[letters.length - 1] + '):'];
+    if (hist) traceHist(m3, letters[letters.length - 1], lines);
+    else traceNsa(m3, letters[letters.length - 1], lines);
+    $('m-trace').textContent = lines.join('\n');
+
+    /* lamp animation */
+    var t = 0;
+    for (var s = 0; s < out.length && s < 120; s++) {
+      (function (idx) {
+        setTimeout(function () {
+          clearLamps();
+          var src = letters[idx];
+          if (src) lamp(src, 'src');
+          lamp(out[idx], 'lit');
+          if (idx === out.length - 1) clearSoon();
+        }, t);
+        t += 90;
+      })(s);
+    }
+    function clearSoon() { setTimeout(clearLamps, 900); }
+  }
+  $('m-go').addEventListener('click', runEncipher);
+  $('m-vec1').addEventListener('click', function () {
+    $('m-engine').value = 'nsa'; fillRotorSelects();
+    $('m-rl').value = 'I'; $('m-rm').value = 'II'; $('m-rr').value = 'III';
+    $('m-win').value = 'AAA'; $('m-rings').value = 'AAA'; $('m-plugs').value = '';
+    $('m-in').value = 'this is a test';
+    runEncipher();
+    $('m-out').textContent = $('m-out').textContent + '   [expected ZPJJSVSPGBW]';
+  });
+  $('m-vec2').addEventListener('click', function () {
+    $('m-engine').value = 'hist'; fillRotorSelects();
+    $('m-rl').value = 'I'; $('m-rm').value = 'II'; $('m-rr').value = 'III';
+    $('m-win').value = 'AAA'; $('m-rings').value = 'AAA'; $('m-plugs').value = '';
+    $('m-in').value = 'AAAAA';
+    runEncipher();
+    $('m-out').textContent = $('m-out').textContent + '   [expected BDZGO]';
+  });
+
+  /* ================= LAB ================= */
+  var state = { scenario: null, perms: null, index: null, hits: [] };
+
+  $('l-gen').addEventListener('click', function () {
+    var seed = parseInt($('l-seed').value, 10) || 19321207;
+    var count = Math.max(26, Math.min(2000, parseInt($('l-count').value, 10) || 200));
+    state.scenario = C.generateScenario(seed, count);
+    state.perms = null; state.index = null; state.hits = [];
+    $('l-perms').disabled = false; $('l-search').disabled = true; $('l-crack').disabled = true;
+    $('l-perm-out').innerHTML = ''; $('l-results').innerHTML = '';
+    var groups = state.scenario.intercepts;
+    var shown = groups.slice(0, 120);
+    $('l-intercepts').innerHTML = '<div class="grid-intercepts">' +
+      shown.map(function (g) { return '<span>' + g + '</span>'; }).join('') +
+      (groups.length > 120 ? ' <span class="dim">… +' + (groups.length - 120) + ' more</span>' : '') + '</div>';
+    $('l-messages').innerHTML =
+      '<h3>Three messages, indicators sent at position ' + C.SECRET_INDICATOR + ' (as in the notebooks)</h3>' +
+      state.scenario.encryptedMessages.map(function (e, i) {
+        return '<div class="kbox">MSG-' + (i + 1) + ': ' + e + '</div>';
+      }).join('');
+    $('l-scen-sum').textContent = groups.length + ' double-enciphered message keys (seed ' + seed + ')';
+    $('l-secret').textContent = 'day key ' + C.SECRET_DAY_KEY + ' · rotors ' + C.SECRET_ROTOR_ORDER.join('-') +
+      ' · plugs ' + C.SECRET_SWAPS.join(' ') + ' · indicator ' + C.SECRET_INDICATOR;
+    $('l-secret').classList.remove('revealed');
+  });
+
+  $('l-secret').addEventListener('click', function () { this.classList.toggle('revealed'); });
+
+  $('l-perms').addEventListener('click', function () {
+    var maps = C.permutationDictsFromEncrypts(state.scenario.intercepts);
+    var names = ['AD', 'BE', 'CF'];
+    var lines = [], ok = true;
+    var chainsPer = [];
+    for (var m = 0; m < 3; m++) {
+      var chains = C.makeChainsFromPermutationDict(maps[m]);
+      if (!chains) { ok = false; break; }
+      chainsPer.push(chains);
+      var cyc = chains.map(function (c) { return '(' + c + ')'; }).join('');
+      var lens = chains.map(function (c) { return c.length; }).sort(function (a, b) { return a - b; }).join(' ');
+      lines.push(names[m] + ' = ' + cyc + '   lengths: ' + lens);
+    }
+    if (!ok) { $('l-perm-out').innerHTML = '<p class="red">intercept set too small to fill all permutations</p>'; return; }
+    state.perms = maps;
+    state.index = C.generateChainIndex(chainsPer);
+    lines.push('chain index: ' + state.index);
+    $('l-perm-out').innerHTML = '<div class="kbox">' + lines.join('\n') + '</div>';
+    $('l-search').disabled = false;
+  });
+
+  $('l-search').addEventListener('click', function () {
+    var bar = $('l-bar'); bar.style.display = 'block';
+    var fill = bar.firstElementChild, lbl = $('l-bar-lbl');
+    var hits = [], oi = 0, t0 = Date.now();
+    $('l-search').disabled = true;
+    $('l-results').innerHTML = '<p class="dim mono" id="l-prog">searching…</p>';
+    function chunk() {
+      hits = hits.concat(C.searchCatalogueOrder(state.index, C.ORDERS_III[oi]));
+      oi++;
+      var pct = Math.round(oi / 6 * 100);
+      fill.style.width = pct + '%';
+      lbl.textContent = pct + '% — ' + (oi * 17576).toLocaleString() + ' / 105,456 settings — ' + ((Date.now() - t0) / 1000).toFixed(1) + 's';
+      if (oi < 6) { setTimeout(chunk, 20); return; }
+      hits.sort(function (a, b) { return (a.key + a.order.join('-')).localeCompare(b.key + b.order.join('-')); });
+      state.hits = hits;
+      $('l-search').disabled = false;
+      $('l-crack').disabled = hits.length === 0;
+      $('l-results').innerHTML = '<h3>Catalogue survivors: ' + hits.length + '</h3>' +
+        (hits.length ? '<div class="kbox">' + hits.map(function (h) {
+          return h.key + ' / ' + h.order.join('-');
+        }).join('\n') + '</div>' : '<p class="red">none — check the intercept set</p>') +
+        '<p class="dim">105,456 candidate settings reduced to ' + hits.length + '. Now the plugboard.</p>';
+    }
+    setTimeout(chunk, 20);
+  });
+
+  $('l-crack').addEventListener('click', function () {
+    var sc = state.scenario;
+    var rows = state.hits.map(function (h) {
+      var r = C.recoverPlugs(h.key, h.order, sc.intercepts, sc.encryptedMessages, C.SECRET_INDICATOR);
+      r.setting = h;
+      return r;
+    });
+    rows.sort(function (a, b) { return b.score - a.score; });
+    var winner = rows[0];
+    var html = '<h3>Plugboard recovery + confirmation (ranked by English score of the decrypted traffic)</h3>';
+    html += '<table><thead><tr><th>rank</th><th>day key</th><th>rotors</th><th>plugs</th><th>agreements /78</th><th>EN score</th><th>MSG-1 decrypt</th></tr></thead><tbody>';
+    rows.forEach(function (r, i) {
+      html += '<tr><td>' + (i + 1) + '</td><td>' + r.setting.key + '</td><td>' + r.setting.order.join('-') + '</td><td>' +
+        (r.swaps.length ? r.swaps.join(' ') : '(none)') + '</td><td>' + r.agreements + '</td><td>' + r.score.toFixed(2) + '</td><td>' +
+        (r.plain.slice(0, 38) + '…') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    if (winner && winner.plain.length) {
+      html += '<h3 class="green">Recovered traffic — day key ' + winner.setting.key + ', rotors ' +
+        winner.setting.order.join('-') + ', plugs ' + (winner.swaps.join(' ') || '(none)') + '</h3>';
+      var en2 = new C.NsaEnigma(C.SECRET_DAY_KEY, winner.swaps, winner.setting.order);
+      var keys = sc.intercepts.slice(0, 24).map(function (g) {
+        en2.setRotorPosition(C.SECRET_DAY_KEY);
+        return en2.decipher(g);
+      });
+      html += '<div class="kbox">' + winner.plain.replace(/(.{64})/g, '$1\n') + '</div>';
+      html += '<p class="dim">First 24 message keys, deciphered at the recovered day key: <span class="mono">' +
+        keys.join(' · ') + '</span></p>';
+    }
+    $('l-results').innerHTML = html;
+  });
+
+  $('l-nb-idx').textContent = C.NOTEBOOK_CHAIN_INDEX;
+  $('l-nb-show').addEventListener('click', function () {
+    var box = $('l-nb');
+    if (box.style.display === 'none') {
+      box.style.display = 'block';
+      box.textContent =
+        'surviving intercepts (MasterEnigmaCracker cell 10 print):\n  ' + C.NOTEBOOK_INTERCEPTS_23.join(' ') +
+        '\n\nsurviving cycles (cell 17 print):\n  AD = ' + C.NOTEBOOK_AD_CHAINS.map(function (c) { return '(' + c + ')'; }).join('') +
+        '\n  BE = ' + C.NOTEBOOK_BE_CHAINS.map(function (c) { return '(' + c + ')'; }).join('') +
+        '\n  CF = ' + C.NOTEBOOK_CF_CHAINS.map(function (c) { return '(' + c + ')'; }).join('') +
+        '\n\nrecomputed chain index: ' + C.NOTEBOOK_CHAIN_INDEX +
+        '\nnotebook lookup cell (stale): "AD:6677 BE:11221010 CF:221111"' +
+        '\nboth resolve to: YAQ/II-I-III (true) + AAC/II-III-I (decoy)';
+    } else {
+      box.style.display = 'none';
+    }
+  });
+
+  /* auto-generate the default scenario on load so the lab is never empty */
+  $('l-gen').click();
+
+  /* ================= LESSON static ================= */
+  $('ls-cycles').textContent =
+    'AD = (HKVDONWZA)(STIQMXPUB)(GC)(LE)(RF)(YJ)   -> 9 9 2 2 2 2\n' +
+    'BE = (QDVPISJRBA)(KC)(TULZXMOHWE)(GF)(N)(Y)   -> 10 2 10 2 1 1\n' +
+    'CF = (JIGOEDA)(QKSNLB)(YHPUWFC)(VRTZXM)       -> 7 6 7 6';
+
+  /* ================= SELF-TEST ================= */
+  $('st-run').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    $('st-sum').textContent = 'running… (catalogue search takes a few seconds)';
+    setTimeout(function () {
+      var results = C.runSelfTests();
+      var tb = $('st-table').querySelector('tbody');
+      tb.innerHTML = '';
+      var pass = 0;
+      results.forEach(function (r, i) {
+        if (r.pass) pass++;
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + r.name + '</td>' +
+          '<td class="' + (r.pass ? 'ok' : 'no') + '">' + (r.pass ? 'PASS' : 'FAIL') + '</td>' +
+          '<td>' + r.ms + '</td><td>' + r.detail + '</td>';
+        tb.appendChild(tr);
+      });
+      $('st-sum').textContent = pass + '/' + results.length + ' passed';
+      btn.disabled = false;
+    }, 30);
+  });
+})();
+</script>
+</body>
+</html>
