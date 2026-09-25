@@ -4,4 +4,4 @@
 # spec already mandates (index.html) and the revision now lives in git.
 name = "CyberChef Kitchen"
 source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/cyberchef"
-description = "Offline HTML5 CyberChef build — 416 recipes (Sheikah extras leftover)."
+description = "Offline HTML5 CyberChef build — 441 recipes (Sheikah extras leftover; +26 Boxentriq puzzle-solver recipes, 2026-09-25)."

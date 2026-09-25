@@ -114,7 +114,7 @@
 
 <header>
   <button id="btn-hamburger" title="Toggle operations panel">☰</button><div class="brand">Cyber<span>Chef</span></div>
-  <div class="sub">HTML5 · 416 recipes · Sheikah extras leftover</div>
+  <div class="sub">HTML5 · 441 recipes · Sheikah extras leftover</div>
   <div class="spacer"></div>
   <button class="btn" id="btn-clear">Clear Recipe</button>
   <button class="btn" id="btn-load-examples">Load Examples</button>
@@ -646,12 +646,7 @@ addOp('xorBrute','XOR Brute Force','Crypto',
     return 'Best key: 0x'+best.key.toString(16).padStart(2,'0')+' ('+best.key+')\nScore: '+best.score.toFixed(1)+'\n\nDecrypted:\n'+best.out;
   });
 
-addOp('sha256','SHA-256 Hash','Crypto',
-  'SHA-256 digest of the input (WebCrypto, hex).',
-  [], async function(t,a){
-    const buf=await crypto.subtle.digest('SHA-256',utf8Encode(t));
-    return hexFromBytes(new Uint8Array(buf));
-  });
+/* sha256 duplicate registration removed 2026-09-25 (see docs/BOXENTRIQ_DEEP_DIVE.md) — the 'Hash'-category op is canonical */
 
 /* ============ HASH PRIMITIVES ============ */
 function utf8Bytes(str){
@@ -2050,7 +2045,10 @@ const RECIPE_PACKS={
  'Fam Secret Sneakers Chip (Setec Astronomy)':[['sneakersChip',{}],['cryptoTimeline',{q:'Sneakers'}],['freq',{}]],
  'Nimitz Graybook Vector Plot (Pips & Tracks)':[['graybookPlot',{theater:'formosa'}],['graybookPlot',{theater:'savo'}],['textInput',{template:'coords'}]],
  'Paranoia Works / Skein Kitchen (Threefish, SHACAL-2, C4-2048)':[['threefish1024',{}],['shacal2_512',{}],['paranoiaC4',{}]],
- 'Keybase Saltpack Armor62':[['saltpackArmor',{mode:'armor'}],['saltpackArmor',{mode:'inspect'}]],
+ 'Keybase Saltpack Armor62':[['saltpackArmor',{mode:'armor'}],['saltpackArmor',{mode:'inspect'}]], 'Boxentriq Puzzle & Code-Breaking Pack (Cipher Classics)':[['cryptogram',{}],['adfgx',{}],['vigenereAutokey',{}],['beaufortAutokey',{}],['keyedCaesar',{}],['grandpre',{}]],
+ 'Boxentriq Puzzle & Code-Breaking Pack (Cicada 3301)':[['gematriaPrimus',{}],['totient',{}],['xorBrute',{}],['stegoAcro',{}]],
+ 'Boxentriq Puzzle & Code-Breaking Pack (Encodings & Tools)':[['base58',{}],['base85',{}],['base100',{}],['geekCode',{}],['anagram',{}],['primesFactor',{}]],
+
  'NaCl / Keybase Saltpack Encrypt':[['naclSecretbox',{}],['saltpackEncrypt',{}]],
  'Saltpack v2 Multi-Recipient':[['saltpackV2',{mode:'keygen'}],['saltpackV2',{mode:'seal'}]],
  'NSA Skipjack &amp; Rivest RC2':[['skipjack',{}],['rc2',{}]],
@@ -30823,6 +30821,983 @@ function zenInit(){
   const b=document.getElementById('btn-zen');
   if(b) b.onclick=zenRoll;
 }
+
+/* ============================================================
+   BOXENTRIQ (boxentriq.com) — DEEP-DIVE RECIPE ADDITIONS
+   Researched 2026-09-25 from boxentriq.com/resources, /ciphers
+   and /encodings (full tool indexes). Fills the gaps between
+   Boxentriq's cipher & encoding tools and this kitchen.
+   Deferred (spec needs re-verification against the live tool
+   pages): AMSCO, Morbit, Pollux, Nak-Nak. See
+   docs/BOXENTRIQ_DEEP_DIVE.md.
+   ============================================================ */
+
+/* --- shared: cached prime table (totient / factor recipes) --- */
+let _PRIME_CACHE=null;
+function primesUpTo(n){
+  if(_PRIME_CACHE && _PRIME_CACHE.n>=n)return _PRIME_CACHE.list;
+  const lim=Math.max(100000,n);
+  const flag=new Uint8Array(lim+1);
+  const list=[];
+  for(let i=2;i<=lim;i++){
+    if(!flag[i]){
+      list.push(i);
+      for(let j=i*i;j<=lim;j+=i)flag[j]=1;
+    }
+  }
+  _PRIME_CACHE={n:lim,list:list};
+  return list;
+}
+
+/* 1. ADFGX */
+addOp('adfgx','ADFGX Cipher','Boxentriq',
+  'WWI German cipher: keyed 5×5 square (I/J merged, padded with X) + 5-column columnar transposition.',
+  [
+    {key:'key',label:'Square key',type:'text',default:'SEHNSUCHT'},
+    {key:'tkey',label:'Transposition key',type:'text',default:'BERLIN'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]}
+  ],
+  function(text,args){
+    const key=toUpperLetters(args.key); if(!key.length)throw new Error('Enter a square key');
+    const seen=new Set();let sq='';
+    for(const c of key)if(!seen.has(c)){seen.add(c);sq+=c;}
+    for(let cc=65;cc<=90;cc++){const c=String.fromCharCode(cc);if(c==='J')continue;if(!seen.has(c)){seen.add(c);sq+=c;}}
+    if(sq.length!==25)throw new Error('Square key must cover A–Z minus J');
+    const pos={};[...sq].forEach((c,i)=>pos[c]=[Math.floor(i/5),i%5]);
+    const L='ADFGX';
+    let tk=toUpperLetters(args.tkey).slice(0,5);
+    const padL='ABCDE';let pi=0;
+    while(tk.length<5){tk+=padL[pi%5];pi++;}
+    const order=[...tk].map((ch,ix)=>[ch,ix]).sort((a,b)=>a[0].localeCompare(b[0])||a[1]-b[1]).map(x=>x[1]);
+    if(args.mode==='encrypt'){
+      let s=toUpperLetters(text).replace(/J/g,'I');
+      if(!s.length)throw new Error('Nothing to encrypt');
+      s+='X'.repeat((5-s.length%5)%5);
+      let dig='';
+      for(const c of s)dig+=L[pos[c][0]]+L[pos[c][1]];
+      const rows=dig.length/5;let out='';
+      for(const ci of order)for(let r=0;r<rows;r++)out+=dig[r*5+ci];
+      return out;
+    }else{
+      let d=toUpperLetters(text);
+      if(d.length%5)d+='X'.repeat(5-d.length%5);
+      const rows=d.length/5;
+      const grid=Array.from({length:rows},()=>Array(5).fill(''));
+      let idx=0;
+      for(const ci of order)for(let r=0;r<rows;r++)grid[r][ci]=d[idx++];
+      let dig='';
+      for(let r=0;r<rows;r++)for(let c=0;c<5;c++)dig+=grid[r][c];
+      let out='';
+      for(let i=0;i+1<dig.length;i+=2){
+        const rr=L.indexOf(dig[i]),cc=L.indexOf(dig[i+1]);
+        if(rr<0||cc<0)throw new Error('Not a valid ADFGX text (letters outside ADFGX)');
+        out+=sq[rr*5+cc];
+      }
+      return out;
+    }
+  });
+
+/* 2 & 3. Vigenère / Beaufort autokey (shared core) */
+function autokeyRun(text,primer,mode,akMode,beaufort){
+  const K=toUpperLetters(primer);
+  const T=toUpperLetters(text);
+  if(!K.length)throw new Error('Enter a primer key');
+  if(!T.length)throw new Error('Nothing to process');
+  const enc=(p,k)=>String.fromCharCode(65+(((beaufort?(k-p):(p+k))%26+26)%26));
+  const dec=(c,k)=>String.fromCharCode(65+(((beaufort?(k-c):(c-k))%26+26)%26));
+  let out='';
+  for(let i=0;i<T.length;i++){
+    let kk;
+    if(i<K.length)kk=K[i];
+    else if(akMode==='plain')kk=(mode==='encrypt'?T:out)[i-K.length];
+    else kk=(mode==='encrypt'?out:T)[i-K.length];
+    out+=(mode==='encrypt'?enc(T.charCodeAt(i),kk.charCodeAt(0)):dec(T.charCodeAt(i),kk.charCodeAt(0)));
+  }
+  return out;
+}
+addOp('vigenereAutokey','Vigenère Autokey Cipher','Boxentriq',
+  'Vigenère where the running key extends beyond the primer with the message itself — plaintext or ciphertext feedback.',
+  [
+    {key:'key',label:'Primer key',type:'text',default:'KEY'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]},
+    {key:'ak',label:'Autokey feedback',type:'select',default:'plain',options:[['plain','Plaintext'],['cipher','Ciphertext']]}
+  ],
+  function(text,args){return autokeyRun(text,args.key,args.mode,args.ak,false);});
+addOp('beaufortAutokey','Beaufort Autokey Cipher','Boxentriq',
+  'Beaufort (c = K−P mod 26) with a primer that expands into a running key from the message — plaintext or ciphertext feedback.',
+  [
+    {key:'key',label:'Primer key',type:'text',default:'KEY'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]},
+    {key:'ak',label:'Autokey feedback',type:'select',default:'cipher',options:[['cipher','Ciphertext'],['plain','Plaintext']]}
+  ],
+  function(text,args){return autokeyRun(text,args.key,args.mode,args.ak,true);});
+
+/* 4. Double columnar transposition (shared columnar core, no stripping) */
+function colTransRun(text,key,mode,strip){
+  const klen=key.length;
+  const order=[...key].map((ch,i)=>[ch,i]).sort((a,b)=>a[0].toLowerCase().localeCompare(b[0].toLowerCase())||a[1]-b[1]).map(x=>x[1]);
+  if(mode==='encrypt'){
+    const full=text+'_'.repeat((klen-text.length%klen)%klen);
+    const rows=full.length/klen;let out='';
+    for(const ci of order){let col='';for(let r=0;r<rows;r++)col+=full[r*klen+ci];out+=col;}
+    return strip?out.replace(/_+$/g,''):out;
+  }
+  const n=text.length;const rows=Math.ceil(n/klen);
+  const grid=Array.from({length:rows},()=>Array(klen).fill(''));
+  let idx=0;
+  for(const ci of order)for(let r=0;r<rows;r++){if(r*klen+ci<n)grid[r][ci]=text[idx++];}
+  let out='';
+  for(let r=0;r<rows;r++)for(let c=0;c<klen;c++)out+=grid[r][c];
+  return strip?out.replace(/_+$/g,''):out;
+}
+addOp('doubleTransposition','Double Columnar Transposition','Boxentriq',
+  'Two successive columnar transpositions with separate keys (encrypt K1→K2, decrypt K2⁻¹→K1⁻¹).',
+  [
+    {key:'key1',label:'Key 1',type:'text',default:'ZEBRAS'},
+    {key:'key2',label:'Key 2',type:'text',default:'CIPHER'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]}
+  ],
+  function(text,args){
+    const k1=toUpperLetters(args.key1),k2=toUpperLetters(args.key2);
+    if(!k1.length||!k2.length)throw new Error('Enter both keys');
+    return args.mode==='encrypt'
+      ? colTransRun(colTransRun(text,k1,'encrypt',false),k2,'encrypt',true)
+      : colTransRun(colTransRun(text,k2,'decrypt',false),k1,'decrypt',true);
+  });
+
+/* 5. Grandpré */
+addOp('grandpre','Grandpré Cipher','Boxentriq',
+  'Homophonic coordinate cipher: N×N grid numbered 1..N² row-major (I/J merged at N=5); the letter in cell n is written as the last digit of n, repeated ⌊n/10⌋+1 times (A→1, B→2, … I→9, K→00, L→11, T→000, Y→555 at N=5). Ciphertext stays grouped by spaces; unspaced text is read group by group.',
+  [
+    {key:'size',label:'Grid size',type:'select',default:'5',options:[['3','3×3 (A–I)'],['4','4×4 (A–P)'],['5','5×5 (A–Z, I/J merged)']]},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]}
+  ],
+  function(text,args){
+    const N=parseInt(args.size,10);
+    const ALPHA={3:'ABCDEFGHI',4:'ABCDEFGHIJKLMNOP',5:'ABCDEFGHIKLMNOPQRSTUVWXYZ'}[N];
+    const cells=N*N;
+    if(args.mode==='encrypt'){
+      const s=toUpperLetters(text).replace(/J/g,'I');
+      if(!s.length)throw new Error('Nothing to encrypt');
+      let out=[];
+      for(const c of s){
+        const i=ALPHA.indexOf(c);
+        if(i<0)throw new Error(c+' is outside the '+N+'×'+N+' grid');
+        const n=i+1;
+        out.push(String(n%10).repeat(Math.floor(n/10)+1));
+      }
+      return out.join(' ');
+    }
+    const toks=text.trim().split(/\s+/).filter(Boolean);
+    let out='';
+    for(const t of toks){
+      const m=t.match(/^(\d)\1*$/);
+      if(!m)throw new Error('Grandpré groups must be a repeated single digit: '+t);
+      const n=(t.length-1)*10+parseInt(t[0],10);
+      if(n<1||n>cells)throw new Error('Group out of range for the grid: '+t);
+      out+=ALPHA[n-1];
+    }
+    return out;
+  });
+
+/* 6. Keyed Caesar (keyed monoalphabetic) */
+addOp('keyedCaesar','Keyed Caesar (Keyed Monoalphabetic)','Boxentriq',
+  'Monoalphabetic substitution built from a keyword: the plaintext alphabet maps onto the keyed alphabet (keyword first, remaining letters in order).',
+  [
+    {key:'key',label:'Keyword',type:'text',default:'CIPHER'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt (plain→cipher)'],['decrypt','Decrypt (cipher→plain)']]}
+  ],
+  function(text,args){
+    const key=toUpperLetters(args.key);
+    if(!key.length)throw new Error('Enter a keyword');
+    const seen=new Set();let ca='';
+    for(const c of key)if(!seen.has(c)){seen.add(c);ca+=c;}
+    for(let cc=65;cc<=90;cc++){const c=String.fromCharCode(cc);if(!seen.has(c)){seen.add(c);ca+=c;}}
+    const std='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const map={};
+    if(args.mode==='encrypt'){for(let i=0;i<26;i++)map[std[i]]=ca[i];}
+    else{for(let i=0;i<26;i++)map[ca[i]]=std[i];}
+    return text.split('').map(ch=>{
+      const u=ch.toUpperCase();
+      const r=map[u];
+      return r===undefined?ch:(ch===u?r:r.toLowerCase());
+    }).join('');
+  });
+
+/* 7. Numeric homophonic */
+const HOMOPHONE_CLASSIC='1,2,3|4,5,6|7,8|9,10|11,12|13,14|15,16|17,18|19,20|21|22|23,24|25,26|27,28|29,30|31,32|33|34,35,36|37,38,39|40,41|42,43,44|45,46|47,48|49|50|51';
+addOp('homophonic','Numeric Homophonic Cipher','Boxentriq',
+  'Each letter maps to a small set of numbers to flatten letter frequencies (classic distribution A=1,2,3 B=4,5,6 C=7,8 D=9,10 … Z=51). Encrypt picks one homophone per letter; decode maps each number back to its unique letter.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decode']]},
+    {key:'pick',label:'Homophone pick',type:'select',default:'round',options:[['round','Round-robin'],['random','Random']]}
+  ],
+  function(text,args){
+    const L=HOMOPHONE_CLASSIC.split('|').map(g=>g.split(',').map(Number));
+    if(args.mode==='decrypt'){
+      const rev={};
+      L.forEach((g,i)=>g.forEach(n=>rev[n]=String.fromCharCode(65+i)));
+      const nums=text.match(/\d+/g)||[];
+      let out='';
+      for(const n of nums){
+        const ch=rev[parseInt(n,10)];
+        if(!ch)throw new Error('No letter for number '+n+' (must be 1–51)');
+        out+=ch;
+      }
+      if(!out)throw new Error('No decodable numbers found');
+      return out;
+    }
+    const s=toUpperLetters(text);
+    if(!s.length)throw new Error('Nothing to encrypt');
+    const cnt=L.map(()=>0);
+    let out=[];
+    for(const c of s){
+      const i=c.charCodeAt(0)-65;
+      const opts=L[i];
+      if(args.pick==='random')out.push(opts[Math.floor(Math.random()*opts.length)]);
+      else{out.push(opts[cnt[i]%opts.length]);cnt[i]++;}
+    }
+    return out.join(' ');
+  });
+
+/* 8. Pigpen (keyed pairs) */
+const PIGPEN_SLOTS=['TL','T','TR','L','BOX','R','BL','B','BR','TLX','TX','TRX','X'];
+addOp('pigpen','Pigpen Cipher (Keyed Pairs)','Boxentriq',
+  'Masonic pigpen glyph slots — 2 letters per slot (A,B | C,D | … | Y,Z). Slots: plain 3×3 grid (TL,T,TR,L,BOX,R,BL,B,BR) + 4 cross variants (TLX,TX,TRX,X). A keyword shuffles the letter pairs across the slots; decode uses the first letter of each pair (check the table for the alternate).',
+  [
+    {key:'key',label:'Keyword',type:'text',default:''},
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode (text→glyph codes)'],['decode','Decode (glyph codes→text)'],['table','Show slot table']]}
+  ],
+  function(text,args){
+    const key=toUpperLetters(args.key);
+    const seen=new Set();let order='';
+    for(const c of key)if(!seen.has(c)){seen.add(c);order+=c;}
+    for(let cc=65;cc<=90;cc++){const c=String.fromCharCode(cc);if(!seen.has(c)){seen.add(c);order+=c;}}
+    const pairs=order.match(/../g);
+    if(args.mode==='table'){
+      return PIGPEN_SLOTS.map((g,i)=>g.padEnd(5)+' =  '+pairs[i]).join('\n')+(key?'\n\n(keyword: '+key+')':'\n\n(no keyword — standard A,B | C,D | … pairing)');
+    }
+    if(args.mode==='encode'){
+      const s=toUpperLetters(text);
+      if(!s.length)throw new Error('Nothing to encode');
+      let out=[];
+      for(const c of s)out.push(PIGPEN_SLOTS[Math.floor(order.indexOf(c)/2)]);
+      return out.join(' ');
+    }
+    const toks=text.trim().split(/\s+/).filter(Boolean);
+    let out='';
+    for(const t of toks){
+      const g=t.toUpperCase();
+      const si=PIGPEN_SLOTS.indexOf(g);
+      if(si<0)throw new Error('Unknown pigpen code: '+t+' (valid: '+PIGPEN_SLOTS.join(', ')+')');
+      out+=pairs[si][0];
+    }
+    return out;
+  });
+
+/* 9–11. ROT-N / ROT5 / ROT18 */
+addOp('rotN','ROT-N (Any Shift)','Boxentriq',
+  'Rotates A–Z by any integer N (negative allowed); optionally rotates 0–9 by N as well (ROT-5 step).',
+  [
+    {key:'shift',label:'Shift N',type:'number',default:'7'},
+    {key:'digits',label:'Also shift digits',type:'checkbox',default:false}
+  ],
+  function(text,args){
+    const n=parseInt(args.shift,10)||0;
+    return text.split('').map(ch=>{
+      const c=ch.charCodeAt(0);
+      if(c>=65&&c<=90)return String.fromCharCode(65+((c-65+n)%26+26)%26);
+      if(c>=97&&c<=122)return String.fromCharCode(97+((c-97+n)%26+26)%26);
+      if(args.digits&&c>=48&&c<=57)return String.fromCharCode(48+((c-48+n)%10+10)%10);
+      return ch;
+    }).join('');
+  });
+addOp('rot5','ROT5','Boxentriq','Fixed digit rotation: 0–4 ↔ 5–9 (self-inverse).',[],
+  function(text){
+    return text.split('').map(ch=>{
+      const c=ch.charCodeAt(0);
+      return (c>=48&&c<=57)?String.fromCharCode(48+((c-48+5)%10)):ch;
+    }).join('');
+  });
+addOp('rot18','ROT18','Boxentriq','ROT13 on letters + ROT5 on digits in one pass.',[],
+  function(text){
+    return text.split('').map(ch=>{
+      const c=ch.charCodeAt(0);
+      if(c>=65&&c<=90)return String.fromCharCode(65+((c-65+13)%26));
+      if(c>=97&&c<=122)return String.fromCharCode(97+((c-97+13)%26));
+      if(c>=48&&c<=57)return String.fromCharCode(48+((c-48+5)%10));
+      return ch;
+    }).join('');
+  });
+
+/* 12. Route transposition */
+addOp('routeTransposition','Route Transposition','Boxentriq',
+  'Write text row by row into an R×C grid, read it out along a route: comma-separated 1-based cell numbers (1 = top-left, row-major), or a preset path.',
+  [
+    {key:'rows',label:'Rows',type:'number',default:'4'},
+    {key:'cols',label:'Columns',type:'number',default:'5'},
+    {key:'route',label:'Route (cell numbers)',type:'text',default:''},
+    {key:'preset',label:'Preset',type:'select',default:'custom',options:[['custom','Custom route'],['rows','Row by row'],['cols','Column by column'],['diag','Ascending diagonals'],['spiral','Spiral in']]},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]}
+  ],
+  function(text,args){
+    const R=parseInt(args.rows,10),C=parseInt(args.cols,10);
+    if(R<1||C<1)throw new Error('Rows and columns must be ≥ 1');
+    const cells=R*C;
+    let route;
+    if(args.preset==='custom'){
+      route=args.route.split(/[,\s]+/).filter(Boolean).map(Number);
+      if(route.length!==cells)throw new Error('Route must list exactly '+cells+' cell numbers (1..'+cells+')');
+      if(new Set(route).size!==cells||route.some(x=>x<1||x>cells||x%1!==0))throw new Error('Route cells must be distinct integers in 1..'+cells);
+    }else{
+      route=[];
+      if(args.preset==='rows')for(let i=0;i<cells;i++)route.push(i+1);
+      else if(args.preset==='cols')for(let c=0;c<C;c++)for(let r=0;r<R;r++)route.push(r*C+c+1);
+      else if(args.preset==='diag'){
+        for(let d=0;d<R+C-1;d++)
+          for(let r=Math.max(0,d-(C-1));r<=Math.min(d,R-1);r++){
+            const c=d-r;
+            if(c>=0&&c<C)route.push(r*C+c+1);
+          }
+      }else if(args.preset==='spiral'){
+        let r0=0,c0=0,r1=R-1,c1=C-1;
+        while(r0<=r1&&c0<=c1){
+          for(let c=c0;c<=c1;c++)route.push(r0*C+c+1);
+          r0++;
+          for(let r=r0;r<=r1;r++)route.push(r*C+c1+1);
+          c1--;
+          if(r0<=r1){for(let c=c1;c>=c0;c--)route.push(r1*C+c+1);r1--;}
+          if(c0<=c1){for(let r=r1;r>=r0;r--)route.push(r*C+c0+1);c0++;}
+        }
+      }
+    }
+    if(args.mode==='encrypt'){
+      const full=text+'_'.repeat((cells-text.length%cells)%cells);
+      let out='';
+      for(const cell of route)out+=full[cell-1];
+      return out.replace(/_+$/g,'');
+    }
+    const grid=Array.from({length:R},()=>Array(C).fill(''));
+    for(let i=0;i<route.length&&i<text.length;i++){
+      const cell=route[i]-1;
+      grid[(cell/C)|0][cell%C]=text[i];
+    }
+    let out='';
+    for(let r=0;r<R;r++)for(let c=0;c<C;c++)out+=grid[r][c];
+    return out.replace(/_+$/g,'');
+  });
+
+/* 13. Variant Beaufort */
+addOp('variantBeaufort','Variant Beaufort Cipher','Boxentriq',
+  'Variant Beaufort: equivalent to Vigenère decryption with the same key — encrypt c=(P−K) mod 26, decrypt p=(C+K) mod 26. Not self-reciprocal — unlike classic Beaufort.',
+  [
+    {key:'key',label:'Key',type:'text',default:'KEY'},
+    {key:'mode',label:'Mode',type:'select',default:'encrypt',options:[['encrypt','Encrypt'],['decrypt','Decrypt']]}
+  ],
+  function(text,args){
+    const key=toUpperLetters(args.key);
+    if(!key.length)return text;
+    let j=0;
+    return text.split('').map(ch=>{
+      const c=ch.charCodeAt(0),up=(c>=65&&c<=90),lo=(c>=97&&c<=122);
+      if(!up&&!lo)return ch;
+      const base=up?65:97,p=c-base,k=key.charCodeAt(j%key.length)-65;j++;
+      const out=args.mode==='decrypt'?(p+k)%26:(p-k+26)%26;
+      return String.fromCharCode(base+out);
+    }).join('');
+  });
+
+/* 14. Cryptogram (monoalphabetic + auto-solve) */
+addOp('cryptogram','Cryptogram (Monoalphabetic + Auto-Solve)','Boxentriq',
+  'Classic newswire cryptogram: monoalphabetic substitution. Encrypt/decrypt with a keyword or a full 26-letter cipher alphabet; Auto-solve ranks ciphertext letters by frequency against E T A O I N S H R D L U M W F G Y P B V K C J X Q Z.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'solve',options:[['solve','Auto-solve (frequency)'],['encrypt','Encrypt'],['decrypt','Decrypt']]},
+    {key:'key',label:'Keyword (encrypt/decrypt)',type:'text',default:'CIPHER'},
+    {key:'custom',label:'Custom cipher alphabet (26 letters, overrides keyword)',type:'text',default:''}
+  ],
+  function(text,args){
+    const std='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const FREQ_ORDER='ETAOINSHRD LUMWFGYPBVKCJXQZ'.replace(/ /g,'');
+    let ca;
+    const custom=toUpperLetters(args.custom);
+    if(custom){
+      if(custom.length!==26||new Set(custom).size!==26)throw new Error('Custom alphabet must be exactly 26 distinct letters');
+      ca=custom;
+    }else{
+      const key=toUpperLetters(args.key);
+      if(!key.length)throw new Error('Enter a keyword (or a custom cipher alphabet)');
+      const seen=new Set();ca='';
+      for(const ch of key)if(!seen.has(ch)){seen.add(ch);ca+=ch;}
+      for(let cc=65;cc<=90;cc++){const ch=String.fromCharCode(cc);if(!seen.has(ch)){seen.add(ch);ca+=ch;}}
+    }
+    if(args.mode==='solve'){
+      const s=toUpperLetters(text);
+      if(!s.length)throw new Error('Nothing to solve');
+      const cnt={};
+      for(const c of s)cnt[c]=(cnt[c]||0)+1;
+      const sorted=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b));
+      const map={};
+      sorted.forEach((c,i)=>map[c]=FREQ_ORDER[i]||c);
+      const used={};let out='';
+      for(const c of s){
+        let ch=map[c];
+        if(used[ch]){
+          for(const alt of FREQ_ORDER){if(!used[alt]){ch=alt;break;}}
+        }
+        used[ch]=1;
+        out+=ch;
+      }
+      let rep='Mapping (cipher→plain): ';
+      rep+=std.split('').map(p=>{const c=sorted[FREQ_ORDER.indexOf(p)];return (c||'·')+'/'+p;}).join(' ');
+      return out+'\n\n'+rep+'\n\n(Frequency-based hypothesis — check word shapes.)';
+    }
+    const map={};
+    if(args.mode==='encrypt'){for(let i=0;i<26;i++)map[std[i]]=ca[i];}
+    else{for(let i=0;i<26;i++)map[ca[i]]=std[i];}
+    return text.split('').map(ch=>{
+      const u=ch.toUpperCase();
+      const r=map[u];
+      return r===undefined?ch:(ch===u?r:r.toLowerCase());
+    }).join('');
+  });
+
+/* 15–16. Cicada 3301: totient cipher + Gematria Primus */
+addOp('totient','Cicada 3301 Totient Cipher','Boxentriq',
+  'Liber Primus machinery from the first Cicada 3301 puzzle (2012): letters ↔ A1Z26 values ↔ primes via Euler\'s totient (φ(p)=p−1 for prime p) ↔ ordinal of the prime. Each mode covers one leg of the chain.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'textToPrimes',options:[
+      ['textToPrimes','Text → A1Z26 → n-th prime'],
+      ['primesToText','Prime list → ordinal → text'],
+      ['phiToPrimes','φ-values → primes (p = n+1 when prime)'],
+      ['primesToPhi','Primes → φ-values']
+    ]}
+  ],
+  function(text,args){
+    const nums=(text.match(/\d+/g)||[]).map(Number);
+    if(args.mode==='textToPrimes'){
+      const s=toUpperLetters(text);
+      if(!s.length)throw new Error('Enter letters');
+      const list=primesUpTo(200);
+      return [...s].map(c=>list[c.charCodeAt(0)-65]).join(' ');
+    }
+    if(args.mode==='primesToText'){
+      if(!nums.length)throw new Error('Enter a list of primes');
+      const lim=Math.max(1000,...nums);
+      const list=primesUpTo(lim);
+      const idx={};list.forEach((p,i)=>idx[p]=i+1);
+      let out='';
+      for(const n of nums){
+        if(!idx[n])throw new Error(n+' is not a prime in the table (limit '+(lim+1)+')');
+        out+=String.fromCharCode(64+((idx[n]-1)%26)+1);
+      }
+      return out;
+    }
+    if(args.mode==='phiToPrimes'){
+      if(!nums.length)throw new Error('Enter φ-values');
+      const lim=Math.max(1000,...nums)+2;
+      const list=primesUpTo(lim);
+      const isP=new Set(list);
+      return nums.map(n=>{
+        if(n===1)return '2';
+        const p=n+1;
+        return isP.has(p)?String(p):'— (no prime p with φ(p)='+n+')';
+      }).join(' ');
+    }
+    if(!nums.length)throw new Error('Enter primes');
+    const lim=Math.max(1000,...nums);
+    const isP=new Set(primesUpTo(lim));
+    return nums.map(n=>{
+      if(n<2||!isP.has(n))throw new Error(n+' is not prime (φ shown for primes only)');
+      return String(n-1);
+    }).join(' ');
+  });
+addOp('gematriaPrimus','Gematria Primus (Liber Primus)','Boxentriq',
+  'Numeric core of the Liber Primus text: letters ↔ A1Z26 gematria values, with each value\'s n-th prime and φ(prime) shown for the totient chain. The rune alphabet itself is a puzzle-provided artifact (see the Totient recipe for the prime steps).',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Text → values (with prime chain)'],['decode','Values → text']]}
+  ],
+  function(text,args){
+    if(args.mode==='encode'){
+      const s=toUpperLetters(text);
+      if(!s.length)throw new Error('Enter letters');
+      const list=primesUpTo(200);
+      return [...s].map(c=>{
+        const n=c.charCodeAt(0)-64;
+        const p=list[n-1];
+        return c+'  '+n+'   (p'+n+' = '+p+',  φ = '+(p-1)+')';
+      }).join('\n');
+    }
+    const nums=(text.match(/\d+/g)||[]).map(Number);
+    if(!nums.length)throw new Error('Enter values (A=1 … Z=26)');
+    let out='';
+    for(const n of nums){
+      if(n<1||n>26)throw new Error('Value out of A1Z26 range: '+n);
+      out+=String.fromCharCode(64+n);
+    }
+    return out;
+  });
+
+/* 17–19. Base58 / Base62 / Base85 */
+function bigIntFromBytes(b){let v=0n;for(const x of b)v=(v<<8n)|BigInt(x);return v;}
+function bytesFromBigInt(v){
+  if(v<0n)throw new Error('negative value');
+  const out=[];
+  while(v>0n){out.push(Number(v&0xffn));v>>=8n;}
+  return new Uint8Array(out.reverse());
+}
+function baseEncode(bytes,alphabet){
+  if(!bytes.length)return '';
+  let z=0;while(z<bytes.length&&bytes[z]===0)z++;
+  let n=bigIntFromBytes(bytes);
+  const B=BigInt(alphabet.length);
+  let rest='';
+  while(n>0n){rest=alphabet[Number(n%B)]+rest;n/=B;}
+  return alphabet[0].repeat(z)+rest;
+}
+function baseDecode(s,alphabet){
+  if(!s.length)return new Uint8Array(0);
+  const idx={};
+  alphabet.split('').forEach((c,i)=>idx[c]=i);
+  const B=BigInt(alphabet.length);
+  let z=0;while(z<s.length&&s[z]===alphabet[0])z++;
+  let n=0n;
+  for(let i=z;i<s.length;i++){
+    if(idx[s[i]]===undefined)throw new Error('Character outside the base alphabet: '+s[i]);
+    n=n*B+BigInt(idx[s[i]]);
+  }
+  const body=bytesFromBigInt(n);
+  return new Uint8Array([...new Uint8Array(z),...body]);
+}
+addOp('base58','Base58','Boxentriq',
+  'Base58 with the Bitcoin alphabet (1–9, A–Z, a–z minus I, O, l) — text-safe identifiers and address-style payloads.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode (text→Base58)'],['decode','Decode (Base58→text)']]}
+  ],
+  function(text,args){
+    const A='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    if(args.mode==='encode')return baseEncode(utf8Encode(text),A);
+    return utf8Decode(baseDecode(text.trim(),A));
+  });
+addOp('base62','Base62','Boxentriq',
+  'Base62 (A–Z, a–z, 0–9 in the chosen order) for compact alphanumeric payloads.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode'],['decode','Decode']]},
+    {key:'alpha',label:'Alphabet order',type:'select',default:'AZaz09',options:[['AZaz09','A–Z a–z 0–9'],['azAZ09','a–z A–Z 0–9'],['09AZaz','0–9 A–Z a–z']]}
+  ],
+  function(text,args){
+    const A={AZaz09:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',azAZ09:'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789','09AZaz':'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'}[args.alpha];
+    if(args.mode==='encode')return baseEncode(utf8Encode(text),A);
+    return utf8Decode(baseDecode(text.trim(),A));
+  });
+addOp('base85','Base85 (ASCII85)','Boxentriq',
+  'Adobe ASCII85: four bytes ↔ five chars in !..u (32+value), y-padding and z-terminator for short final groups, optional <~ ~> wrapper.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode (text→ASCII85)'],['decode','Decode (ASCII85→text)']]},
+    {key:'wrap',label:'Wrap in <~ … >',type:'checkbox',default:false}
+  ],
+  function(text,args){
+    if(args.mode==='encode'){
+      const bytes=utf8Encode(text);
+      if(!bytes.length)throw new Error('Nothing to encode');
+      let out='';
+      for(let i=0;i<bytes.length;i+=4){
+        const len=Math.min(4,bytes.length-i);
+        let v=0n;
+        for(let j=0;j<4;j++)v=(v<<8n)|BigInt(j<len?bytes[i+j]:0xFF);
+        const digs=[];
+        for(let j=0;j<5;j++){digs.push(String.fromCharCode(33+Number(v%85n)));v/=85n;}
+        digs.reverse();
+        if(len<4){
+          const pad=4-len;
+          for(let k=5-pad;k<5;k++)digs[k]='y';
+          digs.push('z');
+        }
+        out+=digs.join('');
+      }
+      return args.wrap?'<~'+out+'~>':out;
+    }
+    let s=text.replace(/<~|~>/g,'');
+    let out=[];
+    let i=0;
+    while(i<s.length){
+      const g=s.substr(i,5);
+      let pad=0;
+      if(s.charAt(i+5)==='z'){
+        pad=(g.match(/y+$/)||[''])[0].length;
+        i+=6;
+      }else{
+        i+=5;
+      }
+      const L=4-pad; // real bytes in this group
+      const realDigits=L+1; // digits carried before the y-padding
+      let v=0n;
+      for(let j=0;j<realDigits;j++){
+        const ch=g.charAt(j);
+        const d=ch.charCodeAt(0)-33;
+        if(d<0||d>84)throw new Error('Invalid Base85 character: '+ch);
+        v=v*85n+BigInt(d);
+      }
+      for(let k=0;k<4-L;k++)v*=85n; // restore the discarded 0xFF-padded digits
+      for(let j=0;j<L;j++){
+        out.push(Number((v>>(8n*BigInt(3-j)))&0xffn));
+      }
+    }
+    return utf8Decode(new Uint8Array(out));
+  });
+
+/* 20. Base100 (emoji) */
+const B100=[];
+(function(){
+  for(let i=0;i<80;i++)B100.push(String.fromCodePoint(0x1F600+i));
+  for(let i=0;i<132;i++)B100.push(String.fromCodePoint(0x1F300+i));
+  for(let i=0;i<44;i++)B100.push(String.fromCodePoint(0x2600+i));
+})();
+addOp('base100','Base100 (Emoji)','Boxentriq',
+  'Maps each byte 0–255 to one emoji from a fixed 256-glyph table (U+1F600–U+1F64F, U+1F300–U+1F393, U+2600–U+262B) — hides binary inside an emoji stream.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','Encode (text→emoji)'],['decode','Decode (emoji→text)']]}
+  ],
+  function(text,args){
+    if(args.mode==='encode'){
+      const b=utf8Encode(text);
+      if(!b.length)throw new Error('Nothing to encode');
+      return Array.from(b,x=>B100[x]).join('');
+    }
+    const rev={};
+    B100.forEach((e,i)=>rev[e]=i);
+    const out=[];
+    for(const ch of text){
+      if(ch.trim()==='')continue;
+      if(rev[ch]===undefined)throw new Error('Unknown Base100 emoji: '+ch);
+      out.push(rev[ch]);
+    }
+    if(!out.length)throw new Error('No Base100 emoji found');
+    return utf8Decode(new Uint8Array(out));
+  });
+
+/* 21. Text ↔ Big Integer */
+addOp('bigIntText','Text ↔ Big Integer','Boxentriq',
+  'UTF-8 bytes read as one big-endian integer (Text → Big Integer) or a decimal/hex integer back to UTF-8 (Big Integer → Text).',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'toBig',options:[['toBig','Text → Big Integer'],['fromBig','Big Integer → Text']]}
+  ],
+  function(text,args){
+    if(args.mode==='toBig'){
+      let v=0n;
+      for(const b of utf8Encode(text))v=(v<<8n)|BigInt(b);
+      return v.toString(10);
+    }
+    const s=text.trim().replace(/\s+/g,'');
+    if(!s)throw new Error('Enter an integer');
+    let v;
+    try{v=BigInt(s);}catch(e){throw new Error('Not a valid integer: '+s);}
+    if(v<0n)throw new Error('Integer must be ≥ 0');
+    const out=[];
+    while(v>0n){out.push(Number(v&0xffn));v>>=8n;}
+    return utf8Decode(new Uint8Array(out.reverse()));
+  });
+
+/* 22. Geek Code */
+const GEEKCODE={A:'anime',B:'beer',C:'computers',D:'drama',E:'engineering',F:'music',G:'games',H:'health',I:'intrinsics',J:'jokes',K:'hacking',L:'learning',M:'military',N:'news',O:'other',P:'philosophy',Q:'quality',R:'religion',S:'science',T:'science fiction',V:'video',W:'wine',X:'sex',Y:'year',Z:'zines'};
+addOp('geekCode','Geek Code','Boxentriq',
+  'Geek Code ({K+} style): expand {X±} field blocks into a legend, or compress legend lines (e.g. "K: hacking (strong)") back into a compact code string.',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'expand',options:[['expand','Expand ({X±} → legend)'],['compress','Compress (legend → {X±})']]}
+  ],
+  function(text,args){
+    if(args.mode==='expand'){
+      const toks=text.match(/\{[A-Z][+\-/]*\d*\}/g)||[];
+      if(!toks.length)throw new Error('No {X} fields found in the input');
+      return toks.map(t=>{
+        const m=t.match(/\{([A-Z])([+\-/]*)(\d+)?\}/);
+        let line=m[1]+': '+(GEEKCODE[m[1]]||'unassigned');
+        if(m[2]==='+')line+=' (strong)';
+        if(m[2]==='-')line+=' (weak)';
+        if(m[2]==='/')line+=' (split)';
+        if(m[3])line+=' — level '+m[3];
+        return line;
+      }).join('\n');
+    }
+    const out=[];
+    text.split(/\n/).forEach(line=>{
+      const m=line.match(/^\s*([A-Z])\s*[:\-]?\s*([a-z][a-z ]*?)\s*(?:\((strong|weak|split)\))?\s*$/i);
+      if(!m)return;
+      const L=m[1].toUpperCase();
+      if(!GEEKCODE[L]||m[2].trim().toLowerCase()!==GEEKCODE[L].toLowerCase())return;
+      let q='';
+      if(m[3]==='strong')q='+';
+      if(m[3]==='weak')q='-';
+      if(m[3]==='split')q='/';
+      out.push('{'+L+q+'}');
+    });
+    if(!out.length)throw new Error('No legend lines recognised (expected e.g. "K: hacking (strong)")');
+    return out.join('');
+  });
+
+/* 23. Pig Latin */
+addOp('pigLatin','Pig Latin','Boxentriq',
+  'Classic Pig Latin: move the leading consonant cluster to the end + "ay"; words starting with a vowel take "yay". Decode tries candidate splits against the built-in word list (shortest cluster first) — Pig Latin is inherently ambiguous for some words (e.g. stringay → string/rings).',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'encode',options:[['encode','English → Pig Latin'],['decode','Pig Latin → English']]}
+  ],
+  function(text,args){
+    const V='aeiouy';
+    return text.split(/(\s+)/).map(w=>{
+      const m=w.match(/^([A-Za-z]+)(.*)$/);
+      if(!m)return w;
+      let word=m[1],rest=m[2];
+      const low=word.toLowerCase();
+      const firstUpper=word[0]===word[0].toUpperCase()&&word[0]!==word[0].toLowerCase();
+      if(args.mode==='encode'){
+        if(V.indexOf(low[0])>=0)word=low+'yay';
+        else{
+          let i=0;
+          while(i<low.length&&V.indexOf(low[i])<0)i++;
+          word=low.slice(i)+low.slice(0,i)+'ay';
+        }
+      }else{
+        if(/yay$/.test(low)&&low.length>3){
+          word=low.slice(0,-3);
+        }else if(/ay$/.test(low)&&low.length>3){
+          const body=low.slice(0,-2);
+          // Pig Latin is ambiguous: try candidate splits (shortest cluster first),
+          // preferring a hit in the built-in word list.
+          let best=null;
+          for(const vcls of [/[aeiouy]/,/[aeiou]/]){
+            for(let i=body.length-1;i>=1;i--){
+              const C=body.slice(i),T=body.slice(0,i);
+              if(vcls.test(C))continue;
+              const cand=C+T;
+              if(!best)best=cand;
+              if(ANAGRAM_WORDS.indexOf(cand)>=0){best=cand;break;}
+            }
+            if(best!==null&&ANAGRAM_WORDS.indexOf(best)>=0)break;
+            if(best!==null&&vcls.source===[aeiou].source)break;
+          }
+          word=best;
+        }else{
+          return w;
+        }
+      }
+      word=word.toLowerCase();
+      if(firstUpper)word=word[0].toUpperCase()+word.slice(1);
+      return word+rest;
+    }).join('');
+  });
+
+/* 24. MIDI file decoder */
+addOp('midiParse','MIDI File Decoder','Boxentriq',
+  'Parses a Standard MIDI File pasted as hex: header (format, track count, ticks/beat) and a per-track event timeline — tempo, time signature, text, notes, controllers.',
+  [],
+  function(text,args){
+    const b=bytesFromHex(text);
+    const cstr=(o,l)=>Array.from(b.slice(o,o+l)).map(x=>String.fromCharCode(x)).join('');
+    const be16=o=>(b[o]<<8)|b[o+1];
+    const be32=o=>((b[o]<<8|b[o+1])<<16|((b[o+2]<<8|b[o+3])))>>>0;
+    if(cstr(0,4)!=='MThd')throw new Error('Not a Standard MIDI file (missing MThd header)');
+    const hdr=be32(4);
+    const format=be16(8),ntrks=be16(10),div=be16(12);
+    const NOTE=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+    const name=n=>n<0||n>127?'?':NOTE[n%12]+(Math.floor(n/12)-1);
+    let out='Format: '+format+'   Tracks: '+ntrks+'   Division: '+(div>0?div+' ticks/beat':'SMPTE '+Math.floor(-div/1000000)+'s/'+((div>>>31)^div)%1000000+'f')+'\n\n';
+    let off=8+hdr;
+    for(let t=0;t<ntrks&&off+8<=b.length;t++){
+      if(cstr(off,4)!=='MTrk')break;
+      const len=be32(off+4);
+      const end=Math.min(off+8+len,b.length);
+      let p=off+8,running=0,abs=0,tSec=0,usBeat=500000;
+      out+='— Track '+(t+1)+' —\n';
+      let events=0;
+      while(p<end){
+        let delta=0;
+        for(;;){
+          if(p>=end)break;
+          const v=b[p++];
+          delta=(delta<<7)|(v&0x7f);
+          if(!(v&0x80))break;
+        }
+        tSec+=div>0?(delta/div)*usBeat/1000000:delta;
+        abs+=delta;
+        const stamp='t='+tSec.toFixed(3)+'s (tick '+abs+')';
+        let st=b[p];
+        if(st===0xFF){
+          p++;
+          const mt=b[p++];
+          let ml=0;
+          for(;;){const v=b[p++];ml=(ml<<7)|(v&0x7f);if(!(v&0x80))break;}
+          const d0=p;
+          const data=b.slice(p,p+ml);
+          p+=ml;
+          let desc='meta 0x'+mt.toString(16).padStart(2,'0');
+          if(mt===0x2F)desc='end of track';
+          else if(mt===0x51&&data.length>=3){
+            const us=(data[0]<<16)|(data[1]<<8)|data[2];
+            usBeat=us;
+            desc='tempo = '+us+' µs/beat (≈ '+(60000000/us).toFixed(1)+' BPM)';
+          }
+          else if(mt===0x58&&data.length>=4)desc='time signature '+data[0]+'/'+data[1];
+          else if(mt===0x03||mt===0x04||mt===0x05||mt>=0x07&&mt<=0x0E)desc='text: '+cstr(d0,ml);
+          else if(mt===0x00&&data.length>=2)desc='sequencer number '+(data[0]<<8|data[1]);
+          out+=stamp+'  '+desc+'\n';
+          events++;
+          continue;
+        }
+        if(st===0xF0||st===0xF7){
+          p++;
+          let ml=0;
+          for(;;){const v=b[p++];ml=(ml<<7)|(v&0x7f);if(!(v&0x80))break;}
+          p+=ml;
+          out+=stamp+'  sysex ('+ml+' bytes)\n';
+          events++;
+          continue;
+        }
+        if((st&0x80)===0){p--;st=running;}
+        if((st&0x80)===0x80)running=st;
+        const type=st&0xF0,ch=st&0xF;
+        p++;
+        if(type===0x80||type===0x90||type===0xB0||type===0xE0){
+          const n1=b[p++],n2=b[p++];
+          let desc;
+          if(type===0x80)desc='note off '+name(n1)+' (v'+n2+')';
+          else if(type===0x90)desc=(n2>0?'note on ':'note off ')+name(n1)+' (MIDI '+n1+', v'+n2+')';
+          else if(type===0xB0){
+            const CC={0:'bank',1:'modulation',6:'data entry',7:'volume',10:'pan',11:'expression',64:'sustain',65:'soft pedal',67:'sostenuto',69:'hold pedal'};
+            desc='CC '+(CC[n1]||n1)+' = '+n2;
+          }
+          else desc='pitch bend '+(n1+(n2<<7)-8192);
+          out+=stamp+'  ch'+ch+'  '+desc+'\n';
+          events++;
+        }else{
+          const n1=b[p++];
+          const desc=type===0xC0?'program change '+n1:type===0xD0?'channel pressure '+n1:'unknown 0x'+st.toString(16).padStart(2,'0');
+          out+=stamp+'  ch'+ch+'  '+desc+'\n';
+          events++;
+        }
+      }
+      out+='\n';
+      off=end;
+    }
+    return out;
+  });
+
+/* 25. Anagram finder */
+const ANAGRAM_WORDS='ability able about above abuse actor acute admit adopt adult after again agent agree ahead alarm album alert align alike alive allow alone along alter among anger angle angry apart apple apply arena argue arise array aside asset audio audit avoid award aware badge baker basic basis beach beast begin being below bench bible blank blast blaze blend bless blind block blood board boast bonus booth bound brain brand brace brick brief bring broad broke brown build bunch burst buyer cabin cable camel canel canal cargo carry catch cause chain chair chalk charm chart chase cheap cheer chess chest chief child chill chirp choir chose chunk civic civil claim clamp claw clone cloth cloud clown coach coast cobra cocoa color comet comic coral couch craft crane crash cream creek crest crime cross crowd crown cube curl curse curve cycle daily dairy dance date dawn deal dear debt deck deep deer delta dense depth derby desert desk dial dice diet differ dig dim din dine dirt dish disk dive dock doctor dog donut door dose dove down draft drag draw dream dress drift drink drive drop drum dry dual duck duty dwarf eagle early earth ease east easy echo edge edit elf elite elm else emu end engine enter equal erase error essay even ever evil exam exit eye face fact fade fail fair fake fall fame farm fast fate fax fear feast feed feel fee fetch fever few fiber field file fill film final find fine fire fish fit five fix flag flap flash flat flavor flip floor flush fly foam focus fog folk fond food fool foot force fork form fort forth fossil forty forum found four free fresh frog front frost fruit fuel fun fund furry fury fuse gap gate gaze gem genie genre giant gift girl given glass glide globe glory glove glow glue goal goat gold golf gone good goose gorilla grass gray great green grid grip grit grind groan grow guard guess guest guide guilt gun gut gym hair half hall halt ham hand hang happy hard hare harsh hat hate have hawk hay heap hear heart heat heavy hedge heel height hello hen herb hero hide high hill hint hip hire hive hobby hold hole holy honey hood hook hope horn horse host hotel hour house hovel hub hug huge human hurry hurt husband hut ice icon ideal idle ignore image imply inch index info inlet inner input injury ink iron issue item ivory jab jade jail jam jar jaw jazz jean jeans jelly jet jig job joke join joy jug jury just keen keep kept kick kid kind king kiss kit knee knife knob knock know lab lack lace lady laid lake lamp land lane lap large last late laugh lava law lawn lay lead leaf leak learn lease least leave ledge legal lemon lend lens lent level liar lick lid lie lift like limb limit lion list lite live load loaf loan lobe local lock loft long look loop lord lose loss lost loud love low luck lug lump lung lure lush lyre mad made mail main make male mall man map march mark mask match maze mead meal mean meat med medal meet melt memo menu mesh mess met meter mid mist mix moan mock mode moon more moss most moth motor mount mouse mouth move much mule mull multi must mute myth nail name nap near neat neck need needle nest net news next nice night nine nod none noon note novel now nuance numb nurse nut oak oasis odd odor oil old olive once one only onion open opt oral orbit ore organ ornate ossuary other ought oval oven over owe owl own pace pack page pain paint pal pale palm pan panel pane pant park part past patch path patio pave peak pear pearl pen pent penny perch pet pick pig pin pipe pitch pity place plain plan plane plant plate play plea please pluck plug plum plus poem poet pole pond pool poor port pose post pot pound power pray prey price pride prime print prior prize prose proud prove pull pump pure purse push put pyre quad quail quiet quit quiz rack race rail rain raise rake ramp ranch range rank rant rapid ratio raven raw ray read real rebel reef reel reign rein relax relay relic remix rent repeal repay reproach resin rest retail retire rib rice rich ride ridge rift ring rink riot ripe rise risk rit rival river road roast robe rock rode roof roll rook room rope rose rough round route royal rub rugby ruin rule run rude rung runt rush rust rut sail sake salt same sand sane sang sat save scan scar scare scene scent scoot scowl scrap screw script scrub sea seal seam sear seat sect seed seek seem seize sel sell sem set shad shade shake shall sham shape shard share shark sharp shave shear sheet shelf shell shift shine shin ship shire shoe shoot shore short shout shove show shush sick side sieve sift sigh sign silk sill silver similar since sing sit six size skate ski sky slab slam slap slant slash slate sled sleep slice slick slid slide slim slope slot slow slug slum slump smart smash smile smoke smooth snail snake snap sniff snore snow soak soap soar sob soda soft soil sole some song soon sore sort soul sound soup sour south space spare spark spear speak speed spell spend spice spill spin spit spoil spoke spool spore sport spot spray spree spur stab stack staff stage stain stair stake stale stall stamp stand star start state stay steak steal steam steel steep steer stem step stew stick still sting stink stint stock stove straight strand strap straw stray stream street stress strict stripe stroke stroll strut stud stuff stun style such suit sul sum sun sunburn sure surf swim sway tab tack tag tail take talk tall tame tank tap tar tart task taste tax tea teach team tear tease tech tee tell ten tent term test than thank that thaw thee their theme then theory there these theta thick thief thin thing think third this thorn those throw thumb thus tick tide tie tilt time tiny tip tire toad toast toe toil told toll tomb tomato tone tong tool tooth top topic torch toss total touch tough tower town toy track trail train trait tramp trap trash tray tread treat tree trend trial tribe trick triumph trim trip trove truck true trout tube tug tumble tutor twin type ugly ultra umbrella under undo unit until upon upper urban urge used user utility usual utter vase vast veil vein verb very vest vet via veto view vine visa vivid vocal void volt vote wage wait wake walk wall want ward warn wart wash was waste watch water wave way web wedge week weigh weird wel welcome west wet whale what wheat when where which while whim whip white who whole whom why wide wife wild will win wine wing wink wipe wire wise wish wolf wood wool word work worn wound wrap wreck wrist write wrong yard yarm your youth zebra zero zone zoo zulu ace ache acre acid add adie ado adze age agog ague aide ail aim air ais ake ale alien algal all ally alo amass amuse and anil anor ant anon anvil ape apex apt arc arch arbor area are argu aro arse art ash ask asp ass atoll atop att aub auer aunt aural aur avast awe awl axe ay aye zeal zein zen zeph zest zip zlot zooy zori zebu zany zap zzz aback abbey abode abuff acorn acrid acted aegis agate agile aglow ahoi ailed aisle alloy aloha alpha altar amaze amice amiss ample amply amused anchor anew aorta aping aplus apath apert aphid apnea apace aptly aries arcing aret aria ariel arith arson arroy aspen aspic assay astat atlas auburn augur aura auras aught auld auntie auric auro avo avid avow awestruck axle azide azoic baa baffle bagel baggy baguette balalaika balm bam barf baric baron base baste bath bathy baulk bawd baye bead beady beak beaker beam bean bear beat beef beige befit began beheld behest bell belch belt bend benny bento bendi bese bevel bezel bier bifid big bim bigam bistable bit bitty blob blog blit bloat blotch blurt blust boar bobble bodice boff bogey bogie boing bolt bond bone bonnet boo book boom boop boot bop boss botch both bout bow bowe box bowo boy brad bravo brew brisk broil brood brook broom broth brow brush budge bug bulb bull bump bun bunger burb burly burn burr bury bush bust but butch buxom buy bye byte ca cabal cache cadet cafe cage cake calamity call calm cam can canary candor cane cant canoe cap cape caper card care carol carve case cash cast cat catalog cate catkin caution cava cave caviar cavy caw cba cea cell cent cereal char chasm cheep chef chide chit chuck cinema cinch clasp clap clay clean clear cleft clerk clog cloak close clout clove cloy club cluck clump clot clover clung cling clip clinic clink clint clock clunk cob coco cod code codex cog coil coin cold colt comb come conk cony coo cook cool coop coot cop cope copy cord core cork corn cot cough count couple courier course cove cover covet cow coy cry cub cuddle cudgel cue cull curb curd cure curfew curio curvy cut cute dab dace daffy dag dame damp damsel dandy darn dart dash data daub daze day deb debauch deco decoy deed deem deli dep dew dingo dingy dint dip dirl disc disn ditty doc doff doge doily dole doll dolt dome don dote dour drab dram drank drape drew droll drome drub ducky dud due duel duet dupe each ebb ecd ect enemy eng fab fable fad fag fago fief fig fin heft num zephyr zeta zig zag zing be to of in it for not on with he as you do at his by from they we say her she or an my would so up out if get go me no him people into year could them see its also back use two how our first well new because any give us between small right another men world life different every should country around school family here through company system program question ground young lot number far home before light mother head try always little brother sister member idea guy sometimes father point reason story group pay eat become believe happen stop create reach remain suggest offer require report consider explain describe change continue support include develop produce turn break hit send serve pass jump climb punch bounce swing stir fold rip shred poke pat frown whisper murmur mutter grumble yawn sneeze lounge kneel crawl crouch squat recline slouch sprawl stretch yell scream giggle snicker chuckle smirk grin pout sneer glare stare blink gawk glance peep peek spy observe inspect examine check verify confirm display reveal expose uncover conceal unload deliver letter paper line symbol sketch dye pencil eraser ruler spoon bowl cup mug wind dark red blue black bronze copper brass tin zinc nickel chrome titanium platinum diamond ruby emerald sapphire opal crystal mineral stone mud garden forest root branch flower weed cherry peach lime mango banana grape melon berry almond walnut pecan cashew pistachio hazelnut peanut pea lentil grain bread butter cheese milk egg sugar pepper vanilla cinnamon ginger garlic carrot potato cucumber squash pumpkin lettuce spinach broccoli cabbage celery mushroom orange vegetable salad pie cookie dough candy chocolate truffle fudge caramel toffee biscuit cracker muffin scone waffle pancake crepe croissant pretzel car bus boat bike bicycle scooter trolley taxi lorry van ferry kayak raft yacht wheel gas coal battery socket screen monitor keyboard cursor window button click scroll folder queen prince princess knight pirate captain sailor soldier lawyer judge priest monk nun ghost demon angel spirit mind liver kidney muscle skin tongue throat waist elbow ankle shoulder arm finger leg ear nose lip cheek chin forehead eyebrow temple scalp north middle center centre corner bottom rear ceiling kitchen bedroom bathroom garage attic basement cellar dungeon den shed barn cottage mansion palace castle rampart bridge alley highway freeway motorway junction morning afternoon evening midday midnight dusk sunrise sunset minute second month season spring summer autumn winter decade century shame envy faith trust doubt wonder curiosity courage strength weakness energy motion distance length width weight mass volume velocity gravity magnetism magnet circuit voltage current conductor insulator music rhythm melody harmony chord silence noise yellow purple pink three seven eight eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty fifty sixty seventy eighty ninety hundred thousand million billion trillion table sofa stool cabinet closet drawer counter chapter paragraph sentence phrase vowel consonant alphabet bird sheep chicken turkey sparrow robin wren finch swallow starling magpie crow falcon gull swan dolphin walrus penguin crab lobster shrimp oyster mussel clam insect bee butterfly spider beetle wasp hornet tulip lily daisy orchid iris lotus peony sunflower daffodil violet hibiscus jasmine petal hammer wrench plier saw drill chisel mallet game checkers puzzle riddle lottery bingo sudoku skill talent genius master student teacher pupil professor class lesson degree diploma order criminal police officer robber murder victim suspect witness evidence verdict money dollar euro franc ruble yen peso rupee dime currency payment cost salary credit breakfast lunch dinner snack dessert recipe bar pub market shop store grocery fence balcony city village harbor airport station plaza weather storm haze thunder lightning hail sleet breeze gale hurricane tornado cyclone typhoon monsoon drought planet mars venus jupiter saturn uranus neptune mercury galaxy solar universe rocket satellite astronaut ocean bay gulf cliff canyon island volcano mountain valley plateau animal fox tiger elephant giraffe rhino hippo llama alpaca raccoon badger otter beaver pine maple birch cedar willow beech fir larch metal marble granite limestone quartz cotton linen denim leather velvet satin timber plank flame breath shadow peace vision memory digit circle square triangle sphere ripple flow decay born dead aged hot dull dirty strong weak narrow shallow bright sweet bitter salty rotten moist solid liquid vapor fat juice coffee beer cider pop macadamia oat barley rye soy kernel husk pod stalk tuber bloom blossom ivy lichen fungus mold toadstump bacteria virus tissue marrow tendon nerve stomach bowel intestine bladder spleen pancreas gland hormone enzyme protein amino dna rna gene genome mitosis meiosis pollen ovary testis sperm embryo fetus infant toddler teen senior elder maturity aging death burial grave shrine church mosque synagogue pagoda stupa sacred divine humble pious wicked villain saint sinner devil thought concept notion belief opinion stance position attitude behavior action mission quest journey voyage travel tour hike trek adventure excursion outing jaunt safari cruise commute stride amble sprint pursuit flight escape retreat advance parade cavalcade convoy caravan fleet armada squadron battalion regiment platoon squad crew gang band clique party batch pile row queue column sequence series string thread filament ribbon tape girdle sash scarf shawl muffler helmet tiara diadem wreath garland laurel twig sprig bough talon hoof antler feather scale fur plume tassel fringe ruff collar lapel sleeve cuff hem border margin rim brim brink verge threshold doorway portal vault spire steeple minaret cupola partition curtain awning canopy parasol shelter chalet lodge manor estate meadow pasture prairie steppe tundra taiga jungle woods grove glade clearing hollow dell dale glen gully ravine gorge crevice fissure crack cranny nook niche alcove recess vertex summit spine backbone listen silent rasher shares carter carpet petra repart dormitory dirtyroom moansters tigers martens sterns sterna terns tenor notes stones ones neon nones tones toner noter tater tarts tarot tarta ratat'.split(' ');
+addOp('anagram','Anagram Finder','Boxentriq',
+  'Wordplay from Boxentriq\'s Text & Word tools: find anagrams of a word against the built-in common-English list, or check whether two words are anagrams (mode "check": paste "a b").',
+  [
+    {key:'mode',label:'Mode',type:'select',default:'find',options:[['find','Find anagrams of the word'],['check','Check two words (paste "a b")']]}
+  ],
+  function(text,args){
+    if(args.mode==='check'){
+      const parts=text.toLowerCase().split(/\s+/).filter(Boolean).slice(0,2);
+      if(parts.length!==2)throw new Error('Paste exactly two words, e.g. "listen silent"');
+      const a=parts[0].replace(/[^a-z]/g,''),b=parts[1].replace(/[^a-z]/g,'');
+      if(!a||!b)throw new Error('Words must contain letters');
+      const sig=x=>[...x].sort().join('');
+      if(a===b)return 'Identical words.';
+      return sig(a)===sig(b)?('Yes — "'+parts[0]+'" and "'+parts[1]+'" are anagrams of each other.'):'No — different letter multisets.';
+    }
+    const w=((text.split(/\s+/)[0])||'').replace(/[^a-zA-Z]/g,'').toLowerCase();
+    if(!w)throw new Error('Enter a word');
+    const sig=[...w].sort().join('');
+    const hits=ANAGRAM_WORDS.filter(x=>[...x].sort().join('')===sig);
+    if(!hits.length)return 'No anagrams found in the built-in word list for "'+w+'".';
+    return 'Anagrams of '+w+' ('+hits.length+'):\n'+hits.join(', ');
+  });
+
+/* 26. Primes & factorisation */
+function isPrimeMR(n){
+  if(n<2n)return false;
+  for(const p of [2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n]){
+    if(n===p)return true;
+    if(n%p===0n)return false;
+  }
+  let d=n-1n,s=0n;
+  while(d%2n===0n){d/=2n;s++;}
+  for(const a of [2n,3n,5n,7n,11n,13n,17n,19n,23n,29n,31n,37n]){
+    let x=bigModExp(a,d,n);
+    if(x===1n||x===n-1n)continue;
+    let comp=false;
+    for(let r=1n;r<s;r++){x=(x*x)%n;if(x===n-1n){comp=true;break;}}
+    if(!comp)return false;
+  }
+  return true;
+}
+function pollardRho(n){
+  if(n%2n===0n)return 2n;
+  if(n%3n===0n)return 3n;
+  for(let c=1n;c<100n;c++){
+    let y=2n,r=1n,q=1n,m=128n,g=1n,x=0n,ys=0n;
+    const f=v=>((v*v)%n+c)%n;
+    let steps=0;
+    while(g===1n&&steps<4000000){
+      x=y;
+      for(let i=0n;i<r;i++)y=f(y);
+      let k=0n;
+      while(k<r&&g===1n){
+        ys=y;
+        const lim=m<r-k?m:r-k;
+        for(let i=0n;i<lim;i++){y=f(y);const diff=x>y?x-y:y-x;if(diff!==0n)q=(q*diff)%n;}
+        g=bigGcd(q,n);
+        k+=lim;
+        steps+=Number(lim);
+      }
+      r*=2n;
+    }
+    if(g===n){
+      for(;;){
+        ys=f(ys);
+        const diff=x>ys?x-ys:ys-x;
+        g=bigGcd(diff,n);
+        if(g>1n)break;
+      }
+    }
+    if(g>1n&&g<n)return g;
+  }
+  throw new Error('Pollard ρ failed to find a factor of '+n);
+}
+function factorize(n,sp){
+  const fac=[];
+  let x=n;
+  for(const p of sp){
+    const pb=BigInt(p);
+    if(pb*pb>x)break;
+    while(x%pb===0n){fac.push(pb);x/=pb;}
+  }
+  if(x>1n){
+    if(isPrimeMR(x))fac.push(x);
+    else{const d=pollardRho(x);fac.push(...factorize(d,sp),...factorize(x/d,sp));}
+  }
+  return fac;
+}
+addOp('primesFactor','Primes & Factorisation','Boxentriq',
+  'Number-theory workbench from Boxentriq\'s Math category: deterministic Miller–Rabin primality, then full factorisation (trial division + Pollard ρ) for every integer in the input.',
+  [
+    {key:'maxTrial',label:'Trial division limit',type:'number',default:'100000'}
+  ],
+  function(text,args){
+    const nums=text.split(/[\s,;]+/).filter(Boolean).map(s=>{
+      try{return BigInt(s);}catch(e){throw new Error('Not an integer: '+s);}
+    });
+    if(!nums.length)throw new Error('Enter one or more integers');
+    if(nums.length>50)throw new Error('At most 50 integers at a time');
+    const lim=Math.min(Math.max(parseInt(args.maxTrial,10)||100000,100),10000000);
+    const sp=primesUpTo(lim);
+    return nums.map(n=>{
+      const sign=n<0n?'−':'';
+      const a=n<0n?-n:n;
+      if(a<2n)return sign+n.toString()+' — zero or one (no prime factors)';
+      if(isPrimeMR(a))return sign+a.toString()+' — prime';
+      const fac=factorize(a,sp);
+      fac.sort((x,y)=>x<y?-1:x>y?1:0);
+      const counts={};
+      for(const f of fac){const k=f.toString();counts[k]=(counts[k]||0)+1;}
+      const keys=Object.keys(counts).sort((u,v)=>{const A=BigInt(u),B=BigInt(v);return A<B?-1:A>B?1:0;});
+      const expr=keys.map(k=>counts[k]===1?k:k+'^'+counts[k]).join(' × ');
+      return sign+a.toString()+' = '+expr;
+    }).join('\n');
+  });
+
 zenInit();
 sfxInitUi();
 renderOpsList();renderRecipe();

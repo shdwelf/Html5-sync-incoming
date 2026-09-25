@@ -30,7 +30,7 @@ All five packages in the repo now pass [`webxdc_tool.py validate`](webxdc/webxdc
 
 | Package | Source | Status |
 |---------|--------|--------|
-| `webxdc/cyberchef/dist/cyberchef.xdc` | `webxdc/cyberchef/index.html` (1.64 MB single-file CyberChef build, 416 recipes) | rebuilt, manifest normalised |
+| `webxdc/cyberchef/dist/cyberchef.xdc` | `webxdc/cyberchef/index.html` (1.68 MB single-file CyberChef build, 441 recipes; 26 Boxentriq recipes added 2026-09-25, see docs/BOXENTRIQ_DEEP_DIVE.md) | rebuilt, manifest normalised |
 | `webxdc/shamir/dist/shamir.xdc` | `webxdc/shamir/index.html` (Shamir Secret Sharing over GF-256) | rebuilt, manifest normalised |
 | `webxdc/radar-scope/dist/radar-scope.xdc` | `webxdc/radar-scope/index.html` (ADS-B flight-radar HUD) | **repacked from an invalid package** |
 | `projects/cryptomonopoly-webxdc/dist/Cryptomonopoly.xdc` | full source tree + test suite | rebuilt after logic and API fixes |
