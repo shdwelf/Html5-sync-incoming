@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>EEG Feedback Lab — research demonstrator</title>
+  <!-- The messenger injects this API. It is deliberately NOT included in the .xdc. -->
+  <script src="webxdc.js"></script>
+  <style>
+    :root {
+      --ink: #eaf7f6;
+      --muted: #9bb9b8;
+      --line: #28504f;
+      --panel: #102827;
+      --panel-2: #0b1d1c;
+      --aqua: #5de4d6;
+      --aqua-dim: #247a74;
+      --yellow: #ffd166;
+      --red: #ff8075;
+      --green: #8ef0aa;
+      --shadow: rgba(0, 0, 0, .34);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: #071513; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: radial-gradient(circle at 20% -10%, #154342 0, #0a1b1a 43%, #071513 82%); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: var(--aqua); }
+    .shell { max-width: 1280px; margin: 0 auto; padding: 22px; }
+    header { display: flex; gap: 20px; align-items: flex-start; justify-content: space-between; padding: 4px 0 20px; border-bottom: 1px solid var(--line); }
+    .eyebrow { margin: 0 0 6px; color: var(--aqua); font-weight: 750; letter-spacing: .16em; font-size: .72rem; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 800px; font-size: clamp(1.65rem, 4vw, 2.55rem); letter-spacing: -.04em; line-height: 1.05; }
+    .subhead { color: var(--muted); max-width: 720px; margin: 10px 0 0; line-height: 1.5; }
+    .environment { flex: 0 0 auto; border: 1px solid var(--aqua-dim); border-radius: 999px; color: var(--aqua); font-size: .78rem; font-weight: 750; padding: 8px 11px; white-space: nowrap; }
+    .notice { margin: 20px 0; padding: 14px 16px; border-left: 4px solid var(--yellow); color: #fff4cf; background: #302612; border-radius: 3px 9px 9px 3px; line-height: 1.45; }
+    .notice strong { color: var(--yellow); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(290px, .9fr); gap: 18px; }
+    .stack { display: grid; gap: 18px; }
+    .card { background: linear-gradient(145deg, rgba(18, 47, 46, .96), rgba(9, 27, 26, .98)); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 14px 34px var(--shadow); overflow: hidden; }
+    .card-head { padding: 15px 17px; display: flex; justify-content: space-between; gap: 12px; align-items: center; border-bottom: 1px solid rgba(93, 228, 214, .18); }
+    h2 { font-size: 1rem; margin: 0; letter-spacing: -.01em; }
+    h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 0 0 9px; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 750; padding: 5px 8px; border-radius: 999px; border: 1px solid var(--aqua-dim); color: var(--aqua); white-space: nowrap; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); display: inline-block; }
+    .tag.good .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .tag.warn { color: var(--yellow); border-color: #8e6f25; }
+    .tag.warn .dot { background: var(--yellow); }
+    .canvas-wrap { padding: 16px 16px 11px; }
+    canvas { display: block; width: 100%; min-height: 250px; border: 1px solid #1f4746; border-radius: 9px; background: #061615; }
+    .axis { display: flex; justify-content: space-between; padding: 8px 2px 0; color: var(--muted); font-size: .72rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid rgba(93, 228, 214, .18); }
+    .metric { padding: 13px 16px 15px; border-right: 1px solid rgba(93, 228, 214, .12); }
+    .metric:last-child { border-right: 0; }
+    .metric span { display: block; min-height: 2.3em; color: var(--muted); font-size: .68rem; line-height: 1.2; text-transform: uppercase; letter-spacing: .08em; }
+    .metric b { display: block; margin-top: 5px; font-size: 1.16rem; font-variant-numeric: tabular-nums; }
+    .body { padding: 16px; }
+    .control-row { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
+    button { color: #06201f; background: var(--aqua); border: 1px solid transparent; border-radius: 8px; padding: 9px 11px; font-weight: 800; }
+    button:hover { filter: brightness(1.09); }
+    button.secondary { color: var(--ink); background: transparent; border-color: #356462; }
+    button.secondary:hover { background: #153c3a; }
+    button.danger { color: #380f0b; background: var(--red); }
+    button:disabled { opacity: .48; cursor: not-allowed; filter: none; }
+    .helper { color: var(--muted); font-size: .79rem; line-height: 1.45; margin: 11px 0 0; }
+    .cue { margin: 15px 0 0; padding: 14px; border: 1px dashed #3c706c; border-radius: 10px; background: #0a201f; }
+    .cue-state { font-weight: 850; letter-spacing: .08em; font-size: .9rem; }
+    .cue-state.on { color: var(--green); text-shadow: 0 0 14px rgba(142, 240, 170, .45); }
+    .cue-state.off { color: var(--muted); }
+    .threshold { width: 100%; accent-color: var(--aqua); }
+    label { color: var(--muted); font-size: .8rem; font-weight: 650; }
+    .slider-value { color: var(--ink); float: right; font-variant-numeric: tabular-nums; }
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+    .kv { border-bottom: 1px solid rgba(93, 228, 214, .12); padding: 0 0 9px; }
+    .kv span { color: var(--muted); display: block; text-transform: uppercase; letter-spacing: .08em; font-size: .65rem; }
+    .kv b { display: block; margin-top: 5px; font-size: .85rem; overflow-wrap: anywhere; }
+    .gateway { padding: 16px; }
+    .gateway label { display: block; margin-bottom: 7px; }
+    .gateway-row { display: flex; gap: 8px; }
+    .gateway input { min-width: 0; flex: 1; border: 1px solid #356462; color: var(--ink); background: #061615; border-radius: 8px; padding: 9px 10px; font-size: .82rem; }
+    .gateway-status { min-height: 2.8em; margin: 10px 0 0; color: var(--muted); line-height: 1.35; font-size: .76rem; }
+    .gateway-status.error { color: var(--red); }
+    .timeline { margin: 0; padding: 0; list-style: none; max-height: 225px; overflow: auto; }
+    .timeline li { padding: 10px 16px; border-top: 1px solid rgba(93, 228, 214, .11); font-size: .78rem; line-height: 1.35; }
+    .timeline time { color: var(--muted); display: inline-block; width: 74px; font-variant-numeric: tabular-nums; }
+    .footnotes { color: var(--muted); font-size: .73rem; line-height: 1.5; padding: 4px 1px 0; }
+    .footnotes p { margin: 8px 0; }
+    code { color: #c5f7f0; background: #08201e; padding: 1px 4px; border-radius: 4px; font-size: .9em; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .metrics { grid-template-columns: repeat(2, 1fr); } .metric:nth-child(2) { border-right: 0; } .metric:nth-child(-n+2) { border-bottom: 1px solid rgba(93, 228, 214, .12); } }
+    @media (max-width: 600px) { .shell { padding: 14px; } header { display: block; } .environment { display: inline-flex; margin-top: 14px; } .metrics { grid-template-columns: 1fr 1fr; } .metric { padding: 11px; } .gateway-row { display: block; } .gateway-row button { width: 100%; margin-top: 8px; } canvas { min-height: 210px; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Historical research companion · no clinical operation</p>
+        <h1>EEG Feedback Lab</h1>
+        <p class="subhead">A contained HTML5/Webxdc demonstration of a historical feedback loop: bounded samples, a visible trace, an illustrative threshold, and an explicit event log.</p>
+      </div>
+      <div class="environment" id="environment">Checking host…</div>
+    </header>
+
+    <section class="notice" aria-label="Safety notice">
+      <strong>Simulation and research UI only.</strong> This package is not an EEG acquisition system, medical device, diagnostic, treatment, protocol engine, or latency guarantee. It defaults to a generated signal, has no audio/tactile output or device control, keeps data in memory only, and never sends raw samples through webxdc.
+    </section>
+
+    <div class="layout">
+      <div class="stack">
+        <section class="card" aria-labelledby="trace-title">
+          <div class="card-head">
+            <h2 id="trace-title">Generated / development trace</h2>
+            <span class="tag good" id="stream-badge"><i class="dot"></i><span>SIMULATOR · PAUSED</span></span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="trace" aria-label="Rolling simulated signal trace"></canvas>
+            <div class="axis"><span>−50 µV</span><span>10-second in-memory window · no persistence</span><span>+50 µV</span></div>
+          </div>
+          <div class="metrics" aria-live="polite">
+            <div class="metric"><span>Source / rate</span><b id="source-rate">Simulator · 256 Hz</b></div>
+            <div class="metric"><span>Frame sequence</span><b id="sequence">—</b></div>
+            <div class="metric"><span>8–12 Hz demo indicator</span><b id="band-power">—</b></div>
+            <div class="metric"><span>Arrival / render</span><b id="timing">—</b></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="controls-title">
+          <div class="card-head"><h2 id="controls-title">Simulator and visual cue</h2><span class="tag warn"><i class="dot"></i>UNVALIDATED</span></div>
+          <div class="body">
+            <div class="control-row">
+              <button id="start" type="button">Start simulator</button>
+              <button id="pause" class="secondary" type="button" disabled>Pause</button>
+              <button id="reset" class="secondary" type="button">Clear display</button>
+              <button id="marker" class="secondary" type="button">Share non-clinical marker</button>
+            </div>
+            <p class="helper">The simulator produces a synthetic one-channel waveform. The indicator below is a transparent math demo, not a band-power measurement validated for any person, condition, or protocol.</p>
+            <div class="cue">
+              <label for="threshold">Demo cue threshold <span class="slider-value" id="threshold-value">5.0 µV RMS</span></label>
+              <input class="threshold" id="threshold" type="range" min="1" max="20" step="0.5" value="5">
+              <div class="cue-state off" id="cue-state" aria-live="polite">CUE OFF · waiting for enough simulated samples</div>
+              <p class="helper">Visual state only. A real feedback decision must be local to approved acquisition hardware, defined by a clinician and safety-validated; do not use a remote browser or messenger as the feedback loop.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="gateway-title">
+          <div class="card-head"><h2 id="gateway-title">Optional browser-only development gateway</h2><span class="tag" id="gateway-badge"><i class="dot"></i>DISCONNECTED</span></div>
+          <div class="gateway">
+            <label for="gateway-url">Secure observer endpoint (must be <code>wss://</code>)</label>
+            <div class="gateway-row"><input id="gateway-url" type="url" value="wss://example.invalid/eeg-observer" spellcheck="false" aria-describedby="gateway-help"><button id="gateway-button" class="secondary" type="button">Connect</button></div>
+            <p id="gateway-help" class="gateway-status">Disabled inside webxdc: messenger web views are network-isolated. In a normal browser this accepts only an opt-in, read-only development stream that matches the documented bounded JSON frame schema.</p>
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack" aria-label="Operational status">
+        <section class="card" aria-labelledby="status-title">
+          <div class="card-head"><h2 id="status-title">Operational boundary</h2><span class="tag"><i class="dot"></i>READ ONLY</span></div>
+          <div class="body">
+            <div class="status-grid">
+              <div class="kv"><span>Feedback location</span><b>Local simulation only</b></div>
+              <div class="kv"><span>Remote control</span><b>Not implemented</b></div>
+              <div class="kv"><span>Raw sample sharing</span><b>Blocked by design</b></div>
+              <div class="kv"><span>Storage</span><b>Volatile memory only</b></div>
+              <div class="kv"><span>Clock status</span><b id="clock-status">No source clock checked</b></div>
+              <div class="kv"><span>Sequence gaps</span><b id="gap-count">0 observed</b></div>
+            </div>
+            <p class="helper">“Arrival” is not an end-to-end latency claim. Cross-host latency requires synchronized clocks, calibrated acquisition/display timing, and p95/p99 testing under load.</p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="events-title">
+          <div class="card-head"><h2 id="events-title">Session events</h2><span class="tag"><i class="dot"></i>NO PATIENT DATA</span></div>
+          <ul class="timeline" id="events" aria-live="polite"></ul>
+        </section>
+
+        <section class="card" aria-labelledby="research-title">
+          <div class="card-head"><h2 id="research-title">Research notes</h2></div>
+          <div class="body footnotes">
+            <p>See <code>docs/EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md</code> for source checking, patent/site findings, the corrected book title, and the fibre-office transport decision.</p>
+            <p>Normal webxdc updates are collaboration state, not a low-latency EEG transport. This app shares only deliberate, non-sensitive marker events through the host messenger.</p>
+            <p>The original historical site and its marks/artwork are not included or reproduced here.</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const PROTOCOL = 'eeg-feedback-lab/v1';
+      const MAX_FRAME_SAMPLES = 1024;
+      const MIN_RATE = 32;
+      const MAX_RATE = 2048;
+      const DISPLAY_SECONDS = 10;
+      const SIM_RATE = 256;
+      const FRAME_MS = 31.25;
+
+      const el = {
+        environment: document.getElementById('environment'),
+        badge: document.getElementById('stream-badge'),
+        trace: document.getElementById('trace'),
+        sourceRate: document.getElementById('source-rate'),
+        sequence: document.getElementById('sequence'),
+        bandPower: document.getElementById('band-power'),
+        timing: document.getElementById('timing'),
+        start: document.getElementById('start'),
+        pause: document.getElementById('pause'),
+        reset: document.getElementById('reset'),
+        marker: document.getElementById('marker'),
+        threshold: document.getElementById('threshold'),
+        thresholdValue: document.getElementById('threshold-value'),
+        cue: document.getElementById('cue-state'),
+        clockStatus: document.getElementById('clock-status'),
+        gaps: document.getElementById('gap-count'),
+        events: document.getElementById('events'),
+        gatewayUrl: document.getElementById('gateway-url'),
+        gatewayButton: document.getElementById('gateway-button'),
+        gatewayHelp: document.getElementById('gateway-help'),
+        gatewayBadge: document.getElementById('gateway-badge')
+      };
+
+      const state = {
+        samples: [],
+        sampleRate: SIM_RATE,
+        source: 'Simulator',
+        lastSequence: null,
+        gapCount: 0,
+        bandRms: null,
+        renderMs: null,
+        arrivalAgeMs: null,
+        simSequence: 0,
+        simTime: 0,
+        simTimer: null,
+        lastFrameQueuedAt: null,
+        drawQueued: false,
+        cueOn: false,
+        socket: null,
+        eventCount: 0,
+        isWebxdc: Boolean(window.webxdc && typeof window.webxdc.sendUpdate === 'function')
+      };
+
+      const ctx = el.trace.getContext('2d');
+
+      function hostApi() {
+        return state.isWebxdc ? window.webxdc : null;
+      }
+
+      function setBadge(node, text, mode) {
+        node.className = 'tag' + (mode ? ' ' + mode : '');
+        node.innerHTML = '<i class="dot"></i><span></span>';
+        node.querySelector('span').textContent = text;
+      }
+
+      function updateEnvironment() {
+        if (state.isWebxdc) {
+          el.environment.textContent = 'WEBXDC · OFFLINE COLLABORATION';
+          el.gatewayButton.disabled = true;
+          el.gatewayUrl.disabled = true;
+          el.gatewayHelp.textContent = 'Disabled inside webxdc: this package has no internet access. Raw samples are never carried through messenger updates; only explicit non-sensitive marker events may be shared.';
+          return;
+        }
+        el.environment.textContent = 'BROWSER · LOCAL DEMO MODE';
+        el.gatewayHelp.textContent = 'Optional browser-only observer bridge. It accepts only secure wss:// endpoints and bounded development frames; it does not control hardware or create feedback.';
+      }
+
+      function addEvent(message) {
+        state.eventCount += 1;
+        const now = new Date();
+        const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const item = document.createElement('li');
+        const timeNode = document.createElement('time');
+        timeNode.textContent = time;
+        item.append(timeNode, document.createTextNode(message));
+        el.events.prepend(item);
+        while (el.events.children.length > 12) el.events.removeChild(el.events.lastChild);
+      }
+
+      function updateStreamUi(running) {
+        const label = state.source.toUpperCase() + ' · ' + (running ? 'RUNNING' : 'PAUSED');
+        setBadge(el.badge, label, running ? 'good' : '');
+        el.start.disabled = running;
+        el.pause.disabled = !running;
+        el.sourceRate.textContent = state.source + ' · ' + state.sampleRate + ' Hz';
+      }
+
+      function resizeCanvas() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = el.trace.getBoundingClientRect();
+        const width = Math.max(1, Math.round(rect.width * ratio));
+        const height = Math.max(1, Math.round(Math.max(230, rect.height || 280) * ratio));
+        if (el.trace.width !== width || el.trace.height !== height) {
+          el.trace.width = width;
+          el.trace.height = height;
+          ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        }
+      }
+
+      function drawTrace() {
+        state.drawQueued = false;
+        const started = performance.now();
+        resizeCanvas();
+        const rect = el.trace.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.strokeStyle = 'rgba(93, 228, 214, .13)';
+        ctx.lineWidth = 1;
+        for (let y = 0; y <= height; y += height / 8) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+        }
+        for (let x = 0; x <= width; x += width / 10) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(255, 209, 102, .45)';
+        ctx.beginPath(); ctx.moveTo(0, height / 2); ctx.lineTo(width, height / 2); ctx.stroke();
+
+        const maxPoints = Math.max(2, Math.floor(state.sampleRate * DISPLAY_SECONDS));
+        const series = state.samples.slice(-maxPoints);
+        if (series.length > 1) {
+          ctx.strokeStyle = state.cueOn ? '#8ef0aa' : '#5de4d6';
+          ctx.lineWidth = 1.55;
+          ctx.beginPath();
+          const scale = (height * .42) / 50;
+          series.forEach((value, index) => {
+            const x = (index / (maxPoints - 1)) * width;
+            const y = height / 2 - Math.max(-60, Math.min(60, value)) * scale;
+            if (index === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        }
+        state.renderMs = performance.now() - started;
+        refreshReadout();
+      }
+
+      function queueDraw() {
+        if (!state.drawQueued) {
+          state.drawQueued = true;
+          requestAnimationFrame(drawTrace);
+        }
+      }
+
+      function isFiniteNumber(value) {
+        return typeof value === 'number' && Number.isFinite(value);
+      }
+
+      function validateFrame(frame) {
+        if (!frame || typeof frame !== 'object') throw new Error('frame must be an object');
+        if (frame.protocol !== PROTOCOL || frame.type !== 'frame') throw new Error('unsupported frame protocol/type');
+        if (!Number.isSafeInteger(frame.seq) || frame.seq < 0) throw new Error('seq must be a non-negative integer');
+        if (!isFiniteNumber(frame.sample_rate_hz) || frame.sample_rate_hz < MIN_RATE || frame.sample_rate_hz > MAX_RATE) throw new Error('sample_rate_hz must be 32–2048');
+        if (typeof frame.channel !== 'string' || !/^[A-Za-z0-9_.-]{1,24}$/.test(frame.channel)) throw new Error('channel must be a short non-identifying label');
+        if (!Array.isArray(frame.samples_uv) || frame.samples_uv.length < 1 || frame.samples_uv.length > MAX_FRAME_SAMPLES || !frame.samples_uv.every(isFiniteNumber)) throw new Error('samples_uv must contain 1–1024 finite values');
+        if (frame.sent_at_unix_ms !== undefined && (!isFiniteNumber(frame.sent_at_unix_ms) || frame.sent_at_unix_ms < 0)) throw new Error('sent_at_unix_ms must be a Unix-millisecond number if supplied');
+        return frame;
+      }
+
+      function projectedBandRms(samples, sampleRate, lowHz, highHz) {
+        const n = Math.min(samples.length, Math.max(32, Math.round(sampleRate)));
+        if (n < 32) return null;
+        const windowed = samples.slice(-n);
+        let squaredAmplitudeSum = 0;
+        let frequencies = 0;
+        for (let hz = Math.ceil(lowHz); hz <= Math.floor(highHz); hz += 1) {
+          let sine = 0;
+          let cosine = 0;
+          for (let i = 0; i < n; i += 1) {
+            const phase = (2 * Math.PI * hz * i) / sampleRate;
+            sine += windowed[i] * Math.sin(phase);
+            cosine += windowed[i] * Math.cos(phase);
+          }
+          const amplitude = (2 / n) * Math.hypot(sine, cosine);
+          squaredAmplitudeSum += amplitude * amplitude;
+          frequencies += 1;
+        }
+        return frequencies ? Math.sqrt(squaredAmplitudeSum / (2 * frequencies)) : null;
+      }
+
+      function updateCue() {
+        const threshold = Number(el.threshold.value);
+        const ready = state.bandRms !== null;
+        state.cueOn = Boolean(ready && state.bandRms >= threshold);
+        el.cue.className = 'cue-state ' + (state.cueOn ? 'on' : 'off');
+        if (!ready) el.cue.textContent = 'CUE OFF · waiting for enough simulated samples';
+        else if (state.cueOn) el.cue.textContent = 'VISUAL DEMO CUE ON · illustrative threshold crossed';
+        else el.cue.textContent = 'CUE OFF · illustrative threshold not crossed';
+      }
+
+      function refreshReadout() {
+        el.sourceRate.textContent = state.source + ' · ' + state.sampleRate + ' Hz';
+        el.sequence.textContent = state.lastSequence === null ? '—' : '#' + state.lastSequence;
+        el.bandPower.textContent = state.bandRms === null ? 'Collecting…' : state.bandRms.toFixed(1) + ' µV RMS*';
+        const arrival = state.arrivalAgeMs === null ? 'arrival n/a' : 'arrival ~' + Math.max(0, state.arrivalAgeMs).toFixed(0) + ' ms';
+        const render = state.renderMs === null ? 'render n/a' : 'render ' + state.renderMs.toFixed(1) + ' ms';
+        el.timing.textContent = arrival + ' · ' + render;
+        el.gaps.textContent = state.gapCount + (state.gapCount === 1 ? ' observed' : ' observed');
+        updateCue();
+      }
+
+      function ingestFrame(rawFrame, source) {
+        const frame = validateFrame(rawFrame);
+        if (state.lastSequence !== null && frame.seq > state.lastSequence + 1) {
+          state.gapCount += frame.seq - state.lastSequence - 1;
+          addEvent('Sequence gap detected; observer remains read-only.');
+        }
+        if (state.lastSequence !== null && frame.seq <= state.lastSequence && source !== 'Simulator') {
+          throw new Error('non-increasing frame sequence');
+        }
+        state.lastSequence = frame.seq;
+        state.sampleRate = Math.round(frame.sample_rate_hz);
+        state.source = source + ' / ' + frame.channel;
+        state.samples.push(...frame.samples_uv);
+        const keep = Math.ceil(MAX_RATE * DISPLAY_SECONDS);
+        if (state.samples.length > keep) state.samples.splice(0, state.samples.length - keep);
+        state.bandRms = projectedBandRms(state.samples, state.sampleRate, 8, 12);
+        if (typeof frame.sent_at_unix_ms === 'number') {
+          const estimate = Date.now() - frame.sent_at_unix_ms;
+          state.arrivalAgeMs = estimate;
+          el.clockStatus.textContent = 'Unverified source-clock estimate';
+        } else {
+          state.arrivalAgeMs = null;
+          el.clockStatus.textContent = 'No source clock checked';
+        }
+        updateStreamUi(Boolean(state.simTimer));
+        refreshReadout();
+        queueDraw();
+      }
+
+      function nextSimulationFrame() {
+        const count = Math.max(1, Math.round(SIM_RATE * FRAME_MS / 1000));
+        const samples = [];
+        for (let i = 0; i < count; i += 1) {
+          const t = state.simTime;
+          const drift = 1 + 0.23 * Math.sin(2 * Math.PI * .08 * t);
+          const value = (8.3 * drift * Math.sin(2 * Math.PI * 10 * t)) + (3.2 * Math.sin(2 * Math.PI * 3 * t)) + (1.1 * Math.sin(2 * Math.PI * 22 * t)) + ((Math.random() - .5) * 2.2);
+          samples.push(value);
+          state.simTime += 1 / SIM_RATE;
+        }
+        state.simSequence += 1;
+        return { protocol: PROTOCOL, type: 'frame', seq: state.simSequence, sample_rate_hz: SIM_RATE, channel: 'SIM-CH1', sent_at_unix_ms: Date.now(), samples_uv: samples };
+      }
+
+      function startSimulator() {
+        if (state.simTimer) return;
+        closeGateway(false);
+        state.source = 'Simulator';
+        state.simTimer = window.setInterval(() => {
+          try { ingestFrame(nextSimulationFrame(), 'Simulator'); } catch (error) { addEvent('Simulator frame rejected: ' + error.message); }
+        }, FRAME_MS);
+        updateStreamUi(true);
+        addEvent('Synthetic stream started.');
+      }
+
+      function pauseSimulator() {
+        if (!state.simTimer) return;
+        clearInterval(state.simTimer);
+        state.simTimer = null;
+        updateStreamUi(false);
+        addEvent('Synthetic stream paused.');
+      }
+
+      function clearDisplay() {
+        pauseSimulator();
+        state.samples = [];
+        state.lastSequence = null;
+        state.gapCount = 0;
+        state.bandRms = null;
+        state.arrivalAgeMs = null;
+        state.renderMs = null;
+        state.cueOn = false;
+        state.simSequence = 0;
+        state.simTime = 0;
+        state.source = 'Simulator';
+        el.clockStatus.textContent = 'No source clock checked';
+        refreshReadout();
+        queueDraw();
+        addEvent('Volatile display buffer cleared.');
+      }
+
+      function shareMarker() {
+        const api = hostApi();
+        if (!api) {
+          addEvent('Marker not shared: this is regular browser mode.');
+          return;
+        }
+        const payload = { protocol: PROTOCOL, type: 'marker', marker: 'non-clinical-demo-marker', issued_at: new Date().toISOString() };
+        try {
+          api.sendUpdate({ payload, info: 'EEG Lab: non-clinical marker' }, 'EEG Lab non-clinical collaboration marker');
+          addEvent('Non-sensitive marker requested through webxdc.');
+        } catch (error) {
+          addEvent('Marker could not be sent: ' + error.message);
+        }
+      }
+
+      function gatewayMessage(message, mode) {
+        el.gatewayHelp.className = 'gateway-status' + (mode === 'error' ? ' error' : '');
+        el.gatewayHelp.textContent = message;
+      }
+
+      function closeGateway(writeEvent) {
+        if (state.socket) {
+          const socket = state.socket;
+          state.socket = null;
+          socket.onclose = null;
+          socket.close();
+          setBadge(el.gatewayBadge, 'DISCONNECTED', '');
+          el.gatewayButton.textContent = 'Connect';
+          if (writeEvent) addEvent('Development gateway disconnected.');
+        }
+      }
+
+      function connectGateway() {
+        if (state.isWebxdc) return;
+        if (state.socket) { closeGateway(true); return; }
+        let url;
+        try { url = new URL(el.gatewayUrl.value); } catch (_) { gatewayMessage('Enter a valid secure WebSocket URL.', 'error'); return; }
+        if (url.protocol !== 'wss:') { gatewayMessage('Only wss:// endpoints are accepted. The app will not create an insecure sample transport.', 'error'); return; }
+        gatewayMessage('Connecting to a browser-only read-only development endpoint…');
+        try {
+          const socket = new WebSocket(url.href);
+          state.socket = socket;
+          socket.onopen = () => {
+            pauseSimulator();
+            setBadge(el.gatewayBadge, 'CONNECTED · OBSERVER', 'good');
+            el.gatewayButton.textContent = 'Disconnect';
+            gatewayMessage('Connected. Incoming frames are schema-checked, held only in memory, and can never control an output.');
+            addEvent('Browser-only observer gateway connected.');
+          };
+          socket.onmessage = (event) => {
+            try {
+              const raw = JSON.parse(event.data);
+              ingestFrame(raw, 'Gateway');
+            } catch (error) {
+              gatewayMessage('Rejected incoming development frame: ' + error.message, 'error');
+              addEvent('Gateway frame rejected; no feedback action taken.');
+            }
+          };
+          socket.onerror = () => gatewayMessage('Gateway error. Check the endpoint, certificate, protocol, and network policy.', 'error');
+          socket.onclose = () => {
+            if (state.socket === socket) {
+              state.socket = null;
+              setBadge(el.gatewayBadge, 'DISCONNECTED', '');
+              el.gatewayButton.textContent = 'Connect';
+              gatewayMessage('Gateway closed. No remote feedback or automatic reconnect is attempted.');
+              addEvent('Development gateway closed.');
+            }
+          };
+        } catch (error) { gatewayMessage('Could not create gateway: ' + error.message, 'error'); }
+      }
+
+      function setupWebxdcListener() {
+        const api = hostApi();
+        if (!api || typeof api.setUpdateListener !== 'function') return;
+        try {
+          api.setUpdateListener((update) => {
+            const payload = update && update.payload;
+            if (payload && payload.protocol === PROTOCOL && payload.type === 'marker') {
+              addEvent('Received a non-sensitive collaboration marker.');
+            }
+          }, 0);
+        } catch (error) { addEvent('Webxdc listener unavailable: ' + error.message); }
+      }
+
+      el.start.addEventListener('click', startSimulator);
+      el.pause.addEventListener('click', pauseSimulator);
+      el.reset.addEventListener('click', clearDisplay);
+      el.marker.addEventListener('click', shareMarker);
+      el.gatewayButton.addEventListener('click', connectGateway);
+      el.threshold.addEventListener('input', () => {
+        el.thresholdValue.textContent = Number(el.threshold.value).toFixed(1) + ' µV RMS';
+        updateCue();
+      });
+      window.addEventListener('resize', queueDraw);
+
+      // Development hook for a local test harness; it is not advertised as an acquisition API.
+      window.eegFeedbackLabDevelopment = Object.freeze({ ingestFrame: (frame) => ingestFrame(frame, 'Development') });
+
+      updateEnvironment();
+      updateStreamUi(false);
+      refreshReadout();
+      queueDraw();
+      setupWebxdcListener();
+      addEvent('Lab opened in ' + (state.isWebxdc ? 'webxdc collaboration mode.' : 'browser demo mode.'));
+    })();
+  </script>
+</body>
+</html>

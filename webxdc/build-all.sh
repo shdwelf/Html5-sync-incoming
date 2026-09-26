@@ -24,7 +24,7 @@ if ! python3 "$here/gen_icons.py" --check; then
   exit 1
 fi
 
-for app in cyberchef shamir radar-scope; do
+for app in cyberchef shamir radar-scope eeg-feedback-lab; do
   echo "== $app =="
   python3 "$here/webxdc_tool.py" pack "$here/$app" "$here/$app/dist/$app.xdc" || rc=1
 done

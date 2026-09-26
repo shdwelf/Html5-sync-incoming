@@ -35,10 +35,12 @@ projects/    real source trees with their own build scripts
 webxdc/      installable .xdc packages that have no separate source project
   webxdc_tool.py           spec validator + deterministic packer + selftest
   gen_icons.py             draws the three icon.png files from source
-  build-all.sh             selftest -> icon-reproducibility check -> rebuild all three
+  build-all.sh             selftest -> icon-reproducibility check -> rebuild all four
   cyberchef/ shamir/ radar-scope/     index.html + manifest.toml + icon.png + dist/*.xdc
-docs/        Greeran family-research notes and heraldry
+  eeg-feedback-lab/         index.html + manifest.toml + dist/*.xdc (deliberate messenger-default icon)
+docs/        research notes and reconstruction boundaries
   nsa-github-deep-dive.md    NSA org survey + enigma-simulator conversion record
+  EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md  historical source-check and non-clinical EEG simulator boundary
 retro-dos/   1980s-2000s DOS shareware corpus — analysis INPUT, see its NOTICE
 incoming/    unprocessed sync payload, kept for provenance
   workspaces/  Arena workspace snapshots (UUID is the canonical id)
@@ -61,6 +63,9 @@ python3 webxdc/gen_icons.py --check
 
 # rebuild the packages that live in webxdc/ (deterministic: unchanged sources -> identical bytes)
 ./webxdc/build-all.sh
+# Includes eeg-feedback-lab, a non-clinical EEG-feedback architecture simulator.
+# Its historical source-checking and hard safety/transport boundaries are in
+# docs/EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md.
 
 # rebuild the ones owned by a source project
 bash projects/cryptomonopoly-webxdc/build.sh
@@ -70,7 +75,7 @@ bash projects/presskit-reassembler/dist/make_packages.sh   # ends by validating 
 python3 incoming/index_internal_storage.py --check
 ```
 
-Current state: **5/5 packages spec-valid with zero warnings**, on Python 3.8+
+Current state: **6/6 packages spec-valid**, on Python 3.8+
 (no `tomllib` needed — the validator has a fallback manifest reader).
 
 ## CI
@@ -94,12 +99,25 @@ cd projects/cryptomonopoly-webxdc
 node --test test/*.test.js
 
 node --test apps/crypto/nsa-enigma.test.mjs
+
+# From the repository root: portable C11 timing-ledger test for the
+# non-clinical EEG timing reference.
+make -C projects/eeg-timing-reference test
+
+# Check the EAGLE 9 XML's well-formedness and the bounded non-patient
+# 1-Wire topology. This is not EAGLE ERC/DRC or an IP/safety certification.
+python3 projects/eeg-ip67-onewire-reference/tools/validate_eagle_schematic.py
 ```
 
 Three Cryptomonopoly files: `engine.test.js` (pure-reducer determinism and
 rules), `dom.test.js` (boots the real UI headlessly and plays a game), and
 `regression.test.js` (added 2026-09-19; each test reproduces a specific defect
-listed in [REVIEW.md](REVIEW.md) and fails against the pre-fix code).
+listed in [REVIEW.md](REVIEW.md) and fails against the pre-fix code). The EEG timing
+test validates only ordered, bounded timestamp tracing and clock-health gating;
+it is not a medical-device or hardware-driver test. The EAGLE check only guards
+the reference XML and its non-patient 1-Wire topology; see
+[`projects/eeg-ip67-onewire-reference/`](projects/eeg-ip67-onewire-reference/)
+for its BOM, ingress verification plan, and release blockers.
 
 `nsa-enigma.test.mjs` (added 2026-09-21) extracts the embedded core from
 `apps/crypto/nsa-enigma.html` and runs its 16-assertion self-test — Enigma

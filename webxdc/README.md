@@ -11,13 +11,15 @@ two that do live next to their sources:
 
 | App | What it does | Source |
 |-----|--------------|--------|
-| `cyberchef/` | offline CyberChef build, 416 recipes | `cyberchef/index.html` (1.64 MB, single file) |
+| `cyberchef/` | offline CyberChef build, 441 recipes | `cyberchef/index.html` (1.68 MB, single file) |
 | `shamir/` | Shamir Secret Sharing over GF(256) | `shamir/index.html` |
 | `radar-scope/` | ADS-B flight-radar HUD | `radar-scope/index.html` |
+| `eeg-feedback-lab/` | non-clinical EEG-feedback architecture simulator and collaboration-marker demo | `eeg-feedback-lab/index.html`; scope/source-check in `docs/EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md` |
 
-Each app directory is `index.html` + `manifest.toml` + `icon.png`, with the built
-package in `dist/`. All of it is committed: this repo is the distribution drop,
-so the installable artifact ships beside its source.
+Each app directory is `index.html` + `manifest.toml`, with the built package in
+`dist/`. The three legacy packages also carry generated `icon.png` files;
+`eeg-feedback-lab` deliberately uses the messenger default icon. All source and
+installable artifacts are committed because this repo is the distribution drop.
 
 ## Validate
 
@@ -97,11 +99,13 @@ that produces a non-conformant package fails instead of quietly committing one.
 | `cyberchef.xdc` | 256×256 RGBA, toque + cleaver | drawn by [`gen_icons.py`](gen_icons.py) |
 | `shamir.xdc` | 256×256 RGBA, 3-of-5 shares around a key | drawn by [`gen_icons.py`](gen_icons.py) |
 | `radar-scope.xdc` | 256×256 RGBA, scope, sweep, three contacts | drawn by [`gen_icons.py`](gen_icons.py) |
+| `eeg-feedback-lab.xdc` | none; messenger default | deliberate owner-decision default, not a generated asset |
 | `Cryptomonopoly.xdc` | 256×256 | `../projects/cryptomonopoly-webxdc/icon.png` (a committed asset, no generator) |
 | `presskit-reassembler.xdc` | 256×256 | `../projects/presskit-reassembler/dist/gfx/gen_gfx.py`, needs `pyfiglet` + `Pillow` |
 
 Every colour in `gen_icons.py` is lifted from the app's own stylesheet, and the
 shapes are polygons — the whole toolchain is `math` + `struct` + `zlib`, so no
-PNG in `webxdc/` is unreviewable or unrebuildable. Both icons-in-this-repo gaps
-(XDC-7, XDC-8) are closed; `python3 webxdc_tool.py validate` now reports 5/5
-with **zero warnings**.
+generated PNG in `webxdc/` is unreviewable or unrebuildable. The original
+icons-in-this-repo gaps (XDC-7, XDC-8) are closed; `python3 webxdc_tool.py
+validate` reports 6/6 spec-valid packages. The EEG simulator keeps the explicitly
+accepted messenger-default icon rather than inventing an identity asset.
