@@ -1,0 +1,2 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[1968],{3426:function(n,u,_){"use strict";_.r(u),_.d(u,{__N_SSP:function(){return t}});var r=_(1577),t=!0;u.default=r.J},15:function(n,u,_){(window.__NEXT_P=window.__NEXT_P||[]).push(["/[roomId]",function(){return _(3426)}])}},function(n){var u=function(u){return n(n.s=u)};n.O(0,[4617,3609,2876,9440,1485,7530,7957,8942,8815,8926,605,3403,5932,2814,1577,9774,2888,179],(function(){return u(5436),u(15)}));var _=n.O();_N_E=_}]);
+//# sourceMappingURL=[roomId]-0b3d0798ff57ff4a.js.map

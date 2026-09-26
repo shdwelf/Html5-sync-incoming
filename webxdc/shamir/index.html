@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- The webxdc API only exists if the app references webxdc.js: "To activate the webxdc API you need to use a script reference for webxdc.js in your HTML5 app." The messenger injects that file, so it is never packaged (see build-all.sh / webxdc_tool.py). Opened straight from disk this request 404s and the app falls back to standalone mode. -->
+<script src="webxdc.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Shamir Secret Sharing</title>

@@ -1,5 +1,16 @@
-# TbFence binaries are 1990s shareware (Thunderbyte B.V.). They are analyzed
-# locally but NOT committed here (that would redistribute the shareware).
+# Scoping rule for THIS directory: derived and extracted artifacts stay out.
+#
+# TbFence 4.00 is 1990s shareware licensed by ESaSS B.V. (Thunderbyte is the
+# brand, not the licensor). Its own LICENSE.DOC does permit mirroring:
+# "The evaluation package of the TbFence software may be distributed freely
+# without charge in evaluation form only", provided the package is complete and
+# unaltered — which is the case for retro-dos/tbfence4.zip, and why the
+# originals are kept there rather than deleted.
+#
+# What must NOT be committed here is everything *this* directory generates:
+# extracted binaries, Ghidra projects, analysis output. Those are neither the
+# complete package nor unaltered, so the licence's carve-out does not cover
+# them. Full per-archive terms: ../../retro-dos/NOTICE.md (REPO-2).
 _src/
 analysis/
 *.exe

@@ -16,7 +16,9 @@ cd cryptomonopoly-webxdc && python3 -m http.server 8231
 # -> open http://localhost:8231
 
 # build the Delta Chat app package
-./build.sh            # writes dist/Cryptomonopoly.xdc (+ .webxdc copy)
+./build.sh            # writes dist/Cryptomonopoly.xdc — that is the only output.
+                      # `.xdc` is the extension the container spec defines; the byte-identical
+                      # `.webxdc` twin this used to emit is gone and *.webxdc is gitignored.
 ```
 
 ## Play
