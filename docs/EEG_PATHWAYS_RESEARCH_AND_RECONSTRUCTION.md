@@ -129,6 +129,10 @@ The app therefore uses webxdc only for manually initiated, non-sensitive markers
 5. **Validate data integrity.** Authenticate mutually, encrypt in transit, place the gateway on a segmented network, authorize roles, keep immutable audit logs, minimize identifiers, and run a threat model. Clinical data introduce HIPAA/privacy/security obligations in the applicable jurisdiction.
 6. **Run human-factors and clinical/regulatory review.** The FDA’s [software-functions guidance](https://www.fda.gov/media/80958/download) notes that intended diagnostic/treatment use and use as/accessory to a device matter, regardless of platform. FDA’s [device-regulation overview](https://www.fda.gov/medical-devices/device-advice-comprehensive-regulatory-assistance/overview-device-regulation) lists registration/listing, premarket pathways where applicable, quality-system, labeling and reporting obligations. The QMSR became effective on 2026-02-02. Obtain regulatory and legal advice; this is not one.
 
+### Timing-bus follow-on
+
+The portable, host-tested reference in [`projects/eeg-timing-reference/`](../projects/eeg-timing-reference/) now records the acquisition-edge timing path without becoming an AFE driver or feedback controller. Its design conclusion is: PTP (IEEE 1588) at hardware timestamp boundaries; gPTP/802.1AS only over a verified TSN-capable LAN; SPI + `DRDY` + DMA for an EEG AFE data stream; and I²C/TWIHS only for non-critical board management. It identifies the Microchip SAM E70/V71 family as a candidate because its GMAC advertises PTP/802.1AS timestamping, but explicitly notes that its documented 802.1Qav credit-based shaper is **not** 802.1Qbv time-aware scheduling. The actual MCU, AFE, PHY, fibre switch and acceptance limits still need owner selection and validation.
+
 ## Incoming frame contract for a future *read-only development gateway*
 
 The package documents and enforces a narrow JSON development contract, intentionally not an equipment protocol:

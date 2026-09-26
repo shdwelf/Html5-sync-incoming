@@ -57,7 +57,8 @@ is an accepted presentation fallback, not a validation failure.
 
 | Project | Language | Build | Test | Notes |
 |---------|----------|-------|------|-------|
-| `cryptomonopoly-webxdc/` | JS (browser, no bundler) | `build.sh` | `node --test test/*.test.js` — **3 files, all passing** | the only test suite in the repo |
+| `cryptomonopoly-webxdc/` | JS (browser, no bundler) | `build.sh` | `node --test test/*.test.js` — **3 files, all passing** | gameplay and webxdc tests |
+| `eeg-timing-reference/` | portable C11 | no release build; `make test` writes a temporary `/tmp` host test | ordered latency-trace + clock-health test | non-clinical PTP/TSN/SPI/I²C instrumentation reference; no AFE or hardware driver |
 | `presskit-reassembler/` | HTML5 + WAT/WASM + Python + Java + QBASIC | `wasm/build.sh`, `dist/make_packages.sh`, `dist/java/build.sh` | none | emits `.xdc`, `.war`, `.jar`, QBASIC runner |
 | `retro-media-doc/` | HTML/CSS/JS static site | none (7 chapters) | none | multi-page; nav in `js/nav.js` |
 | `demoscene-introz/` | single HTML page | none | none | |
@@ -75,6 +76,7 @@ file (there is no `requirements.txt` or `package.json` anywhere in the repo):
 | `presskit-reassembler/dist/java/build.sh` | a JDK | **no** |
 | `tbfence-re/ghidra_decompile_all.py` | Ghidra + Jython | **no** |
 | `cryptomonopoly-webxdc/test/dom.test.js` | Node ≥ 18 (`node:test`) | yes (v22) |
+| `eeg-timing-reference/Makefile` | `make` + a C11 compiler (`cc`) | yes (host-only test) |
 
 ---
 

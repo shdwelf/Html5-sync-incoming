@@ -99,12 +99,18 @@ cd projects/cryptomonopoly-webxdc
 node --test test/*.test.js
 
 node --test apps/crypto/nsa-enigma.test.mjs
+
+# From the repository root: portable C11 timing-ledger test for the
+# non-clinical EEG timing reference.
+make -C projects/eeg-timing-reference test
 ```
 
 Three Cryptomonopoly files: `engine.test.js` (pure-reducer determinism and
 rules), `dom.test.js` (boots the real UI headlessly and plays a game), and
 `regression.test.js` (added 2026-09-19; each test reproduces a specific defect
-listed in [REVIEW.md](REVIEW.md) and fails against the pre-fix code).
+listed in [REVIEW.md](REVIEW.md) and fails against the pre-fix code). The EEG timing
+test validates only ordered, bounded timestamp tracing and clock-health gating;
+it is not a medical-device or hardware-driver test.
 
 `nsa-enigma.test.mjs` (added 2026-09-21) extracts the embedded core from
 `apps/crypto/nsa-enigma.html` and runs its 16-assertion self-test — Enigma
