@@ -25,7 +25,7 @@ Classification is by **what the artifact is**, not by how it arrived.
 
 ## `webxdc/` — validated mini-app packages
 
-All five packages in the repo now pass [`webxdc_tool.py validate`](webxdc/webxdc_tool.py)
+All six packages in the repo now pass [`webxdc_tool.py validate`](webxdc/webxdc_tool.py)
 (see [REVIEW.md §1](REVIEW.md#1-webxdc-container-conformance) for what was wrong before).
 
 | Package | Source | Status |
@@ -33,6 +33,7 @@ All five packages in the repo now pass [`webxdc_tool.py validate`](webxdc/webxdc
 | `webxdc/cyberchef/dist/cyberchef.xdc` | `webxdc/cyberchef/index.html` (1.68 MB single-file CyberChef build, 441 recipes; 26 Boxentriq recipes added 2026-09-25, see docs/BOXENTRIQ_DEEP_DIVE.md) | rebuilt, manifest normalised |
 | `webxdc/shamir/dist/shamir.xdc` | `webxdc/shamir/index.html` (Shamir Secret Sharing over GF-256) | rebuilt, manifest normalised |
 | `webxdc/radar-scope/dist/radar-scope.xdc` | `webxdc/radar-scope/index.html` (ADS-B flight-radar HUD) | **repacked from an invalid package** |
+| `webxdc/eeg-feedback-lab/dist/eeg-feedback-lab.xdc` | `webxdc/eeg-feedback-lab/index.html` (synthetic EEG-feedback architecture demonstrator) | non-clinical simulator; raw samples never use messenger updates; source-check and safety boundary in `docs/EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md` |
 | `projects/cryptomonopoly-webxdc/dist/Cryptomonopoly.xdc` | full source tree + test suite | rebuilt after logic and API fixes |
 | `projects/presskit-reassembler/dist/webxdc/presskit-reassembler.xdc` | `projects/presskit-reassembler/presskit-reassembler.html` | rebuilt; icon regenerated to 256×256 |
 
@@ -42,12 +43,13 @@ and no messenger could run it. The invalid original is kept at
 `incoming/exports/radar-scope-webxdc-INVALID.zip`. Its source workspace is
 `incoming/workspaces/workspace-019f130a-…zip` ("Flight Radar HUD - ADS-B Tracker").
 
-All five now validate with **zero warnings**: the three missing icons
-(XDC-8) are drawn by [`webxdc/gen_icons.py`](webxdc/gen_icons.py) — 256×256
-RGBA, stdlib only, no binary asset in git that cannot be rebuilt — and the
-96×96 presskit icon (XDC-7) was regenerated at 256×256 by its own
-`gen_gfx.py`. `build-all.sh` refuses to pack unless
-`python3 webxdc/gen_icons.py --check` still reproduces the committed PNGs.
+All six packages validate. The three original missing icons (XDC-8) are drawn
+by [`webxdc/gen_icons.py`](webxdc/gen_icons.py) — 256×256 RGBA, stdlib only, no
+binary asset in git that cannot be rebuilt — and the 96×96 presskit icon (XDC-7)
+was regenerated at 256×256 by its own `gen_gfx.py`. `build-all.sh` refuses to
+pack unless `python3 webxdc/gen_icons.py --check` still reproduces the committed
+PNGs. `eeg-feedback-lab` deliberately has no custom icon; the messenger default
+is an accepted presentation fallback, not a validation failure.
 
 ---
 

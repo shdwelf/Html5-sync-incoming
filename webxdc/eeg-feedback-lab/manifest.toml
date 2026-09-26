@@ -1,0 +1,7 @@
+# Installable webxdc research demonstrator. This package intentionally has no
+# EEG driver, hardware control, clinical protocol, patient data persistence, or
+# network transport when opened in a messenger.
+name = "EEG Feedback Lab"
+source_code_url = "https://github.com/shdwelf/Html5-sync-incoming/tree/main/webxdc/eeg-feedback-lab"
+description = "Offline simulation and collaboration markers for a historically researched EEG-feedback architecture; not a medical device."
+min_api = "1.0"

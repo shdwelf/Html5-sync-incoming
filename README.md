@@ -35,10 +35,12 @@ projects/    real source trees with their own build scripts
 webxdc/      installable .xdc packages that have no separate source project
   webxdc_tool.py           spec validator + deterministic packer + selftest
   gen_icons.py             draws the three icon.png files from source
-  build-all.sh             selftest -> icon-reproducibility check -> rebuild all three
+  build-all.sh             selftest -> icon-reproducibility check -> rebuild all four
   cyberchef/ shamir/ radar-scope/     index.html + manifest.toml + icon.png + dist/*.xdc
-docs/        Greeran family-research notes and heraldry
+  eeg-feedback-lab/         index.html + manifest.toml + dist/*.xdc (deliberate messenger-default icon)
+docs/        research notes and reconstruction boundaries
   nsa-github-deep-dive.md    NSA org survey + enigma-simulator conversion record
+  EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md  historical source-check and non-clinical EEG simulator boundary
 retro-dos/   1980s-2000s DOS shareware corpus — analysis INPUT, see its NOTICE
 incoming/    unprocessed sync payload, kept for provenance
   workspaces/  Arena workspace snapshots (UUID is the canonical id)
@@ -61,6 +63,9 @@ python3 webxdc/gen_icons.py --check
 
 # rebuild the packages that live in webxdc/ (deterministic: unchanged sources -> identical bytes)
 ./webxdc/build-all.sh
+# Includes eeg-feedback-lab, a non-clinical EEG-feedback architecture simulator.
+# Its historical source-checking and hard safety/transport boundaries are in
+# docs/EEG_PATHWAYS_RESEARCH_AND_RECONSTRUCTION.md.
 
 # rebuild the ones owned by a source project
 bash projects/cryptomonopoly-webxdc/build.sh
@@ -70,7 +75,7 @@ bash projects/presskit-reassembler/dist/make_packages.sh   # ends by validating 
 python3 incoming/index_internal_storage.py --check
 ```
 
-Current state: **5/5 packages spec-valid with zero warnings**, on Python 3.8+
+Current state: **6/6 packages spec-valid**, on Python 3.8+
 (no `tomllib` needed — the validator has a fallback manifest reader).
 
 ## CI
