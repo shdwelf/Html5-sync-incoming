@@ -59,6 +59,7 @@ is an accepted presentation fallback, not a validation failure.
 |---------|----------|-------|------|-------|
 | `cryptomonopoly-webxdc/` | JS (browser, no bundler) | `build.sh` | `node --test test/*.test.js` — **3 files, all passing** | gameplay and webxdc tests |
 | `eeg-timing-reference/` | portable C11 | no release build; `make test` writes a temporary `/tmp` host test | ordered latency-trace + clock-health test | non-clinical PTP/TSN/SPI/I²C instrumentation reference; no AFE or hardware driver |
+| `eeg-ip67-onewire-reference/` | Autodesk EAGLE 9 XML + Markdown/CSV + Python | no board/release build; schematic-only by design | `python3 tools/validate_eagle_schematic.py` | pre-production, non-patient 1-Wire accessory-ID reference; candidate BOM and IP67 verification plan; no patient circuit or ingress/safety/medical claim |
 | `presskit-reassembler/` | HTML5 + WAT/WASM + Python + Java + QBASIC | `wasm/build.sh`, `dist/make_packages.sh`, `dist/java/build.sh` | none | emits `.xdc`, `.war`, `.jar`, QBASIC runner |
 | `retro-media-doc/` | HTML/CSS/JS static site | none (7 chapters) | none | multi-page; nav in `js/nav.js` |
 | `demoscene-introz/` | single HTML page | none | none | |
