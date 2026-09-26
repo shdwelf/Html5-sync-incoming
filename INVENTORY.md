@@ -89,6 +89,7 @@ Names in **bold** were changed; the old name is in the rename map at the bottom.
 | `crypto-recovery-os-offline.html` | Crypto Recovery OS \| Vanity Miner | |
 | **`crypto-recovery-os-standalone-r1.html`** | Crypto Recovery OS \| Vanity Miner | was the unsuffixed original |
 | **`crypto-recovery-os-standalone-r2.html`** | same, larger build | was `… (1).html` |
+| `nsa-enigma.html` | NSA Enigma Suite — machine & Rejewski attack lab | converted from NationalSecurityAgency/enigma-simulator@f234ee6 (MIT + US-Gov PD); fully offline; 16-assertion self-test in-page, CI-gated by `nsa-enigma.test.mjs`; see [docs/nsa-github-deep-dive.md](../docs/nsa-github-deep-dive.md) |
 
 ### `apps/genealogy/`
 | File | Title |

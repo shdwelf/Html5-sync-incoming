@@ -54,6 +54,9 @@ jobs:
         working-directory: projects/cryptomonopoly-webxdc
         run: node --test test/*.test.js
 
+      - name: NSA Enigma conversion tests (golden vectors + full Rejewski attack)
+        run: node --test apps/crypto/nsa-enigma.test.mjs
+
       - name: Syntax-check everything else
         run: |
           set -e

@@ -20,7 +20,7 @@ findings, 37 fixed, one resolved by documenting evidence instead of guessing
 
 ```
 apps/        single-file HTML5 apps, openable straight from disk
-  crypto/      wallets, seed tools, recovery, cipher cookbook
+  crypto/      wallets, seed tools, recovery, cipher cookbook, NSA Enigma suite
   genealogy/   GEDCOM viewers, Greeran family research, résumé
   network/     NetScope scanners
   media/       image-format encyclopedia
@@ -38,6 +38,7 @@ webxdc/      installable .xdc packages that have no separate source project
   build-all.sh             selftest -> icon-reproducibility check -> rebuild all three
   cyberchef/ shamir/ radar-scope/     index.html + manifest.toml + icon.png + dist/*.xdc
 docs/        Greeran family-research notes and heraldry
+  nsa-github-deep-dive.md    NSA org survey + enigma-simulator conversion record
 retro-dos/   1980s-2000s DOS shareware corpus — analysis INPUT, see its NOTICE
 incoming/    unprocessed sync payload, kept for provenance
   workspaces/  Arena workspace snapshots (UUID is the canonical id)
@@ -91,12 +92,22 @@ byte-identical `.webxdc` twins the build scripts used to emit are now gitignored
 ```bash
 cd projects/cryptomonopoly-webxdc
 node --test test/*.test.js
+
+node --test apps/crypto/nsa-enigma.test.mjs
 ```
 
-Three files: `engine.test.js` (pure-reducer determinism and rules),
-`dom.test.js` (boots the real UI headlessly and plays a game), and
+Three Cryptomonopoly files: `engine.test.js` (pure-reducer determinism and
+rules), `dom.test.js` (boots the real UI headlessly and plays a game), and
 `regression.test.js` (added 2026-09-19; each test reproduces a specific defect
 listed in [REVIEW.md](REVIEW.md) and fails against the pre-fix code).
+
+`nsa-enigma.test.mjs` (added 2026-09-21) extracts the embedded core from
+`apps/crypto/nsa-enigma.html` and runs its 16-assertion self-test — Enigma
+golden vectors (`ZPJJSVSPGBW`, `BDZGO`/`EWTYX`, double-stepping), the full
+Rejewski attack end-to-end (intercepts → chain index → 105,456-setting
+catalogue → plugboard recovery → decrypted plaintexts), and a check that the
+app file makes zero network references. The same assertions run in the app's
+Self-test tab, so the committed HTML and CI cannot drift apart.
 
 ## Naming rules
 
