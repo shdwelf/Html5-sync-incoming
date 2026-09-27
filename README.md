@@ -32,6 +32,7 @@ projects/    real source trees with their own build scripts
   demoscene-introz/        single-page static site
   cypher-decode/           .CMB animal-list decoder for CYPHER Operation Wildlife
   tbfence-re/              DOS reverse-engineering scripts + notes
+  journal-haiku-pipeline/  journal photos -> Xena envelope -> Tesseract hOCR -> XML packet -> haikus
 webxdc/      installable .xdc packages that have no separate source project
   webxdc_tool.py           spec validator + deterministic packer + selftest
   gen_icons.py             draws the three icon.png files from source
@@ -107,6 +108,9 @@ make -C projects/eeg-timing-reference test
 # Check the EAGLE 9 XML's well-formedness and the bounded non-patient
 # 1-Wire topology. This is not EAGLE ERC/DRC or an IP/safety certification.
 python3 projects/eeg-ip67-onewire-reference/tools/validate_eagle_schematic.py
+
+cd projects/journal-haiku-pipeline
+python3 -m unittest discover -v        # 51 tests; 2 need Tesseract + eng data, skip otherwise
 ```
 
 Three Cryptomonopoly files: `engine.test.js` (pure-reducer determinism and

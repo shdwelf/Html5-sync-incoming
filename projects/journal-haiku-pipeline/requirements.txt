@@ -1,0 +1,12 @@
+# Required
+Pillow>=9.1
+
+# Optional — pick ONE OCR backend (or none, and import transcripts with --transcripts):
+#   the `tesseract` executable on PATH (apt/brew/Windows installer), or
+# tesserocr>=2.6          # wheels bundle libtesseract; still needs eng.traineddata (see README)
+
+# Optional — exact syllable counts for dictionary words (rule engine is the fallback)
+# cmudict>=1.0
+
+# Optional — open HEIC/HEIF phone photos in step 1
+# pillow-heif

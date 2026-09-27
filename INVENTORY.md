@@ -65,9 +65,11 @@ is an accepted presentation fallback, not a validation failure.
 | `demoscene-introz/` | single HTML page | none | none | |
 | `cypher-decode/` | Python 3 | none | none | `.CMB` packed-string decoder |
 | `tbfence-re/` | Python 3 + Bash + Ghidra/Jython | `run.sh` | none | DOS RE scripts; `ghidra_decompile_all.py` needs Ghidra |
+| `journal-haiku-pipeline/` | Python 3 package (`journal_pipeline/`) | none (`python3 -m journal_pipeline`) | `python3 -m unittest discover` — **51 tests, all passing** (2 skip without Tesseract) | journal images → Xena envelope → Tesseract hOCR → XML packet → haiku extraction; has its own `requirements.txt` |
 
 Undeclared third-party dependencies, none of them recorded in any requirements
-file (there is no `requirements.txt` or `package.json` anywhere in the repo):
+file (the only `requirements.txt` in the repo is
+`projects/journal-haiku-pipeline/requirements.txt`; there is no `package.json`):
 
 | Needed by | Package | Available here |
 |-----------|---------|----------------|
@@ -78,6 +80,9 @@ file (there is no `requirements.txt` or `package.json` anywhere in the repo):
 | `tbfence-re/ghidra_decompile_all.py` | Ghidra + Jython | **no** |
 | `cryptomonopoly-webxdc/test/dom.test.js` | Node ≥ 18 (`node:test`) | yes (v22) |
 | `eeg-timing-reference/Makefile` | `make` + a C11 compiler (`cc`) | yes (host-only test) |
+| `journal-haiku-pipeline/` | `Pillow` (declared, required) | yes |
+| `journal-haiku-pipeline/` step 2 | `tesseract` CLI **or** `tesserocr` wheel + `eng.traineddata` (declared, optional) | tesserocr + eng data installed ad hoc; no CLI |
+| `journal-haiku-pipeline/` step 4 | `cmudict` (declared, optional — exact syllables) | yes (installed ad hoc) |
 
 ---
 
